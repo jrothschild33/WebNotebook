@@ -1,7 +1,7 @@
 module.exports = {
   title: 'Jason的前端笔记',
   description: '全栈工程师成长记录',
-  base:"/WebsitePractice/",
+  base:"/WebNotebook/",
   themeConfig: {
     // 侧边栏
     sidebar: 'auto',

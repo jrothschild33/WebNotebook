@@ -50,7 +50,8 @@
 
 4. 开发者工具：chrome 网上商店安装[带有 beta 版 logo 的](https://chrome.google.com/webstore/detail/vuejs-devtools/ljjemllljcmogpfapbkkighbhhppjdbg/related?utm_source=chrome-ntp-icon)
 
-   ![vue3开发者工具](/imgs/vue/vue3开发者工具.png)
+   <!-- ![vue3开发者工具](/imgs/vue/vue3开发者工具.png) -->
+   <img :src="$withBase('/imgs/vue/vue3开发者工具.png')" alt="vue3开发者工具">
 
 ---
 
@@ -1025,7 +1026,8 @@
 >
 > Vue3 生命周期：[https://v3.cn.vuejs.org/images/lifecycle.svg](https://v3.cn.vuejs.org/images/lifecycle.svg)
 
-![vue生命周期对比](/imgs/vue/vue生命周期对比.png)
+<!-- ![vue生命周期对比](/imgs/vue/vue生命周期对比.png) -->
+<img :src="$withBase('/imgs/vue/vue生命周期对比.png')" alt="vue生命周期对比">
 
 1. Vue3 中可以继续使用 Vue2 中的生命周期钩子，但有有两个被更名：
 
@@ -1563,7 +1565,8 @@
 
 > 实现祖与后代组件间通信：父组件使用`provide`选项来提供数据，后代组件使用`inject`选项来开始使用这些数据
 
-![provide与inject](/imgs/vue/provide与inject.png)
+<!-- ![provide与inject](/imgs/vue/provide与inject.png) -->
+<img :src="$withBase('/imgs/vue/provide与inject.png')" alt="provide与inject">
 
 1. 祖组件：
 

@@ -2002,7 +2002,8 @@
 
 > 生命周期回调函数、生命周期函数、生命周期钩子，Vue在关键时刻调用的一些特殊名称的函数。
 
-![生命周期](/imgs/vue/生命周期.png)
+<!-- ![生命周期](/imgs/vue/生命周期.png) -->
+<img :src="$withBase('/imgs/vue/生命周期.png')" alt="生命周期">
 
 1. `beforeCreate()`：无法通过vm访问到data数据、method中的方法
 
@@ -2787,7 +2788,8 @@
 
 3. 开发者工具：chrome网上商店安装[不带beta版logo的](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?utm_source=chrome-ntp-icon)
 
-   ![vue2开发者工具](/imgs/vue/vue2开发者工具.png)
+   <!-- ![vue2开发者工具](/imgs/vue/vue2开发者工具.png) -->
+   <img :src="$withBase('/imgs/vue/vue2开发者工具.png')" alt="vue2开发者工具">
 
 #### 2.1.2 使用步骤
 
@@ -4767,7 +4769,8 @@
 
 > 第三方库依赖：`nanoid`，用于生成唯一id
 
-![todolist项目说明](/imgs/vue/todolist项目说明.png)
+<!-- ![todolist项目说明](/imgs/vue/todolist项目说明.png) -->
+<img :src="$withBase('/imgs/vue/todolist项目说明.png')" alt="todolist项目说明">
 
 #### 2.10.1 应用：props属性
 
@@ -6233,7 +6236,8 @@
 
 3. 工作流：
 
-   ![vuex](/imgs/vue/vuex.png)
+   <!-- ![vuex](/imgs/vue/vuex.png) -->
+   <img :src="$withBase('/imgs/vue/vuex.png')" alt="vuex">
 
 ------
 

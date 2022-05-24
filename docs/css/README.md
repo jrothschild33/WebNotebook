@@ -1,14 +1,14 @@
 # CSS
 
-## 第 1 章 CSS 基础知识
+## 第1章 CSS基础知识
 
-### 1.1 CSS 结构与类型
+### 1.1 CSS结构与类型
 
 1. 结构：头部`<head>`里写`<style>...</style>`
 
 2. 样式表类型：
 
-   1）内部样式表：单独写到 style 标签内部
+   1）内部样式表：单独写到style标签内部
 
    ```html
    <style>
@@ -17,20 +17,20 @@
      }
    </style>
    ```
-
+   
    2）行内样式表：直接在标签内写样式属性
-
+   
    ```html
    <p style="color: pink; font-size: 20px">给我一个粉红的回忆</p>
    ```
-
+   
    3）外部样式表：
-
+   
    ```html
-   <link rel="stylesheet" href="style.css" />
+   <link rel="stylesheet" href="style.css">
    ```
 
-### 1.2 CSS 书写顺序
+### 1.2 CSS书写顺序
 
 1. 布局定位
 
@@ -56,23 +56,23 @@
    content / cursor / border-radius / box-shadow / text-shadow / background:linear-gradient
    ```
 
-### 1.3 CSS 常用工具
+### 1.3 CSS常用工具
 
-#### 1.3.1 emmet 语法
+#### 1.3.1 emmet语法
 
 1. 标签：
 
-   1）输入标签名，按 Tab 键即可生成
+   1）输入标签名，按Tab键即可生成
 
    2）生成多个相同标签，加上`*`即可，如：`div*3 ` + Tab
 
-   3）生成多个不同选择器的 div：`.name1+.name2+...+.namex` + Tab
+   3）生成多个不同选择器的div：`.name1+.name2+...+.namex` + Tab
 
    4）生成父子级关系标签，用>即可，如：`ul>li` + Tab
 
    5）生成兄弟级关系标签，用+即可，如：`div+p `+ Tab
 
-   6）生成带有类名或 id 名的标签，用 `标签名.name或#name` + Tab
+   6）生成带有类名或id名的标签，用 `标签名.name或#name` + Tab
 
    7）生成带顺序的标签，用 `标签名$.name*n` + Tab
 
@@ -94,7 +94,7 @@
 
 #### 1.3.2 自动格式化代码
 
-- 设置 --> emmet.include--> settings.json
+* 设置 --> emmet.include--> settings.json
 
   ```json
   "editor.formatOnType": true
@@ -103,9 +103,9 @@
 
 #### 1.3.3 兼容性检查
 
-- 网站：[caniuse.com](https://caniuse.com/)
+* 网站：[caniuse.com](https://caniuse.com/)
 
-### 1.4 CSS 初始化
+### 1.4 CSS初始化
 
 1. CSS reset：消除不同浏览器差异，重设浏览器样式
 
@@ -176,7 +176,7 @@
    }
    ```
 
-9. 主体`body`：CSS3 抗锯齿性、背景色、字体（"\5B8B\4F53"代表宋体）、字体颜色
+9. 主体`body`：CSS3抗锯齿性、背景色、字体（"\5B8B\4F53"代表宋体）、字体颜色
 
    ```css
    body {
@@ -198,7 +198,7 @@
       content: '.';
       height: 0;
     }
-
+    
     .clearfix {
       *zoom: 1;
     }
@@ -214,9 +214,9 @@
 
    2）公共样式：common.css
 
-   - 首页
-   - 列表页
-   - 详情页
+   * 首页
+   * 列表页
+   * 详情页
 
 2. 脚本：js
 
@@ -234,7 +234,7 @@
 
    2）如果直接用`<a>`，搜索引擎容易辨别为有堆砌关键字嫌疑，降低排名
 
-   3）由于导航栏文字不一样多，给`<a>`左右 padding 撑开盒子，而不是给宽度
+   3）由于导航栏文字不一样多，给`<a>`左右padding撑开盒子，而不是给宽度
 
 2. 陈列窗的图片，设定 `width=100%`，这样不会超出盒子大小
 
@@ -250,27 +250,27 @@
 
    4）最后添加：`border-radius: 10px`
 
-2. SEO 优化：TDK
+2. SEO优化：TDK
 
-   1）标题：网站名（产品名）-网站介绍 30 字内
+   1）标题：网站名（产品名）-网站介绍30字内
 
    ```html
    <title>website name-awesome website</title>
    ```
 
-   2）网站说明：SEO 专业文案
+   2）网站说明：SEO专业文案
 
    ```html
    <meta name="description" content="XXX" />
    ```
 
-   3）关键字：6~8 个关键词逗号隔开
+   3）关键字：6~8个关键词逗号隔开
 
    ```html
    <meta name="keywords" content="XXX" />
    ```
 
-3. favicon 图标
+3. favicon图标
 
    ```html
    <link rel="shortcut icon" href="favicon.ico" />
@@ -282,42 +282,42 @@
 2. 购物车：`shopcar`
 3. 热点词：`hotwords`
 4. 导航：`nav`
-5. 导航左侧：`dropdown` 包含 ` .dd``.dt `
+5. 导航左侧：`dropdown` 包含 `.dd``.dt`
 6. 导航右侧：`navitems`
 7. 页面底部服务模块：`mod_service`
 8. 页面底部帮助模块：`mod_help`
 9. 页面底部版权模块：`mod_copyright`
 
-#### 1.5.5 LOGO SEO 优化
+#### 1.5.5 LOGO SEO优化
 
-1. `<h1>`标签提升权重，里面放置链接可返回首页，背景图设置为 logo
+1. `<h1>`标签提升权重，里面放置链接可返回首页，背景图设置为logo
 
 2. 链接里面放文字但不显现：
 
-   1）方法 1（淘宝）
+   1）方法1（淘宝）
 
    ```css
    text-indent:-9999px;
    overflow：hidden
    ```
 
-   2）方法 2（京东）
+   2）方法2（京东）
 
    ```css
-   font-size: 0;
+   font-size: 0
    ```
 
-3. 给链接一个 title 属性，鼠标放在 logo 上显示提示文字
+3. 给链接一个 title 属性，鼠标放在logo上显示提示文字
 
-#### 1.5.6 Tab 栏切换
+#### 1.5.6 Tab栏切换
 
-1. 用 JavaScript 实现，但是对 HTML 结构有严格要求
-2. 分为 2 个部分：tab_list、tab_content
-3. 可以用 box_hd 装 tab-list，用 box_bd 装 tab-content
+1. 用JavaScript实现，但是对HTML结构有严格要求
+2. 分为2个部分：tab_list、tab_content
+3. 可以用box_hd装tab-list，用box_bd装tab-content
 
 #### 1.5.7 注册界面
 
-1. 不需要做 SEO 优化，因为保护个人信息隐私
+1. 不需要做SEO优化，因为保护个人信息隐私
 
 2. 常用写法：
 
@@ -327,9 +327,9 @@
 
    3）错误/成功/默认：error/success/default
 
----
+------
 
-## 第 2 章 基础属性
+## 第2章 基础属性
 
 ### 2.1 字体属性
 
@@ -352,7 +352,7 @@
 
    2）加粗：700
 
-3. `font-size`：字体大小，标题 h1~h6 需要单独指定文字大小
+3. `font-size`：字体大小，标题h1~h6需要单独指定文字大小
 
    ```css
    h2 {
@@ -370,12 +370,12 @@
 
    ```css
    font: font-style font-weight font-size/line-height font-family
-
+   
    font: italic 700 16px 'Microsoft yahei';
    font: 12px/1.5 'Microsoft YaHei';
    ```
 
----
+------
 
 ### 2.2 文本属性
 
@@ -430,7 +430,7 @@
      /* 上划线 */
      text-decoration: overline;
    }
-
+   
    a {
      /* 取消a默认的下划线 */
      text-decoration: none;
@@ -449,7 +449,7 @@
    }
    ```
 
-5. `line-height`：行间距，单位：px，如果写成【字体大小/行高 X】的样式，则行高为字体大小的 X 倍
+5. `line-height`：行间距，单位：px，如果写成【字体大小/行高X】的样式，则行高为字体大小的X倍
 
    ```css
    div {
@@ -463,13 +463,13 @@
 
    2）none：不可选中
 
----
+------
 
 ### 2.3 透明度属性
 
-1. `opacity(0~1)`：0 完全透明，1 完全不透明
+1. `opacity(0~1)`：0完全透明，1完全不透明
 
----
+------
 
 ### 2.4 背景属性
 
@@ -479,7 +479,7 @@
 
    2）透明：transparent
 
-   3）半透明：rgba（X, X, X, alpha【0~1 小数】）
+   3）半透明：rgba（X, X, X, alpha【0~1小数】）
 
    ```css
    div {
@@ -514,9 +514,9 @@
 
    2）平铺：repeat
 
-   3）沿着 X 轴平铺：repeat-x
+   3）沿着X轴平铺：repeat-x
 
-   4）沿着 Y 轴平铺：repeat-y
+   4）沿着Y轴平铺：repeat-y
 
    ```css
    div {
@@ -556,17 +556,17 @@
 
    1）方位名词：`top`、`center`、`bottom`、`left`、`center`、`right`
 
-   - 先写哪个没关系，center right 和 right center 是等价的，默认居中对齐
+   * 先写哪个没关系，center right 和 right center是等价的，默认居中对齐
 
    2）精确单位：
 
-   - 百分数、浮点数字+单位标识符
-   - 顺序：第一个肯定是 X 坐标，第二个肯定是 Y 坐标（距上顶、左侧的距离）
+   * 百分数、浮点数字+单位标识符
+   * 顺序：第一个肯定是X坐标，第二个肯定是Y坐标（距上顶、左侧的距离）
 
    3）混合单位：
 
-   - 方位名词+精确单位：第一个肯定是 X 坐标，第二个肯定是 Y 坐标
-   - 注意：x 和 y 之间没有逗号，是空格！
+   * 方位名词+精确单位：第一个肯定是X坐标，第二个肯定是Y坐标
+   * 注意：x和y之间没有逗号，是空格！
 
    ```css
    div {
@@ -594,7 +594,7 @@
 
 6. 背景缩放：`background-size：x y`
 
-   1）像素单位 px：宽、高，只写一个则默认是宽度，高度随着等比例缩放
+   1）像素单位px：宽、高，只写一个则默认是宽度，高度随着等比例缩放
 
    2）百分比单位%：相对于父级盒子拉伸，只写一个则默认是宽度，高度随着等比例缩放
 
@@ -602,7 +602,7 @@
 
    4）contain：宽高等比例拉伸，如果宽或高其中一个铺满盒子就不再拉伸，可能有部分空白
 
-   5）注意：x 和 y 之间没有逗号，是空格！
+   5）注意：x和y之间没有逗号，是空格！
 
    ```html
    <style>
@@ -635,7 +635,7 @@
    1）方位名词：`top`(默认)、`bottom`、`left`、`right`，以及它们的组合使用
 
    2）注意：必须添加浏览器私有前缀
-
+   
    ```html
    <style>
      div {
@@ -650,13 +650,13 @@
    <div></div>
    ```
 
----
+------
 
 ### 2.5 边框属性
 
 #### 2.5.1 默认边框 border
 
-> 边框会向外延伸大小，如盒子大小为 200px，10px 的边框让盒子整体变为 220px
+> 边框会向外延伸大小，如盒子大小为200px，10px的边框让盒子整体变为220px
 
 1. 边框粗细：`border-width`，单位：px
 
@@ -739,9 +739,9 @@
 
    1）仅用于“边框分离 separate”模式
 
-   2）两个数值：水平间隔 px，垂直间隔 px
+   2）两个数值：水平间隔px，垂直间隔px
 
----
+------
 
 #### 2.5.2 圆角边框 border-radius
 
@@ -753,7 +753,7 @@
 
 2. 多种写法：例：`border-top-left-radius`
 
-3. 复合简写：`border-radius`，顺序：左上、右上、右下、左下（规则与 padding 相同）
+3. 复合简写：`border-radius`，顺序：左上、右上、右下、左下（规则与padding相同）
 
    ```css
    <style>
@@ -781,7 +781,7 @@
        background-color: pink;
      }
    </style>
-
+   
    1. 圆形的做法:
    <div class="yuanxing"></div>
    2. 圆角矩形的做法:
@@ -790,11 +790,11 @@
    <div class="radius"></div>
    ```
 
----
+------
 
 #### 2.5.3 边框图片 border-image
 
-> 需要与 border、border-width、内部盒子相配合使用，盒子模型设置为 `box-sizing:border-box`
+> 需要与border、border-width、内部盒子相配合使用，盒子模型设置为 `box-sizing:border-box`
 
 1. 作用：盒子大小不一，但边框样式相同，可以自定义边框样式
 
@@ -802,7 +802,8 @@
 
 3. 边框切图：`border-image-slice`
 
-   ![边框切图：border-image-slice](/imgs/basic/边框切图：border-image-slice.png)
+   <!-- ![边框切图：border-image-slice](/img/basic/边框切图：border-image-slice.png) -->
+   <img :src="$withBase('/img/basic/边框切图：border-image-slice.png')" alt="边框切图：border-image-slice">
 
    1）原理：把四个角切出去（类似九宫格），中间部分可以铺排、拉抻、环绕
 
@@ -822,7 +823,7 @@
 
    3）拉抻：stretch（默认）
 
----
+------
 
 ### 2.6 边距属性
 
@@ -830,7 +831,7 @@
 
 #### 2.6.1 内边距：padding
 
-> 内边距会向外延伸大小，如盒子大小为 200px，10px 的边距让盒子整体变为 220px。
+> 内边距会向外延伸大小，如盒子大小为200px，10px的边距让盒子整体变为220px。
 
 1. 内边距：`padding-XXX`，顺时针顺序：上/右/下/左（top/right/bottom/left)
 
@@ -846,13 +847,13 @@
 
 2. 复合简写：`padding`
 
-   1）1 个值：padding: 5px （上下左右都有 5px 内边距）
+   1）1个值：padding: 5px （上下左右都有5px内边距）
 
-   2）2 个值：padding: 5px 10px（上下 5px，左右 10px）
+   2）2个值：padding: 5px 10px（上下5px，左右10px）
 
-   3）3 个值：padding: 5px 10px 20px（上 5px，左右 10px，下 20px）
+   3）3个值：padding: 5px 10px 20px（上5px，左右10px，下20px）
 
-   4）4 个值：padding: 5px 10px 20px 30px（上 5px，左 10px，右 20px，下 30px）
+   4）4个值：padding: 5px 10px 20px 30px（上5px，左10px，右20px，下30px）
 
    ```css
    div {
@@ -869,11 +870,11 @@
 
 3. 注意：
 
-   1）如果盒子本身没有指定 width/height 属性，则 padding 不会撑开盒子大小
+   1）如果盒子本身没有指定width/height属性，则padding不会撑开盒子大小
 
-   2）对于子级元素，如果仅是继承了父级元素的 width/height 属性，padding 也不会撑开盒子大小
+   2）对于子级元素，如果仅是继承了父级元素的width/height属性，padding也不会撑开盒子大小
 
----
+------
 
 #### 2.6.2 外边距：margin
 
@@ -914,9 +915,9 @@
    }
    ```
 
-4. 复合简写：`margin`（与 padding 规则相同）
+4. 复合简写：`margin`（与padding规则相同）
 
-   - 特殊应用：auto 自动适应
+   * 特殊应用：auto自动适应
 
    ```css
    margin：100px auto
@@ -948,10 +949,10 @@
 
    2）嵌套块元素垂直外边距塌陷：对于嵌套父子元素，父元素有上边距，同时子元素也有上边距，此时父元素会塌陷较大的外边距值
 
-   - 为父元素定义上边框：`border: 1px solid transparent`
-   - 为父元素定义上内边框：`padding: 1px`
-   - 为父元素添加：`overflow: hidden`
-   - 注意：浮动、固定、绝对定位的盒子不会有塌陷问题
+   * 为父元素定义上边框：`border: 1px solid transparent`
+   * 为父元素定义上内边框：`padding: 1px`
+   * 为父元素添加：`overflow: hidden`
+   * 注意：浮动、固定、绝对定位的盒子不会有塌陷问题
 
    ```html
    <style>
@@ -972,20 +973,20 @@
        margin-top: 100px;
      }
    </style>
-
+   
    <div class="father">
      <div class="son"></div>
    </div>
    ```
 
-6. margin 负值应用：浮动盒子一行紧密排列时，如果都有边框，会出现边框合并变粗的问题
+6. margin负值应用：浮动盒子一行紧密排列时，如果都有边框，会出现边框合并变粗的问题
 
    1）写法：`margin-left：-1`
 
    2）鼠标移动时显示边框
 
-   - 若盒子无定位，hover 里加 `pisition：relative`，可覆盖盒子
-   - 若盒子有定位，hover 里加 `z-index：1`，提高层级
+   * 若盒子无定位，hover里加 `pisition：relative`，可覆盖盒子
+   * 若盒子有定位，hover里加 `z-index：1`，提高层级
 
    ```html
    <style>
@@ -998,13 +999,13 @@
        border: 1px solid red;
        margin-left: -1px;
      }
-
+     
      /* 1. 如果盒子没有定位，则鼠标经过添加相对定位即可 */
      /* ul li:hover {
        position: relative;
        border: 1px solid blue;
      } */
-
+     
      /* 2.如果li都有定位，则利用 z-index提高层级 */
      ul li:hover {
        z-index: 1;
@@ -1020,7 +1021,9 @@
    </ul>
    ```
 
----
+   
+
+------
 
 ### 2.7 列表属性
 
@@ -1036,7 +1039,7 @@
 
    5）阿拉伯数字：decimal
 
----
+------
 
 ### 2.8 阴影属性
 
@@ -1075,7 +1078,7 @@
    3）blur：模糊距离，可选
 
    4）color：阴影颜色，可选
-
+   
    ```css
    div {
      font-size: 50px;
@@ -1085,9 +1088,9 @@
    }
    ```
 
----
+------
 
-## 第 3 章 高级属性
+## 第3章 高级属性
 
 ### 3.1 盒子模型 box-sizing
 
@@ -1095,7 +1098,7 @@
 
 2. `border-box`：盒子大小 = width（无需再担心边框、内边距撑大盒子）
 
-   - 注意：此时使用`line-height=height`值不一定能居中对齐了，需要将`line-height`设置为`height减去边框后的大小`
+   * 注意：此时使用`line-height=height`值不一定能居中对齐了，需要将`line-height`设置为`height减去边框后的大小`
 
    ```html
    <style>
@@ -1142,7 +1145,7 @@
 
 ### 3.3 计算函数 calc()
 
-1. 宽度计算：`width:calc(100%-30)`，子元素比父元素宽度小 30px
+1. 宽度计算：`width:calc(100%-30)`，子元素比父元素宽度小30px
 
    ```html
    <style>
@@ -1166,7 +1169,7 @@
 
 ### 3.4 过渡效果 transition
 
-1. 作用：可以不用 Flash 或 JS 的情况下制作元素样式变换的效果，常与`:hover`配合使用
+1. 作用：可以不用Flash或JS的情况下制作元素样式变换的效果，常与`:hover`配合使用
 
 2. 书写位置：谁做过渡给谁加，要写在原来的元素上！
 
@@ -1177,11 +1180,11 @@
        height: 100px;
        background-color: pink;
        /* transition: 变化的属性、花费时间、运动曲线、何时开始; */
-       transition: width 0.5s ease 0s, height 0.5s ease 1s;
+       transition: width .5s ease 0s, height .5s ease 1s;
        /* 如果想要写多个属性，利用逗号进行分割 */
-       transition: width 0.5s, height 0.5s;
+       transition: width .5s, height .5s;
        /* 如果想要多个属性都变化，属性写all就可以了 */
-       transition: height 0.5s ease 1s;
+       transition: height .5s ease 1s;
        /* 谁做过渡，给谁加 */
        transition: all 0.5s;
      }
@@ -1196,17 +1199,17 @@
 
 3. 属性：添加多个属性可用逗号分隔，按顺序写
 
-   1）要变换的属性：如 width、height，全部变换为 all
+   1）要变换的属性：如width、height，全部变换为all
 
    2）花费时间 ：如 .5s
 
    3）运动曲线：
 
-   - 逐渐变慢：`ease`（默认）
-   - 匀速：`linear`
-   - 加速：`ease-in`
-   - 减速：`ease-out`
-   - 先加速再减速：`ease-in-out`
+   * 逐渐变慢：`ease`（默认）
+   * 匀速：`linear`
+   * 加速：`ease-in`
+   * 减速：`ease-out`
+   * 先加速再减速：`ease-in-out`
 
    4）何时开始：延迟触发时间，如 .5s，可省略
 
@@ -1234,7 +1237,7 @@
    </style>
    ```
 
-### 3.5 2D 转换 transform
+### 3.5 2D转换 transform
 
 1. 位移：`translate(x,y)`
 
@@ -1256,7 +1259,7 @@
        transform: translateX(100px);
        /* 2. 如果只移动y坐标 */
        transform: translate(0, 100px);
-       transform: translateY(100px);
+       transform: translateY(100px); 
      }
      div:first-child {
        transition: all 0.5s;
@@ -1340,7 +1343,7 @@
    <img src="media/pic.jpg" alt="" />
    ```
 
-   2）应用：制作 CSS 三角形，div 旋转 45 度，只给底部、右侧边框
+   2）应用：制作CSS三角形，div旋转45度，只给底部、右侧边框
 
    ```html
    <style>
@@ -1372,11 +1375,11 @@
 
 3. 中心点：`transform-origin:x y`
 
-   1）像素：px（x 和 y 之间没有逗号，是空格！）
+   1）像素：px（x和y之间没有逗号，是空格！）
 
    2）方位名词：left、right、top、bottom、center
 
-   3）百分比：50% 50%（默认，等价于 center center）
+   3）百分比：50% 50%（默认，等价于center center）
 
    ```html
    <style>
@@ -1436,9 +1439,9 @@
 
 4. 缩放：`scale(x,y)`
 
-   1）2 个数字：等于倍数，如 scale(2,3)即宽度变成 2 倍，高度变成 3 倍
+   1）2个数字：等于倍数，如scale(2,3)即宽度变成2倍，高度变成3倍
 
-   2）1 个数字：等于倍数，如 scale(2)即宽高都变成 2 倍
+   2）1个数字：等于倍数，如scale(2)即宽高都变成2倍
 
    3）可以设置缩放中心点，如果写了宽高则以最新数值为参考，且不影响其他盒子位置
 
@@ -1519,7 +1522,7 @@
 
 5. 复合简写：`transform: translate(x,y) rotatae(n deg) scale(n)`
 
-   - 注意：书写顺序会影响效果，有位移的时候必须先写位移
+   * 注意：书写顺序会影响效果，有位移的时候必须先写位移
 
    ```html
    <style>
@@ -1533,16 +1536,16 @@
        /* 以下两种效果完全不同 */
        transform: translate(150px, 50px) rotate(180deg);
        transform: rotate(180deg) translate(150px, 50px);
-
+       
        /* 同时有位移和其他属性，需要把位移放到最前面 */
        transform: translate(1200px, 0px) rotate(180deg) scale(1.2);
      }
    </style>
    ```
 
-### 3.5 3D 转换 transform
+### 3.5 3D转换 transform
 
-1. 坐标系：x 轴右正左负，y 轴下正上负，z 轴外正里负
+1. 坐标系：x轴右正左负，y轴下正上负，z轴外正里负
 
 2. 透视：`perspective`
 
@@ -1550,11 +1553,11 @@
 
    2）写到被观察元素的父盒子上面，即眼睛到屏幕的距离，近大远小
 
-3. 3D 移动：`translate3d（x,y,z）`
+3. 3D移动：`translate3d（x,y,z）`
 
    1）等价写法：`transform: translateX(n) translateY(n) translateZ(n)`
 
-   2）x、y、z 不能省略，没有就写 0
+   2）x、y、z不能省略，没有就写0
 
    ```html
    <style>
@@ -1566,22 +1569,22 @@
        width: 200px;
        height: 200px;
        background-color: pink;
-       transform: translateX(100px) translateY(100px) translateZ(100px);
+       transform: translateX(100px) translateY(100px) translateZ(100px); 
        /* 简写方法 */
        transform: translate3d(100px, 100px, 100px);
      }
    </style>
    ```
 
-4. 3D 旋转：`rotate3d（x,y,z,deg）`
+4. 3D旋转：`rotate3d（x,y,z,deg）`
 
-   1）x,y,z 用：0/1 代表是否选中，并合成矢量，例：rotate3d(1, 1, 0, 45deg)
+   1）x,y,z用：0/1 代表是否选中，并合成矢量，例：rotate3d(1, 1, 0, 45deg)
 
    2）等价写法：`transform:rotateX(n deg) rotateY(n deg) rotateZ(n deg)`
 
    3）X/Y/旋转：左手准则，大拇指指向正轴，四指弯曲指向正角度旋转方向
 
-   4）Z 轴旋转：类似 2D 旋转效果
+   4）Z轴旋转：类似2D旋转效果
 
    ```html
    <style>
@@ -1604,12 +1607,12 @@
    <img src="media/pig.jpg" alt="" />
    ```
 
-5. 3D 呈现：`trasnform-style`
+5. 3D呈现：`trasnform-style`
 
-   1）preserve-3d：让子元素保持 3D 立体空间环境
+   1）preserve-3d：让子元素保持3D立体空间环境
 
-   2）flat：默认，子元素不开启 3D 立体空间环境
-
+   2）flat：默认，子元素不开启3D立体空间环境
+   
    ```html
    <style>
      body {
@@ -1694,7 +1697,7 @@
    </div>
    ```
 
-7. 案例：3D 导航
+7. 案例：3D导航
 
    ```html
    <style>
@@ -1840,11 +1843,11 @@
 
 1. 插件工具：swiper，网址：[www.swiper.com.cn](www.swiper.com.cn)
 2. 下载文件：swiper.min.js、swiper.min.css
-3. 使用方法：找到案例查看源码，复制 HTML、CSS、JS 代码，按需修改
+3. 使用方法：找到案例查看源码，复制HTML、CSS、JS代码，按需修改
 
----
+------
 
-## 第 4 章 动画效果
+## 第4章 动画效果
 
 1. 语法：中间可以自定义百分比过程
 
@@ -1895,7 +1898,7 @@
    <div></div>
    ```
 
-2. 调用：至少写动画名称、动画时间 2 个属性，同一个元素中多个动画可以一起调用，用逗号隔开即可
+2. 调用：至少写动画名称、动画时间2个属性，同一个元素中多个动画可以一起调用，用逗号隔开即可
 
 3. 属性：
 
@@ -1905,8 +1908,8 @@
 
    3）运动曲线：`animation-timing-function`
 
-   - 效果：ease/ease-in/ease-out/ease-in-out/linear
-   - 步长：steps（n），适合做轮播图式动画
+   * 效果：ease/ease-in/ease-out/ease-in-out/linear
+   * 步长：steps（n），适合做轮播图式动画
 
    4）延迟时间：`animation-delay: 1s`
 
@@ -1960,7 +1963,7 @@
 5. 复合简写：动画名称(必填)，持续时间(必填)，运动曲线，延迟时间，重复次数，反方向播放，结束后状态
 
    ```css
-   animation: name duration timing-function delay iteration-count direction fill-mode;
+   animation: name duration timing-function delay iteration-count direction fill-mode; 
    ```
 
    ```html
@@ -1994,7 +1997,7 @@
 
 6. 案例：无限无缝滚动效果（竖向）
 
-   1）先用 JS 的遍历 clone 方法克隆一份元素，添加到大盒子后面
+   1）先用JS的遍历clone方法克隆一份元素，添加到大盒子后面
 
    ```js
    $('.marquee-view .marquee').each(function () {
@@ -2003,7 +2006,7 @@
    })
    ```
 
-   2）用 CSS 的@keyframes 定义动画，translateY(-50%)
+   2）用CSS的@keyframes定义动画，translateY(-50%)
 
    ```css
    @keyframes move {
@@ -2015,7 +2018,7 @@
    }
    ```
 
-   3）动作效果 animation：move 10s linear infinite
+   3）动作效果animation：move 10s linear infinite
 
    ```css
    .marquee-view .marquee {
@@ -2200,9 +2203,9 @@
    </div>
    ```
 
----
+------
 
-## 第 5 章 选择器
+## 第5章 选择器
 
 ### 5.1 选择器特性
 
@@ -2238,14 +2241,14 @@
 
    2）若选择器不同，根据权重执行
 
-   |    权重     |                       适用情况                       |
-   | :---------: | :--------------------------------------------------: |
-   | （0,0,0,0） | 继承、\*【父级选择器无论权重多大，继承的权重都为 0】 |
-   | （0,0,0,1） |               元素选择器、伪元素选择器               |
-   | （0,0,1,0） |   类选择器、伪类选择器、属性选择器、结构伪类选择器   |
-   | （0,1,0,0） |                      ID 选择器                       |
-   | （1,0,0,0） |                       行内样式                       |
-   |   无穷大    |                      !important                      |
+   |    权重     |                      适用情况                      |
+   | :---------: | :------------------------------------------------: |
+   | （0,0,0,0） | 继承、*【父级选择器无论权重多大，继承的权重都为0】 |
+   | （0,0,0,1） |              元素选择器、伪元素选择器              |
+   | （0,0,1,0） |  类选择器、伪类选择器、属性选择器、结构伪类选择器  |
+   | （0,1,0,0） |                      ID选择器                      |
+   | （1,0,0,0） |                      行内样式                      |
+   |   无穷大    |                     !important                     |
 
 4. 权重叠加：可以叠加，但不会有进位
 
@@ -2274,7 +2277,7 @@
 
 ### 5.2 基础选择器
 
-1. 标签选择器：对 HTML 默认标签定义属性
+1. 标签选择器：对HTML默认标签定义属性
 
    ```css
    div {
@@ -2297,11 +2300,11 @@
        font-size: 35px;
      }
    </style>
-
+   
    <div class="red font35">刘德华</div>
    ```
 
-3. id 选择器：井号#+文字（#name）
+3. id选择器：井号#+文字（#name）
 
    1）调用：id="name"
 
@@ -2313,7 +2316,7 @@
    }
    ```
 
-4. 通配符选择器：星号 `* `，把所有 HTML 默认标签都进行修改，覆盖全局
+4. 通配符选择器：星号 `* `，把所有HTML默认标签都进行修改，覆盖全局
 
    ```css
    * {
@@ -2329,9 +2332,9 @@
 
    2）`ol li a`：针对有序列表中子项目中的`<a>`
 
-   3）`.nav li a`：针对 nav 类选择器中子项目中的`<a>`
+   3）`.nav li a`：针对nav类选择器中子项目中的`<a>`
 
-   4）`.nav .bg`：针对 nav 类选择器中的 bg 伪类，只能在 nav 的子项目中应用
+   4）`.nav .bg`：针对nav类选择器中的bg伪类，只能在nav的子项目中应用
 
    ```html
    <style>
@@ -2342,9 +2345,9 @@
    <div class="nav"><p class="bg">...</p></div>
    ```
 
-2. 子元素选择器：只针对嵌套 1 个层级的子元素
+2. 子元素选择器：只针对嵌套1个层级的子元素
 
-   1）`.nav>a`：只能更改 nav 类选择器中第 1 层子项目的`<a>`
+   1）`.nav>a`：只能更改nav类选择器中第1层子项目的`<a>`
 
    ```css
    .nav > a {
@@ -2394,7 +2397,7 @@
    }
    ```
 
-5. focus 伪类选择器：把获得光标的元素选出来，常与 input 元素结合使用
+5. focus伪类选择器：把获得光标的元素选出来，常与input元素结合使用
 
    ```css
    /* 把获得光标的input表单元素选取出来 */
@@ -2406,15 +2409,15 @@
 
 ### 5.4 属性选择器
 
-1. 无需借助类/ID 选择器：`E[att]`，选中具有 att 属性的 E 元素
+1. 无需借助类/ID选择器：`E[att]`，选中具有att属性的E元素
 
-2. 选择属性等于某值的某元素：`E[att=val]`，选中具有 att 属性且属性值等于 val 的 E 元素
+2. 选择属性等于某值的某元素：`E[att=val]`，选中具有att属性且属性值等于val的E元素
 
-3. 选择属性值开头的元素：`E[att^=val]`，匹配具有 att 属性且值以 val 开头的 E 元素
+3. 选择属性值开头的元素：`E[att^=val]`，匹配具有att属性且值以val开头的E元素
 
-4. 选择属性值结尾的元素：`E[att$=val]`，匹配具有 att 属性且值以 val 结尾的 E 元素
+4. 选择属性值结尾的元素：`E[att$=val]`，匹配具有att属性且值以val结尾的E元素
 
-5. 选择属性包含某值的某元素：`E[att*=val]`，匹配具有 att 属性且值包含 val 的 E 元素
+5. 选择属性包含某值的某元素：`E[att*=val]`，匹配具有att属性且值包含val的E元素
 
    ```html
    <style>
@@ -2443,7 +2446,7 @@
        color: rebeccapurple;
      }
    </style>
-
+   
    <!-- 1. 属性选择器：选中具有某属性的元素 -->
    <input type="text" value="请输入用户名" />
    <input type="text" />
@@ -2466,80 +2469,57 @@
 
 1. 匹配父元素中的第一个子元素：`E：first-child`
 
-2. 匹配父元素中最后一个 E 元素：`E：last-child`
+2. 匹配父元素中最后一个E元素：`E：last-child`
 
-3. 匹配父元素中第 n 个子元素 E：`E：nth-child(n)`
+3. 匹配父元素中第n个子元素E：`E：nth-child(n)`
 
-   1）n=数字：选中第 n 个
+   1）n=数字：选中第n个
 
    2）n=odd、even：选中奇数/偶数个（隔行效果）
 
-   3）n=公式（从 0 开始算）
+   3）n=公式（从0开始算）
 
-   - n：选中所有
-   - 2n：选中偶数
-   - 2n+1：选中奇数
-   - 5n：选中 5 的倍数
-   - n+3：选中从第 3 个开始到最后
-   - -n+3：选中前 3 个
+   * n：选中所有
+   * 2n：选中偶数
+   * 2n+1：选中奇数
+   * 5n：选中5的倍数
+   * n+3：选中从第3个开始到最后
+   * -n+3：选中前3个
 
-   4）执行的时候首先看 `:nth-child(n)`中的 n，即先把所有父元素中的子元素排序，之后回去看前面的 E 是否能对上，如果不匹配则语法无效
+   4）执行的时候首先看 `:nth-child(n)`中的n，即先把所有父元素中的子元素排序，之后回去看前面的E是否能对上，如果不匹配则语法无效
 
    ```css
    /* 1. 选择ul里面的第一个孩子 */
-   ul li:first-child {
-     background-color: pink;
-   }
+   ul li:first-child { background-color: pink; }
    /* 2. 选择ul里面的最后一个孩子 */
-   ul li:last-child {
-     background-color: pink;
-   }
+   ul li:last-child { background-color: pink; }
    /* 3. 选择ul里面的第2个孩子 */
-   ul li:nth-child(2) {
-     background-color: skyblue;
-   }
+   ul li:nth-child(2) { background-color: skyblue; }
    /* 4.把所有的偶数even的孩子选出来 */
-   ul li:nth-child(even) {
-     background-color: #ccc;
-   }
+   ul li:nth-child(even) { background-color: #ccc; }
    /* 5.把所有的奇数odd的孩子选出来 */
-   ul li:nth-child(odd) {
-     background-color: gray;
-   }
+   ul li:nth-child(odd) { background-color: gray;}
    /* 6.nth-child(n)：选中所有孩子 */
-   ol li:nth-child(n) {
-     background-color: pink;
-   }
+   ol li:nth-child(n) { background-color: pink; }
    /* 7.nth-child(2n)：选中偶数的孩子 */
-   ol li:nth-child(2n) {
-     background-color: pink;
-   }
+   ol li:nth-child(2n) { background-color: pink; }
    /* 8.nth-child(2n+1)：选中奇数的孩子 */
-   ol li:nth-child(2n + 1) {
-     background-color: skyblue;
-   }
+   ol li:nth-child(2n + 1) { background-color: skyblue; }
    /* 9.nth-child(5n)：选中5的倍数 */
-   ol li:nth-child(5n) {
-     background-color: pink;
-   }
+   ol li:nth-child(5n) { background-color: pink; }
    /* 10.nth-child(n+3)：选中从第3个开始到最后 */
-   ol li:nth-child(n + 3) {
-     background-color: pink;
-   }
+   ol li:nth-child(n + 3) { background-color: pink;}
    /* 11.nth-child(-n+3)：选中前3个 */
-   ol li:nth-child(-n + 3) {
-     background-color: pink;
-   }
+   ol li:nth-child(-n + 3) { background-color: pink;}
    ```
 
-4. 指定类型 E 的第一个：`E：first-of-type`
+4. 指定类型E的第一个：`E：first-of-type`
 
-5. 指定类型 E 的最后一个：`E：last-of-type`
+5. 指定类型E的最后一个：`E：last-of-type`
 
-6. 指定类型 E 的第 n 个：`E：nth-of-type(n)`
-
-   - 执行的时候首先看 E，即选中了哪个子元素，之后再去看后面的`:nth-child(n)`中的 n，判断是 E 中的第 n 个元素
-
+6. 指定类型E的第n个：`E：nth-of-type(n)`
+   * 执行的时候首先看E，即选中了哪个子元素，之后再去看后面的`:nth-child(n)`中的n，判断是E中的第n个元素
+   
    ```html
    <style>
      ul li:first-of-type {
@@ -2583,11 +2563,11 @@
 
 ### 5.6 伪元素选择器
 
-1. 语法：`element::before/after{ content:XXX；....}`（必须有 content 属性）
+1. 语法：`element::before/after{ content:XXX；....}`（必须有content属性）
 
-2. 权重：1，与元素选择器一起写的话权重变为 2
+2. 权重：1，与元素选择器一起写的话权重变为2
 
-3. 作用：利用 CSS 创建新标签元素，而不需要 HTML 标签，简化 HTML 结构，在文档树中找不到
+3. 作用：利用CSS创建新标签元素，而不需要HTML标签，简化HTML结构，在文档树中找不到
 
 4. 注意：有行内元素属性，如果想设置宽高需要转换，或添加浮动、定位
 
@@ -2615,14 +2595,14 @@
    <div>是</div>
    ```
 
-5. 应用 1：伪元素字体图标
+5. 应用1：伪元素字体图标
 
    ```css
    <style>
      @font-face {
        font-family: 'icomoon';
        src: url('fonts/icomoon.eot?1lv3na');
-       src: url('fonts/icomoon.eot?1lv3na#iefix') format('embedded-opentype'), url('fonts/icomoon.ttf?1lv3na')
+       src: url('fonts/icomoon.eot?1lv3na#iefix') format('embedded-opentype'), url('fonts/icomoon.ttf?1lv3na') 
    format('truetype'), url('fonts/icomoon.woff?1lv3na') format('woff'), url('fonts/icomoon.svg?
    1lv3na#icomoon') format('svg');
        font-weight: normal;
@@ -2649,7 +2629,7 @@
    <div></div>
    ```
 
-6. 应用 2：播放缩略图遮罩（伪元素版）
+6. 应用2：播放缩略图遮罩（伪元素版）
 
    ```css
    <style>
@@ -2686,9 +2666,9 @@
    </div>
    ```
 
----
+------
 
-## 第 6 章 显示模式
+## 第6章 显示模式
 
 ### 6.1 块级元素
 
@@ -2700,7 +2680,7 @@
 
    2）高度、行高、内外边距都可以控制
 
-   3）宽度默认是容器（父级宽度）的 100%
+   3）宽度默认是容器（父级宽度）的100%
 
    4）是一个大容器及盒子，里面可以放行内或块级元素
 
@@ -2711,7 +2691,7 @@
    1）直接在`<div>`中输入文字会顶格显示，而不会垂直居中
 
    2）设置：hight、line-height 两者同样数值，即可使文字垂直居中
-
+   
    ```html
    <style>
      div {
@@ -2862,30 +2842,24 @@
 1. 块级元素-->行内元素：`display: inline`
 
    ```css
-   div {
-     display: inline;
-   }
+   div {display: inline;}
    ```
 
 2. 行内元素-->块级元素：`display: block`
 
    ```css
-   a {
-     display: block;
-   }
+   a {display: block;}
    ```
 
 3. 行内元素-->行内块元素：`display: inline-block`
 
    ```css
-   span {
-     display: inline-block;
-   }
+   span {display: inline-block;}
    ```
 
----
+------
 
-## 第 7 章 布局模式
+## 第7章 布局模式
 
 ### 7.1 普通布局
 
@@ -2897,7 +2871,7 @@
 
    2）行内元素按顺序从左到右排列，碰到父级元素边缘自动换行
 
----
+------
 
 ### 7.2 浮动布局
 
@@ -2958,8 +2932,8 @@
 
    3）浮动元素具有行内块元素的属性
 
-   - 任何元素都可以浮动
-   - 行内元素有了浮动，无需再转为行内块元素，可直接设置宽高
+   * 任何元素都可以浮动
+   * 行内元素有了浮动，无需再转为行内块元素，可直接设置宽高
 
    ```html
    <style>
@@ -3080,7 +3054,7 @@
 
 1. 额外标签法（隔墙法）：`clear：both（主要）、left、right`
 
-   1）末尾新增一个块级元素，属性包含 clear
+   1）末尾新增一个块级元素，属性包含clear
 
    2）新增的元素必须是块元素，不能是行内元素，否则无效
 
@@ -3123,9 +3097,9 @@
    </div>
    ```
 
-2. 父级添加 overflow 属性：`overflow：hidden、auto、scroll`
+2. 父级添加overflow属性：`overflow：hidden、auto、scroll`
 
-   - 缺点：无法显示溢出部分
+   * 缺点：无法显示溢出部分
 
    ```html
    <style>
@@ -3160,9 +3134,9 @@
    <div class="footer"></div>
    ```
 
-3. 父级添加 after 伪元素：`.clearfix:after`
+3. 父级添加after伪元素：`.clearfix:after`
 
-   - 父级元素引用：`class="box clearfix"`
+   * 父级元素引用：`class="box clearfix"`
 
    ```html
    <style>
@@ -3243,7 +3217,7 @@
        background-color: black;
      }
    </style>
-
+   
    <div class="box clearfix">
      <div class="damao">大毛</div>
      <div class="ermao">二毛</div>
@@ -3251,7 +3225,7 @@
    <div class="footer"></div>
    ```
 
----
+------
 
 ### 7.3 定位布局
 
@@ -3263,7 +3237,7 @@
 
 1. 方位：顶、底、左、右：`top、bottom、left、right`
 2. 单位：px
-3. 注意：如果 left、right 冲突时，按 left 执行；如果 top、bottom 冲突时，按 top 执行
+3. 注意：如果left、right冲突时，按left执行；如果top、bottom冲突时，按top执行
 
 ##### 7.3.1.2 叠放次序 z-index
 
@@ -3271,7 +3245,7 @@
 
 2. 如果属性相同，按照书写顺序，后来者居上
 
-3. 只有定位的盒子才有 z-index 属性
+3. 只有定位的盒子才有z-index属性
 
    ```html
    <style>
@@ -3313,7 +3287,7 @@
 
 1. 以元素原来的位置作为参照点
 
-2. 应用：【子绝父相】父元素用相对定位，子元素用绝对定位；可以不写边偏移，并配合 float 使用
+2. 应用：【子绝父相】父元素用相对定位，子元素用绝对定位；可以不写边偏移，并配合float使用
 
    ```html
    <style>
@@ -3439,10 +3413,10 @@
        height: 200px;
        background-color: pink;
      }
-   </style>
+   </style>    
    ```
 
-4. 注意：为了照顾 IE 兼容性，需要加上
+4. 注意：为了照顾IE兼容性，需要加上
 
    ```css
    line-height: 0;
@@ -3520,7 +3494,7 @@
 
    ```css
    left: 50%;
-   margin-left: 版心宽度/2 + 5px;
+   margin-left: 版心宽度/2+5px
    ```
 
    ```html
@@ -3551,7 +3525,7 @@
    ```css
    left: 50%;
    transform: translateX(-50%);
-
+   
    移动端另加：
    -webkit-transform: translateX(-50%);
    ```
@@ -3564,7 +3538,7 @@
 
 2. 必须添加 `top、bottom、left、right` 其中一个才能有效
 
-3. 注意：兼容性差，IE 完全不支持，尽量用 JS 实现
+3. 注意：兼容性差，IE完全不支持，尽量用JS实现
 
    ```html
    <style>
@@ -3583,7 +3557,7 @@
    <div class="nav">我是导航栏</div>
    ```
 
----
+------
 
 ### 7.4 隐藏布局
 
@@ -3595,7 +3569,7 @@
 
 1. `none`：隐藏元素
 
-2. `block`：转换为块级元素、或显示元素；与 hover 等属性配合，可以做出很多效果
+2. `block`：转换为块级元素、或显示元素；与hover等属性配合，可以做出很多效果
 
 3. 案例：播放缩略图遮罩（隐藏布局版）
 
@@ -3662,7 +3636,7 @@
 
 #### 7.4.3 溢出显示隐藏：overflow
 
-1. `hidden`：不显示超过对象尺寸的内容，注意：对于有定位的盒子，慎用 hidden，因为会隐藏多余部分
+1. `hidden`：不显示超过对象尺寸的内容，注意：对于有定位的盒子，慎用hidden，因为会隐藏多余部分
 
 2. `visible`：不剪切内容也不加滚动条
 
@@ -3685,18 +3659,21 @@
        margin: 100px auto;
      }
    </style>
-   <div class="peppa">《小猪佩奇》，又译作《粉红猪小妹》，是由英国人阿斯特利（Astley）、贝克（Baker）、戴维斯（Davis）创作、导演和... Pig》，是历年来最具潜力的学前儿童品牌。故事围绕小猪佩奇与家人的愉快经历，幽默而有趣，借此宣扬传统家庭观念与...</div>
+   <div class="peppa">
+     《小猪佩奇》，又译作《粉红猪小妹》，是由英国人阿斯特利（Astley）、贝克（Baker）、戴维斯（Davis）创作、导演和...
+      Pig》，是历年来最具潜力的学前儿童品牌。故事围绕小猪佩奇与家人的愉快经历，幽默而有趣，借此宣扬传统家庭观念与...
+   </div>
    ```
 
----
+------
 
-## 第 8 章 常用技巧
+## 第8章 常用技巧
 
 ### 8.1 精灵图 sprites
 
 1. 对于网页上的小图片，频繁请求服务器会造成压力，把所有小图拼到一张大图上，利用背景定位原理进行切割，称为精灵图
 
-2. 位移：利用 PS 中的 x/y 轴坐标，注意变为负号，网页端的原点在左上角，水平向右为 X 轴，垂直向下为 Y 轴
+2. 位移：利用PS中的x/y轴坐标，注意变为负号，网页端的原点在左上角，水平向右为X轴，垂直向下为Y轴
 
    ```html
    <style>
@@ -3718,7 +3695,7 @@
    <div class="box2"></div>
    ```
 
----
+------
 
 ### 8.2 字体图标 iconfont
 
@@ -3726,31 +3703,31 @@
 
 1. 下载站：
 
-   1）icomoon 字体库：[icomoon.io](https://icomoon.io/)
+   1）icomoon字体库：[icomoon.io](https://icomoon.io/)
 
-   2）iconfont 字体库：[iconfont.cn](https://www.iconfont.cn/)
+   2）iconfont字体库：[iconfont.cn](https://www.iconfont.cn/)
 
-   3）追加：上传之前下载包中的 selection.json 文件，添加图标后重新下载
+   3）追加：上传之前下载包中的selection.json文件，添加图标后重新下载
 
 2. 格式：
 
-   1）ttf：Windows、Mac 最常见字体
+   1）ttf：Windows、Mac最常见字体
 
    2）woff：较新的主流字体，不太兼容旧的浏览器
 
-   3）eot：IE 专用字体
+   3）eot：IE专用字体
 
-   4）svg：SVG 字体渲染的格式
+   4）svg：SVG字体渲染的格式
 
-3. 使用方法 1：
+3. 使用方法1：
 
-   1）找到 style.css 中默认代码块，复制粘贴即可
+   1）找到style.css中默认代码块，复制粘贴即可
 
    2）注意路径问题：相对路径要用 ../XXX
 
    3）span 的样式中指定 font-family：icomoon
 
-   4）在下载站找到对应的方块图标 □，或用 VS 插件找到 ttf 中对应的符号，复制到`<span>`中
+   4）在下载站找到对应的方块图标□，或用VS插件找到ttf中对应的符号，复制到`<span>`中
 
    ```css
    <style>
@@ -3758,7 +3735,7 @@
      @font-face {
        font-family: 'icomoon';
        src: url('fonts/icomoon.eot?p4ssmb');
-       src: url('fonts/icomoon.eot?p4ssmb#iefix') format('embedded-opentype'), url('fonts/icomoon.ttf?p4ssmb')
+       src: url('fonts/icomoon.eot?p4ssmb#iefix') format('embedded-opentype'), url('fonts/icomoon.ttf?p4ssmb') 
    format('truetype'), url('fonts/icomoon.woff?p4ssmb') format('woff'), url('fonts/icomoon.svg?
    p4ssmb#icomoon') format('svg');
        font-weight: normal;
@@ -3771,18 +3748,18 @@
        color: pink;
      }
    </style>
-
+   
    <span></span>
    <span></span>
    <span>&#xe902;</span>
    ```
 
-4. 使用方法 2：
+4. 使用方法2：
 
-   1）引入 css 文件：
+   1）引入css文件：
 
    ```html
-   <link rel="stylesheet" href="fonts/style.css" />
+   <link rel="stylesheet" href="fonts/style.css">
    ```
 
    2）标签调用类名：
@@ -3791,13 +3768,13 @@
    <span class="icon-angelist"></span>
    ```
 
----
+------
 
-### 8.3 CSS 三角
+### 8.3 CSS三角
 
-1. 原理：给没有 width 的元素加上四个有粗度的边框，将其余三个边框变为透明色
+1. 原理：给没有width的元素加上四个有粗度的边框，将其余三个边框变为透明色
 
-2. 如果想在元素上方加三角，可以用子绝父相定位，top 值设为负数
+2. 如果想在元素上方加三角，可以用子绝父相定位，top值设为负数
 
    ```html
    <style>
@@ -3845,7 +3822,7 @@
    </div>
    ```
 
-3. 应用：价格标签梯形（长方形+直角三角形叠加）：上/下边框大，左/右边框小，保证有 2 条挨着的边为 0px，绝对定位
+3. 应用：价格标签梯形（长方形+直角三角形叠加）：上/下边框大，左/右边框小，保证有2条挨着的边为0px，绝对定位
 
    ```css
    <style>
@@ -3904,7 +3881,7 @@
    </div>
    ```
 
----
+------
 
 ### 8.4 用户界面
 
@@ -3936,7 +3913,7 @@
 
 3. 防止拖拽：`resize`
 
-   1）none：防止拖拽 textarea 右下角
+   1）none：防止拖拽textarea右下角
 
    ```html
    <style>
@@ -3958,16 +3935,16 @@
        resize: none;
      }
    </style>
-
+   
    <!-- 1. 取消表单轮廓 -->
    <input type="text" />
    <!-- 2. 防止拖拽文本域 -->
    <textarea name="" id="" cols="30" rows="10">Jason</textarea>
    ```
 
----
+------
 
-### 8.5 垂直居中
+### 8.5 垂直居中 
 
 1. `vertical-align`，属性：`baseline`、`top`、`middle`、`bottom`
 
@@ -3994,9 +3971,9 @@
 
 4. 盒子装入图片后加边框，底部有空白缝隙，因为图片默认和文字是基线对齐
 
-   1）方法 1：设置图片对齐：`vertical-align: middle | top | bottom`
+   1）方法1：设置图片对齐：`vertical-align: middle | top | bottom`
 
-   2）方法 2：设置图片属性：`display：block`
+   2）方法2：设置图片属性：`display：block`
 
    ```html
    <style>
@@ -4014,7 +3991,9 @@
    </div>
    ```
 
----
+   
+
+------
 
 ### 8.6 溢出文字
 
@@ -4049,7 +4028,7 @@
    }
    ```
 
-3. 多行文本：有兼容性问题，适用于 webkit 浏览器或移动端
+3. 多行文本：有兼容性问题，适用于webkit浏览器或移动端
 
    1）隐藏多余部分：`overflow：hidden`
 
@@ -4078,9 +4057,9 @@
    }
    ```
 
----
+------
 
-## 第 9 章 移动端设计
+## 第9章 移动端设计
 
 ### 9.1 移动端基础知识
 
@@ -4090,7 +4069,7 @@
 
    1）流式布局（百分比布局）
 
-   2）flex 弹性布局（推荐）
+   2）flex弹性布局（推荐）
 
    3）less+rem+媒体查询布局
 
@@ -4102,26 +4081,26 @@
 
    2）bootstrap
 
-#### 9.1.2 CSS 初始化
+#### 9.1.2 CSS初始化
 
 1. 使用 normalize.css
 2. 官网：[necolas.github.io/normalize.css/](https://necolas.github.io/normalize.css/)
 
-#### 9.1.3 视口 Viewport
+#### 9.1.3 视口Viewport
 
 1. 定义：浏览器显示界面内容的屏幕区域
 
 2. 分类：
 
-   1）布局视口 layout viewport：解决早期 PC 端界面在手机显示问题，IOS/安卓默认为 980px
+   1）布局视口 layout viewport：解决早期PC端界面在手机显示问题，IOS/安卓默认为980px
 
    2）视觉视口 visual viewport：是网站的区域，可以缩放操作，但不影响布局视口
 
-   3）理想视口 ideal viewport：手动填写 meta 视口标签，让布局视口宽度与理想视口宽度一致，乔布斯发明
+   3）理想视口 ideal viewport：手动填写meta视口标签，让布局视口宽度与理想视口宽度一致，乔布斯发明
 
-3. meta 标签
+3. meta标签
 
-   1）width：宽度，可设置 device-width 特殊值
+   1）width：宽度，可设置device-width特殊值
 
    2）initial-scale：初始缩放比
 
@@ -4132,7 +4111,7 @@
    5）user-scalable：用户是否可以缩放，yes/no (1/0)
 
    ```html
-   <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
    ```
 
 #### 9.1.4 二倍图
@@ -4141,13 +4120,13 @@
 
    1）物理像素点：分辨率，屏幕的最小颗粒，是物理真实存在的，厂商出厂时已经设置好
 
-   2）物理像素比：1px 能显示的物理像素点的个数
+   2）物理像素比：1px能显示的物理像素点的个数
 
-   3）开发时 1px 不一定等于 1 个物理像素，PC 端基本符合，移动端不符合，iphone8 中 1px=2 个物理像素
+   3）开发时1px不一定等于1个物理像素，PC端基本符合，移动端不符合，iphone8中 1px=2个物理像素
 
-   4）注意：chrome 模拟器中的尺寸就是开发尺寸的 px，已经转换完毕了
+   4）注意：chrome模拟器中的尺寸就是开发尺寸的px，已经转换完毕了
 
-2. 对于低像素的图片，经过 retina 级别显示屏的放大，会造成模糊的情况，需要二倍图
+2. 对于低像素的图片，经过retina级别显示屏的放大，会造成模糊的情况，需要二倍图
 
 3. 方法：手机需要`50*50`的图片，准备`100*100`的图片设置宽高缩小为`50*50`，背景图另外需要用`background-size`设置
 
@@ -4171,7 +4150,7 @@
 
 5. 二倍精灵图：
 
-   1）先用 PS 把原来的精灵图等比例缩小一半，测量坐标位置
+   1）先用PS把原来的精灵图等比例缩小一半，测量坐标位置
    2）`background-size`: 精灵图原来的宽度一半 auto;
 
 #### 9.1.5 特殊属性
@@ -4179,7 +4158,7 @@
 1. 盒子模型
 
    ```css
-   -webkit-box-sizing: border-box;
+   -webkit-box-sizing: border-box
    ```
 
 2. 点击效果：点击高亮去除
@@ -4190,7 +4169,7 @@
    }
    ```
 
-3. 输入框`<input>`：去除 iOS 默认样式，才能给按钮和输入框自定义样式
+3. 输入框`<input>`：去除iOS默认样式，才能给按钮和输入框自定义样式
 
    ```css
    input {
@@ -4210,15 +4189,15 @@
 5. 字体`font-family`：苹果默认字体
 
    ```css
-   font-family: -apple-system;
+   font-family: -apple-system
    ```
 
 #### 9.1.6 图片格式
 
-1. `dpg`：京东推出的一种压缩格式，缩减至 1/2，全平台兼容
-2. `webp`：谷歌推出的一种压缩格式，缩减至 2/3
+1. `dpg`：京东推出的一种压缩格式，缩减至1/2，全平台兼容
+2. `webp`：谷歌推出的一种压缩格式，缩减至2/3
 
----
+------
 
 ### 9.2 流式布局
 
@@ -4233,7 +4212,7 @@
 2. 子盒子设置
 
    ```css
-   width: xxx %;
+   width: xxx %
    ```
 
 3. 案例
@@ -4268,21 +4247,21 @@
    </section>
    ```
 
----
+------
 
-### 9.3 flex 布局
+### 9.3 flex布局
 
-#### 9.3.1 flex 特点
+#### 9.3.1 flex特点
 
-1. 任何元素都可以用，布局极为简单，移动端应用广泛，但 PC 端支持较差
+1. 任何元素都可以用，布局极为简单，移动端应用广泛，但PC端支持较差
 2. 行内元素也可以直接调整大小
-3. 父元素设为 flex 布局后，子元素的 float、clear、vertical-align 都失效
-4. 伸缩布局=弹性布局=伸缩盒布局=flex 布局
+3. 父元素设为flex布局后，子元素的float、clear、vertical-align都失效
+4. 伸缩布局=弹性布局=伸缩盒布局=flex布局
 5. 父元素为容器(container)，子元素为项目（item)
 
-#### 9.3.2 flex 父元素
+#### 9.3.2 flex父元素
 
-1. `display: flex`：flex 布局
+1. `display: flex`：flex布局
 
 2. `flex-direction`：主轴方向
 
@@ -4345,11 +4324,11 @@
        /* 设置x轴为主轴 */
        flex-direction: row;
        /* 设置主轴上子元素的排列方式 */
-       justify-content: flex-start; /* 从头部开始（默认）*/
-       justify-content: flex-end; /* 从尾部开始 */
-       justify-content: center; /* 居中对齐 */
-       justify-content: space-around; /* 平分剩余空间 */
-       justify-content: space-between; /* 先分布两边，再平分剩余空间 */
+       justify-content: flex-start;	/* 从头部开始（默认）*/
+       justify-content: flex-end;		/* 从尾部开始 */
+       justify-content: center;		/* 居中对齐 */
+       justify-content: space-around; 	/* 平分剩余空间 */
+       justify-content: space-between;	/* 先分布两边，再平分剩余空间 */
      }
      div span {
        width: 150px;
@@ -4512,11 +4491,11 @@
    </div>
    ```
 
-#### 9.3.3 flex 子元素
+#### 9.3.3 flex子元素
 
-1. `flex`：定义子项目分配剩余空间，表示占多少份数，默认为 0
+1. `flex`：定义子项目分配剩余空间，表示占多少份数，默认为0
 
-   1）如果单元素为 1 表示占领所有剩余空间（所有元素全是 1 的话表示均分空间）
+   1）如果单元素为1表示占领所有剩余空间（所有元素全是1的话表示均分空间）
 
    2）可以写成百分比%，相对父元素而言
 
@@ -4570,9 +4549,9 @@
    </p>
    ```
 
-2. `align-self`：控制子项在侧轴上的排列方式，允许单个元素与其他元素不同的排列方式，可覆盖 align-items 属性
+2. `align-self`：控制子项在侧轴上的排列方式，允许单个元素与其他元素不同的排列方式，可覆盖align-items属性
 
-   1）auto：继承父元素 align-items 属性（默认），若没有父元素，等同于 stretch
+   1）auto：继承父元素align-items属性（默认），若没有父元素，等同于stretch
 
    2）flex-start：从头部开始（默认）
 
@@ -4582,10 +4561,10 @@
 
    5）stretch：平分父元素高度
 
-3. `order`：定义项目的排列顺序，数值越小排列越靠前，默认为 0
+3. `order`：定义项目的排列顺序，数值越小排列越靠前，默认为0
 
-   1）与 z-index 不同之处：order 是排列次序，如 1、2 盒子左右排列可以改成 2、1 盒子左右排列
-
+   1）与z-index不同之处：order是排列次序，如1、2盒子左右排列可以改成2、1盒子左右排列
+   
    ```html
    <style>
      div {
@@ -4616,17 +4595,17 @@
    </div>
    ```
 
----
+------
 
-### 9.4 rem 布局
+### 9.4 rem布局
 
-> 通过修改 html 里面的文字大小来改变页面中元素的大小，可以整体控制，等比例缩放。
+> 通过修改html里面的文字大小来改变页面中元素的大小，可以整体控制，等比例缩放。
 
-#### 9.4.1 rem 单位
+#### 9.4.1 rem单位
 
-1. rem：全称`root em`，是相对单位，类似于 em，em 是父元素字体大小，但 rem 是根元素 html 元素字体大小
+1. rem：全称`root em`，是相对单位，类似于em，em是父元素字体大小，但rem是根元素html元素字体大小
 
-2. 例：html 设置 font-size=12px，非根元素设置 width=2rem，换成 px 为 24px
+2. 例：html设置font-size=12px，非根元素设置width=2rem，换成px为24px
 
    ```html
    <style>
@@ -4663,21 +4642,21 @@
 
    1）媒体类型：
 
-   - all：所有设备
-   - print：用于打印和预览
-   - screen：用于 PC、平板、手机等
+   * all：所有设备
+   * print：用于打印和预览
+   * screen：用于PC、平板、手机等
 
    2）关键字：
 
-   - and：且，将多个媒体特性连接到一起
-   - not：排除某个媒体类型，可省略
-   - only：指定某特定的媒体类型，可省略
+   * and：且，将多个媒体特性连接到一起
+   * not：排除某个媒体类型，可省略
+   * only：指定某特定的媒体类型，可省略
 
    3）媒体特性：
 
-   - width：宽度
-   - min-width：最大宽度
-   - max-width：最小宽度
+   * width：宽度
+   * min-width：最大宽度
+   * max-width：最小宽度
 
 3. 案例：根据不同窗口尺寸，变更页面背景颜色
 
@@ -4702,7 +4681,7 @@
    }
    ```
 
-4. 案例：配合 rem，根据窗口尺寸调整元素大小
+4. 案例：配合rem，根据窗口尺寸调整元素大小
 
    ```html
    <style>
@@ -4729,13 +4708,12 @@
        line-height: 1rem;
      }
    </style>
-   <div class="top">购物车</div>
-   s
+   <div class="top">购物车</div>s
    ```
 
 5. 引入资源：
 
-   1）原理：根据屏幕大小引入不同 css 文件进行适配
+   1）原理：根据屏幕大小引入不同css文件进行适配
 
    2）语法：`<link rel="stylesheet" media="mediatype and|not|only (media feature)" href="stylesheet.css">`
 
@@ -4749,11 +4727,11 @@
    <link rel="stylesheet" href="style640.css" media="screen and (min-width: 640px)" />
    ```
 
-#### 9.4.3 less 语言
+#### 9.4.3 less语言
 
-> 全称[Leaner Style Sheets](http://lesscss.cn/)，是一门 CSS 扩展语言，引入了变量、Mixin、运算、函数功能。（其他 CSS 预处理器：Sass、Stylus）
+> 全称[Leaner Style Sheets](http://lesscss.cn/)，是一门CSS扩展语言，引入了变量、Mixin、运算、函数功能。（其他CSS预处理器：Sass、Stylus）
 
-1. less 变量：`@变量名: 值；`，不能包含特殊字符、不能以数字开头、大小写敏感
+1. less变量：`@变量名: 值；`，不能包含特殊字符、不能以数字开头、大小写敏感
 
    ```less
    @color: pink;
@@ -4762,20 +4740,20 @@
    }
    ```
 
-2. less 编译：由于 html 不能直接引入 less，需要编译成 css 文件才行
+2. less编译：由于html不能直接引入less，需要编译成css文件才行
 
    1）工具：`easy LESS`
 
-   2）方法：control+s 保存之后自动生成 css 文件
+   2）方法：control+s保存之后自动生成css文件
 
-3. less 嵌套：
+3. less嵌套：
 
    1）直接在父选择器里面写子选择器，不用再单独另起一行
 
    2）如果有伪类、交集选择器、 伪元素选择器，内层选择器：
 
-   - 内层选择器前没有&号，被解析为父选择器的后代
-   - 如果有&号，解析为父元素自身或父元素伪类：`&:hover`、`&::before`
+   * 内层选择器前没有&号，被解析为父选择器的后代
+   * 如果有&号，解析为父元素自身或父元素伪类：`&:hover`、`&::before`
 
    ```less
    .header {
@@ -4801,16 +4779,16 @@
    }
    ```
 
-4. less 运算：数字、颜色、变量都可以参与运算（加减乘除）
+4. less运算：数字、颜色、变量都可以参与运算（加减乘除）
 
    1）运算符的左右两侧必须用一个空格隔开
 
    2）除法需要用括号括起来，如:（80/50rem）
 
-   3）两个数参与运算 如果只有一个数有单位，则最后的结果就以这个单位为准
+   3）两个数参与运算  如果只有一个数有单位，则最后的结果就以这个单位为准
 
-   4）两个数参与运算，如果 2 个数都有单位，而且不一样的单位，最后的结果以第一个单位为准
-
+   4）两个数参与运算，如果2个数都有单位，而且不一样的单位，最后的结果以第一个单位为准
+   
    ```less
    @baseFont: 50px;
    html {
@@ -4831,13 +4809,13 @@
 
 #### 9.4.4 适配方案
 
-1. 方案 1：rem+less+媒体查询
+1. 方案1：rem+less+媒体查询
 
    1）常见屏幕尺寸：750px（大多数适用）
 
-   2）html 里的文字大小：把屏幕划分为 15 等份（也可以是 20、10 份），每份为 50px，设为字体大小，如果屏幕为 320px 则设置为 21.33px
+   2）html里的文字大小：把屏幕划分为15等份（也可以是20、10份），每份为50px，设为字体大小，如果屏幕为320px则设置为21.33px
 
-   3）页面元素 rem ：页面元素 px /（屏幕宽度/划分份数）= 页面元素 px / HTML 字体大小
+   3）页面元素 rem ：页面元素px /（屏幕宽度/划分份数）= 页面元素px / HTML字体大小
 
    ```css
    @media screen and (min-width: 320px) {
@@ -4857,17 +4835,17 @@
    }
    ```
 
-2. 方案 2：flexible.js+rem（主流）
+2. 方案2：flexible.js+rem（主流）
 
-   1）简介：手机淘宝团队出品的简洁高效移动端适配库，无需再做媒体查询适配不同屏幕，可以自动计算处理，默认 10 等份，即在 750px 的屏幕下设置 html 文字大小为 75px 即可
+   1）简介：手机淘宝团队出品的简洁高效移动端适配库，无需再做媒体查询适配不同屏幕，可以自动计算处理，默认10等份，即在750px的屏幕下设置html文字大小为75px即可
 
    2）网址：github.com/amfe/lib-flexible
 
-   3）引入 JS：`<script src="js/flexible.js"> </script>`
+   3）引入JS：`<script src="js/flexible.js"> </script>`
 
-   4）工具：`cssrem`，可以自动将 px 转为 rem，但是他默认的字体大小是 16px，需要在设置中修改为 750px/10=75px
+   4）工具：`cssrem`，可以自动将px转为rem，但是他默认的字体大小是16px，需要在设置中修改为750px/10=75px
 
-   5）注意：需要限定屏幕宽度最大为 750px
+   5）注意：需要限定屏幕宽度最大为750px
 
    ```less
    /* 如果屏幕超过了750px，就按750px设计稿来，不让页面超过750px */
@@ -4884,9 +4862,9 @@
 
    1）常见尺寸：320、360、375、384、400、414、424、480、540、720、750px
 
-   2）划分份数：15 份，@no=15;
+   2）划分份数：15份，@no=15;
 
-   3）默认 html 字体大小为 50px，必须写到最上面：`html {font-size: 50px;}`
+   3）默认html字体大小为50px，必须写到最上面：`html {font-size: 50px;}`
 
    ```less
    @no=15;
@@ -4910,13 +4888,13 @@
 
 2. index.less：
 
-   1）引入 common 文件：@import "common"
+   1）引入common文件：@import "common"
 
-   2）body 指定宽度 width: 份数 rem，默认 15rem
+   2）body指定宽度width: 份数rem，默认15rem
 
    3）指定基础字体大小：@baseFont: 50px;
 
-   4）所有涉及大小的属性，先在 750px 分辨率下测量 px 大小，再转换为 rem 形式
+   4）所有涉及大小的属性，先在750px分辨率下测量px大小，再转换为rem形式
 
    ```less
    // @import：可以把一个样式文件导入到另外一个样式文件里面
@@ -4945,7 +4923,7 @@
 
 ### 9.5 响应式布局
 
-> 利用媒体查询适配不同屏幕宽度，每个宽度下有一个 container，令网页大盒子 class="container"。
+> 利用媒体查询适配不同屏幕宽度，每个宽度下有一个container，令网页大盒子class="container"。
 
 #### 9.5.1 屏幕尺寸
 
@@ -5036,9 +5014,9 @@
    </div>
    ```
 
-#### 9.5.2 Bootstrap 框架
+#### 9.5.2 Bootstrap框架
 
-> [Bootstrap 官网](https://www.bootcss.com/)下载，复制 css/js/font 三个文件夹
+> [Bootstrap官网](https://www.bootcss.com/)下载，复制css/js/font三个文件夹
 
 ##### 9.5.2.1 容器
 
@@ -5068,17 +5046,17 @@
 
 ##### 9.5.2.2 栅格系统 Grid
 
-1. 定义：布局模式，将页面划分成等宽的列，通过列数定义布局，默认划分成 12 列
+1. 定义：布局模式，将页面划分成等宽的列，通过列数定义布局，默认划分成12列
 
 2. 行：`class="row"`，可以消除容器内边距
 
 3. 用法：
 
-   1）给盒子加上类前缀，最后加数字，使得所有数字之和为 12
+   1）给盒子加上类前缀，最后加数字，使得所有数字之和为12
 
-   2）如果数字相加之和小于 12，则不占满整个屏幕
+   2）如果数字相加之和小于12，则不占满整个屏幕
 
-   3）如果数字相加之和大于 12，则多于 12 的列会另起一行显示
+   3）如果数字相加之和大于12，则多于12的列会另起一行显示
 
    4）全适配
 
@@ -5125,9 +5103,9 @@
 
 4. 列嵌套：
 
-   1）在其中一列里再写一个 row，里面再放列
+   1）在其中一列里再写一个row，里面再放列
 
-   2）如果不写 row 直接放子列，则有内边距，无法顶边排列
+   2）如果不写row直接放子列，则有内边距，无法顶边排列
 
    ```html
    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
@@ -5234,26 +5212,26 @@
    </div>
    ```
 
----
+------
 
-### 9.6 vw/vh 布局
+### 9.6 vw/vh布局
 
-> vw/vh 是一个相对单位，vw 是 viewport width 视口宽度，vh 是 viewport height 视口高度（一般使用 vw 就够了，无需使用 vh）
+> vw/vh是一个相对单位，vw是viewport width视口宽度，vh是viewport height视口高度（一般使用vw就够了，无需使用vh）
 
 1. 尺寸：
 
-   1）1vw = 1/100 视口宽度
+   1）1vw = 1/100视口宽度
 
-   2）1vh = 1/100 视口高度
+   2）1vh = 1/100视口高度
 
 2. 换算
 
-   1）元素尺寸/(屏幕尺寸/100)：例：375px 屏幕下，元素宽 50px，换算：50/(375/100)=13.3333vw
+   1）元素尺寸/(屏幕尺寸/100)：例：375px屏幕下，元素宽50px，换算：50/(375/100)=13.3333vw
 
    3）工具：像素大厨
 
    4）插件：`px2vw`
-
+   
    ```html
    <style>
      div {
@@ -5269,4 +5247,4 @@
    <div>pink老师真帅</div>
    ```
 
----
+------

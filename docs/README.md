@@ -8,7 +8,8 @@ sidebar: false
 - Desc: A personal repo for Web-tech practicing
 - Date: 2021.10.20 - now
 
-![logo](/imgs/logo.png)
+<!-- ![logo]($withBase('/imgs/logo.png')) -->
+<img :src="$withBase('/imgs/logo.png')" alt="logo">
 
 ## Web Basic
 

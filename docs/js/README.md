@@ -1594,7 +1594,8 @@
    })
    ```
 
-   ![遍历数组-reduce](/imgs/basic/遍历数组-reduce.png)
+   <!-- ![遍历数组-reduce](/imgs/basic/遍历数组-reduce.png) -->
+   <img :src="$withBase('/imgs/basic/遍历数组-reduce.png')" alt="遍历数组-reduce">
 
 4. 案例：找出两个数组之间的补集（在currentArr但不在arr中的元素）
 
@@ -2097,9 +2098,8 @@
 
    3）函数也属于对象：`f instanceof Object`
 
-   ![Function构造函数](/imgs/basic/Function构造函数.png)
-
-   
+   <!-- ![Function构造函数](/imgs/basic/Function构造函数.png) -->
+   <img :src="$withBase('/imgs/basic/Function构造函数.png')" alt="Function构造函数">
 
 ------
 
@@ -3792,7 +3792,8 @@
 
 ##### 2.10.8.4 原型链
 
-![原型链](/imgs/basic/原型链.png)
+<!-- ![原型链](/imgs/basic/原型链.png) -->
+<img :src="$withBase('/imgs/basic/原型链.png')" alt="原型链">
 
 1. 只要是对象就有`__proto__`原型，指向原型对象【Object.prototype】
 
@@ -5217,7 +5218,8 @@
 
 5. Promise 的基本流程：
 
-   ![](/imgs/basic/promise的基本流程.png)
+   <!-- ![promise的基本流程](/imgs/basic/promise的基本流程.png) -->
+   <img :src="$withBase('/imgs/basic/promise的基本流程.png')" alt="promise的基本流程">
 
 ------
 

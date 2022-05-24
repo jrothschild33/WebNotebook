@@ -1,0 +1,17 @@
+{
+  "name": "vue_note",
+  "version": "1.0.0",
+  "description": "Vue Note",
+  "main": "",
+  "repository": "",
+  "author": "Jason Zhou",
+  "license": "",
+  "private": true,
+  "devDependencies": {
+    "vuepress": "^1.9.7"
+  },
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  }
+}

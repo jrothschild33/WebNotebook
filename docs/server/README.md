@@ -1,3 +1,8 @@
+---
+prev: /js/
+next: /vue2/
+---
+
 # Server
 
 ## 第1章 Ajax

@@ -1,11 +1,13 @@
 module.exports = {
   title: 'Jason的前端笔记',
   description: '全栈工程师成长记录',
-  base:"/WebNotebook/",
+  base: '/WebNotebook/',
   themeConfig: {
     // 侧边栏
     sidebar: 'auto',
-    sidebarDepth: 4,
+    sidebarDepth: 2,
+    // 显示所有页面的标题链接
+    // displayAllHeaders: true,
     // 导航栏
     nav: [
       { text: 'Home', link: '/' },

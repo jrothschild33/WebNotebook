@@ -1,3 +1,8 @@
+---
+prev: /vue2/
+next: /react/
+---
+
 # Vue3
 
 ## 第 1 章 Vue3 基本用法
@@ -257,7 +262,7 @@
      <h2>{{msg | mySlice}}</h2>
    </div>
    <h3>现在是：{{time | timeFormater}}</h3>
-
+   
    <script>
    ......
    // 全局过滤器
@@ -296,7 +301,7 @@
    .v-leave-to {
      opacity: 0;
    }
-
+   
    .v-leave-from,
    .v-enter-to {
      opacity: 1;
@@ -410,7 +415,7 @@
        </template>
      </Demo>
    </template>
-
+   
    <script>
    import Demo from './components/Demo'
    export default {
@@ -437,7 +442,7 @@
      <h2>年龄：{{ person.age }}</h2>
      <button @click="test">测试触发一下Demo组件的Hello事件</button>
    </template>
-
+   
    <script>
    import { reactive } from 'vue'
    export default {
@@ -455,12 +460,12 @@
          name: '张三',
          age: 18,
        })
-
+   
        //方法
        function test() {
          context.emit('hello', 666)
        }
-
+   
        //返回一个对象（常用）
        return {
          person,
@@ -503,7 +508,7 @@
      <h3>工作薪水：{{ job.salary }}</h3>
      <button @click="changeInfo">修改人的信息</button>
    </template>
-
+   
    <script>
    import { ref } from 'vue'
    export default {
@@ -523,7 +528,7 @@
          job.value.type = 'UI设计师'
          job.value.salary = '60K'
        }
-
+   
        // 返回一个对象（常用）
        return {
          name,
@@ -569,7 +574,7 @@
      <h3>测试的数据c：{{ person.job.a.b.c }}</h3>
      <button @click="changeInfo">修改人的信息</button>
    </template>
-
+   
    <script>
    import { reactive } from 'vue'
    export default {
@@ -590,7 +595,7 @@
          },
          hobby: ['抽烟', '喝酒', '烫头'],
        })
-
+   
        //方法
        function changeInfo() {
          person.name = '李四'
@@ -600,7 +605,7 @@
          person.job.a.b.c = 999
          person.hobby[0] = '学习' // 可以直接通过数组index修改（而vue2中需要用$set修改）
        }
-
+   
        //返回一个对象（常用）
        return {
          person,
@@ -640,7 +645,7 @@
      name: '张三',
      age: 18,
    }
-
+   
    let p = {}
    Object.defineProperty(p, 'name', {
      configurable: true,
@@ -759,7 +764,7 @@
      <br />全名：
      <input type="text" v-model="person.fullName" />
    </template>
-
+   
    <script>
    import { reactive, computed } from 'vue'
    export default {
@@ -774,7 +779,7 @@
        /* person.fullName = computed(() => {
          return person.firstName + '-' + person.lastName
        }) */
-
+   
        //计算属性——完整写法（考虑读和写）
        person.fullName = computed({
          get() {
@@ -786,7 +791,7 @@
            person.lastName = nameArr[1]
          },
        })
-
+   
        //返回一个对象（常用）
        return {
          person,
@@ -851,7 +856,7 @@
        },
      },
    })
-
+   
    // 方法1
    watch(
      person,
@@ -860,7 +865,7 @@
      },
      { deep: true }
    )
-
+   
    // 方法2
    watch(person.value, (newValue, oldValue) => {
      console.log('person的值变化了', newValue, oldValue)
@@ -973,7 +978,7 @@
      <button @click="person.age++">增长年龄</button>
      <button @click="person.job.j1.salary++">涨薪</button>
    </template>
-
+   
    <script>
    import { ref, reactive, watch, watchEffect } from 'vue'
    export default {
@@ -991,7 +996,7 @@
            },
          },
        })
-
+   
        // watch监视
        watch(
          sum,
@@ -1006,7 +1011,7 @@
          const x2 = person.job.j1.salary
          console.log('watchEffect所指定的回调执行了')
        })
-
+   
        //返回一个对象（常用）
        return {
          sum,
@@ -1104,7 +1109,7 @@
      <h2>当前求和为：{{ sum }}</h2>
      <button @click="sum++">点我+1</button>
    </template>
-
+   
    <script>
    import { ref, onBeforeMount, onMounted, onBeforeUpdate, onUpdated, onBeforeUnmount, onUnmounted } from 'vue'
    export default {
@@ -1132,7 +1137,7 @@
        onUnmounted(() => {
          console.log('---onUnmounted---')
        })
-
+   
        //返回一个对象（常用）
        return { sum }
      },
@@ -1162,23 +1167,23 @@
        x: 0,
        y: 0,
      })
-
+   
      //实现鼠标“打点”相关的方法
      function savePoint(event) {
        point.x = event.pageX
        point.y = event.pageY
        console.log(event.pageX, event.pageY)
      }
-
+   
      //实现鼠标“打点”相关的生命周期钩子
      onMounted(() => {
        window.addEventListener('click', savePoint)
      })
-
+   
      onBeforeUnmount(() => {
        window.removeEventListener('click', savePoint)
      })
-
+   
      // 必须有返回值
      return point
    }
@@ -1193,7 +1198,7 @@
      <hr />
      <h2>当前点击时鼠标的坐标为：x：{{ point.x }}，y：{{ point.y }}</h2>
    </template>
-
+   
    <script>
    import { ref } from 'vue'
    // 引入hook函数
@@ -1204,7 +1209,7 @@
        //数据
        let sum = ref(0)
        let point = usePoint()
-
+   
        //返回一个对象（常用）
        return { sum, point }
      },
@@ -1219,7 +1224,7 @@
      <h2>我是Test组件</h2>
      <h2>当前点击时鼠标的坐标为：x：{{ point.x }}，y：{{ point.y }}</h2>
    </template>
-
+   
    <script>
    // 引入hook函数
    import usePoint from '../hooks/usePoint'
@@ -1242,7 +1247,7 @@
      <hr />
      <Test />
    </template>
-
+   
    <script>
    import { ref } from 'vue'
    import Demo from './components/Demo'
@@ -1286,7 +1291,7 @@
      <button @click="age++">增长年龄</button>
      <button @click="job.j1.salary++">涨薪</button>
    </template>
-
+   
    <script>
    import { ref, reactive, toRef, toRefs } from 'vue'
    export default {
@@ -1305,12 +1310,12 @@
        //返回一个对象（常用）
        return {
          person,
-
+   
          // 对外提供单个属性
          // name:toRef(person,'name'),
          // age:toRef(person,'age'),
          // salary:toRef(person.job.j1,'salary'),
-
+   
          // 对外提供全部属性（仅第一层）
          ...toRefs(person),
        }
@@ -1352,7 +1357,7 @@
    <button @click="x = { y: 888 }">点我替换x</button>
    <!-- shallowRef：不进行对象的响应式处理，因为里面不是Proxy，而是Object -->
    <button @click="x.y++">点我x.y++</button>
-
+   
    <script>
    ......
    let x = shallowRef({
@@ -1379,12 +1384,12 @@
    <button @click="name += '~'">修改姓名</button>
    <button @click="age++">增长年龄</button>
    <button @click="job.j1.salary++">涨薪</button>
-
+   
    <script>
    ......
    // 全部数据无法修改
    // let person = readonly({...})
-
+   
    // 除第一层数据外，深层次数据可以修改
    let person = shallowReadonly({
      name: '张三',
@@ -1452,7 +1457,7 @@
    <button @click="addCar">给人添加一台车</button>
    <button @click="person.car.name += '!'">换车名</button>
    <button @click="changePrice">换价格</button>
-
+   
    <script>
    ......
    let person = reactive({
@@ -1464,19 +1469,19 @@
        },
      },
    })
-
+   
    function addCar() {
      let car = { name: '奔驰', price: 40 }
      // car变为非响应式数据，改变后屏幕上的信息不会跟随变化
      person.car = markRaw(car)
    }
-
+   
    function changePrice() {
      person.car.price++
      // 控制台输出数据会变化，但屏幕上的数据不会跟随变化
      console.log(person.car.price)
    }
-
+   
    return {
      // 考虑后期可能向对象身上添加属性，所以在setup最后return时要同时交出 person 和 ...toRefs(person)
      person,
@@ -1524,7 +1529,7 @@
      <input type="text" v-model="keyWord" />
      <h3>{{ keyWord }}</h3>
    </template>
-
+   
    <script>
    import { ref, customRef } from 'vue'
    export default {
@@ -1551,7 +1556,7 @@
            }
          })
        }
-
+   
        let keyWord = myRef('hello', 500) //使用自定义的ref
        return { keyWord }
      },
@@ -1586,7 +1591,7 @@
 
    ```vue
    <h3>我是Son组件（孙），{{car.name}}--{{car.price}}</h3>
-
+   
    <script>
    ......
    import { inject } from 'vue'
@@ -1652,7 +1657,7 @@
        <Dialog />
      </div>
    </template>
-
+   
    <script>
    import Dialog from './Dialog.vue'
    export default {
@@ -1660,7 +1665,7 @@
      components: { Dialog },
    }
    </script>
-
+   
    <style>
    .son {
      background-color: orange;
@@ -1688,7 +1693,7 @@
        </teleport>
      </div>
    </template>
-
+   
    <script>
    import { ref } from 'vue'
    export default {
@@ -1699,7 +1704,7 @@
      },
    }
    </script>
-
+   
    <style>
    .mask {
      position: absolute;
@@ -1819,7 +1824,7 @@
        </Suspense>
      </div>
    </template>
-
+   
    <script>
    import { defineAsyncComponent } from 'vue'
    const Child = defineAsyncComponent(() => import('./components/Child')) //异步引入
@@ -1828,7 +1833,7 @@
      components: { Child },
    }
    </script>
-
+   
    <style>
    .app {
      background-color: gray;

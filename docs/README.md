@@ -6,14 +6,18 @@ tagline: A Notebook for Full Stack Developer
 actionText: 开始阅读 →
 actionLink: /html/
 features:
-- title: Web基础知识
-  details: HTML + CSS + Javascript
-- title: 后端服务器
-  details: Ajax + Git + Node.js + Express
-- title: 前端框架
-  details: Vue + React
-footer: MIT Licensed | Copyright © 2020-present Jason Zhou
+  - title: Web基础知识
+    details: HTML + CSS + Javascript
+  - title: 后端服务器
+    details: Ajax + Git + Node.js + Express
+  - title: 前端框架
+    details: Vue + React
+# footer: MIT Licensed | Copyright © 2020-present Jason Zhou
 ---
+
+::: slot footer
+MIT Licensed | Copyright © 2020-present [Jason Zhou](https://github.com/jrothschild33)
+:::
 
 # Webtech Notebook
 

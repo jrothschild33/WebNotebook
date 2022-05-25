@@ -1,3 +1,8 @@
+---
+prev: /html/
+next: /js/
+---
+
 # CSS
 
 ## 第1章 CSS基础知识
@@ -803,9 +808,7 @@
 3. 边框切图：`border-image-slice`
 
    <!-- ![边框切图：border-image-slice](/img/basic/边框切图：border-image-slice.png) -->
-   <!-- <img :src="$withBase('/img/basic/边框切图：border-image-slice.png')" alt="边框切图：border-image-slice"> -->
-
-   <img src="/img/basic/边框切图：border-image-slice.png" alt="边框切图：border-image-slice">
+   <img :src="$withBase('/img/basic/边框切图：border-image-slice.png')" alt="边框切图：border-image-slice">
 
    1）原理：把四个角切出去（类似九宫格），中间部分可以铺排、拉抻、环绕
 
@@ -814,7 +817,7 @@
    ```css
    border-image-slice: 51 38 20 132;
    ```
-
+   
 4. 边框宽度：`border-image-width`，里面的内容不会被挤压、保持原位
 
 5. 边框平铺：拉抻的是九宫格上下左右中间部分

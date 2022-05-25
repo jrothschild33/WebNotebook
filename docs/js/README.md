@@ -1,3 +1,8 @@
+---
+prev: /css/
+next: /server/
+---
+
 # JavaScript
 
 ## 第1章 JavaScript介绍

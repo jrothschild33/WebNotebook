@@ -1,3 +1,8 @@
+---
+prev: /sever/
+next: /vue3/
+---
+
 # Vue2
 
 ## 第1章 Vue基本用法

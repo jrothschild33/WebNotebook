@@ -1,6 +1,13 @@
-# 第1章 React基础知识
+---
+prev: /vue3/
+next: false
+---
 
-## 1.1 React简介
+# React
+
+## 第1章 React基础知识
+
+### 1.1 React简介
 
 1. 官网：
 
@@ -29,7 +36,7 @@
    - 使用虚拟(virtual)DOM，不总是直接操作页面真实DOM
    - DOM Diffing算法，最小化页面重绘
 
-## 1.2 基本用法
+### 1.2 基本用法
 
 1. 依赖库：注意引入顺序
 
@@ -101,9 +108,9 @@
    </script>
    ```
 
-## 1.3 React JSX
+### 1.3 React JSX
 
-### 1.3.1 JSX语法
+#### 1.3.1 JSX语法
 
 > `JavaScript XML`：用于简化创建虚拟DOM
 
@@ -132,13 +139,17 @@
 
    3）样式的类名指定不要用class，要用`className`
 
-   4）内联样式：`style={{key:value}}`，对于带有“`-`”的属性要转为驼峰写法，如：`font-size`写成`fontSize`
+   4）内联样式：对于带有“`-`”的属性要转为驼峰写法，如：`font-size`写成`fontSize`
+
+   ```jsx
+   style={{key:value}}
+   ```
 
    5）只有一个根标签
 
    6）标签必须闭合
 
-6. babel.js的作用：
+6. `babel.js`的作用：
 
    1）浏览器不能直接解析JSX代码，需要babel转译为纯JS的代码才能运行
 
@@ -182,7 +193,7 @@
    </script>
    ```
 
-### 1.3.2 渲染虚拟DOM
+#### 1.3.2 渲染虚拟DOM
 
 1. 语法：`ReactDOM.render(virtualDOM, containerDOM)`
 
@@ -198,17 +209,21 @@
 
    1）JS表达式：
 
-   - a
-   - a+b
-   - demo(1)
-   - arr.map() 
-   - function test () {}
+   ```js
+   a
+   a+b
+   demo(1)
+   arr.map() 
+   function test () {}
+   ```
 
    2）JS语句：
 
-   - if(){}
-   - for(){}
-   - switch(){case:xxxx}
+   ```js
+   if(){}
+   for(){}
+   switch(){case:xxxx}
+   ```
 
 5. 案例：
 

@@ -29,8 +29,9 @@ module.exports = {
           { text: 'Vue3', link: '/vue3/' },
         ],
       },
+      { text: 'React', link: '/react/' },
     ],
     // 显示最后更新时间
-    lastUpdated: '上次更新:',
+    lastUpdated: '上次更新',
   },
 }

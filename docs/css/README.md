@@ -803,7 +803,9 @@
 3. 边框切图：`border-image-slice`
 
    <!-- ![边框切图：border-image-slice](/img/basic/边框切图：border-image-slice.png) -->
-   <img :src="$withBase('/img/basic/边框切图：border-image-slice.png')" alt="边框切图：border-image-slice">
+   <!-- <img :src="$withBase('/img/basic/边框切图：border-image-slice.png')" alt="边框切图：border-image-slice"> -->
+
+   <img src="/img/basic/边框切图：border-image-slice.png" alt="边框切图：border-image-slice">
 
    1）原理：把四个角切出去（类似九宫格），中间部分可以铺排、拉抻、环绕
 

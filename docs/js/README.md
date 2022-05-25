@@ -1597,7 +1597,29 @@
    <!-- ![遍历数组-reduce](/imgs/basic/遍历数组-reduce.png) -->
    <img :src="$withBase('/imgs/basic/遍历数组-reduce.png')" alt="遍历数组-reduce">
 
-4. 案例：找出两个数组之间的补集（在currentArr但不在arr中的元素）
+4. `arr.map(function callback(currentValue[, index[, array]]) {...}`
+
+   1）作用：创建一个新数组，这个新数组由原数组中的每个元素都调用一次提供的函数后的返回值组成
+
+   2）参数：
+
+   - currentValue：正在处理的当前元素
+   - index：正在处理的当前元素的索引
+   - array：map 方法调用的数组
+
+   3）案例：
+
+   ```js
+   const array1 = [1, 4, 9, 16]
+   const map1 = array1.map(x => x * 2)
+   console.log(map1)	// [2, 8, 18, 32]
+   
+   const numbers = [1, 4, 9]
+   const roots = numbers.map(Math.sqrt)
+   console.log(roots)	// [1, 2, 3]
+   ```
+
+5. 案例：找出两个数组之间的补集（在currentArr但不在arr中的元素）
 
    ```js
    // 方法一：
@@ -6098,11 +6120,19 @@
 
 4. `window.parent.XXX()`：如果存在页面嵌套（如iframe），子页面可以跳到父页面js中的方法
 
-5. 阻止链接`<a>`跳转：`href=javascript:void(0)'`或 `href=javascript:;`
+5. 代码断点：`debugger`，与F12中手动打断点效果相同
 
-6. 立即执行函数：`(function(){})()`、`(function(){}())`
+   ```js
+   const a = document.getElementById('demo')
+   debugger
+   console.log(typeof a)
+   ```
 
-7. flag开关：
+6. 阻止链接`<a>`跳转：`href=javascript:void(0)'`或 `href=javascript:;`
+
+7. 立即执行函数：`(function(){})()`、`(function(){}())`
+
+8. flag开关：
 
    ```html
    <button id="btn">开关灯</button>

@@ -1,5 +1,5 @@
 ---
-prev: /sever/
+prev: /server/#第1章-ajax
 next: /vue3/
 ---
 

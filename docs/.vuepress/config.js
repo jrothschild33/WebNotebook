@@ -30,5 +30,7 @@ module.exports = {
         ],
       },
     ],
+    // 显示最后更新时间
+    lastUpdated: '上次更新:',
   },
 }

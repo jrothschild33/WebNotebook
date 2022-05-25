@@ -1,6 +1,6 @@
 ---
 prev: /css/
-next: /server/
+next: /server/#第1章-ajax
 ---
 
 # JavaScript
@@ -1519,7 +1519,7 @@ next: /server/
 
 #### 2.5.11 数组拼接
 
-1. `arr1.concat(arr2,arr3,...)`：返回一个新数组，不影响原数组，
+1. `arr1.concat(arr2,arr3,...)`：返回一个新数组，不影响原数组。
 
 #### 2.5.12 数组遍历
 

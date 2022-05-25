@@ -43,13 +43,13 @@
 
    1）React提供了一些API来创建一种 “特别” 的一般js对象
 
-   ```react
+   ```React
    const VDOM = React.createElement('xx',{id:'xx'},'xx')
    ```
 
    2）虚拟DOM对象最终都会被React转换为真实的DOM
 
-   ```react
+   ```React
    ReactDOM.render(VDOM, document.getElementById('test'))
    ```
 

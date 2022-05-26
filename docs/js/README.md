@@ -4047,6 +4047,7 @@ next: /server/#第1章-ajax
      }
    }
    class Son extends Father {
+     // 如果Son上不再有其他属性，constructor、super这段代码可以不写
      constructor(x, y) {
        super(x, y) //调用了父类中的构造函数
      }
@@ -4223,6 +4224,34 @@ next: /server/#第1章-ajax
      ldh.dance()
      console.log(_that === ldh)	// true
    </script>
+   ```
+
+4. 类中自定义函数的`this`指向：
+
+   ```js
+   class Person {
+     constructor(name, age) {
+       this.name = name
+       this.age = age
+     }
+     study() {
+       console.log(this)
+     }
+   }
+   ```
+
+   1）通过实例调用：指向实例对象
+
+   ```js
+   const p = new Person('tom', 18)
+   p.study()	// 通过实例调用study方法：Person{age:18,name:"tom"}
+   ```
+
+   2）通过其他方式调用（直接调用、事件触发调用等）：`undefined`，因为类中默认开启了严格模式
+
+   ```js
+   const x = p1.study
+   x() // 直接调用：undefined
    ```
 
 ------

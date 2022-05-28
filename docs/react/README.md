@@ -942,3 +942,160 @@ next: false
 ------
 
 ### 2.6 生命周期函数
+
+> React组件中包含一系列勾子函数（生命周期回调函数），会在特定的时刻调用
+
+#### 2.6.1 生命周期流程(旧)
+
+<img :src="$withBase('/imgs/react/react生命周期(旧).png')" alt="react生命周期(旧)">
+
+1. 初始化阶段：由`ReactDOM.render()`触发初次渲染
+
+   - `constructor()`
+
+   - `componentWillMount()`：即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
+   - `render()`：会调用多次
+   - `componentDidMount()`：仅调用一次，做一些初始化工作：开启定时器、发送网络请求、订阅消息
+
+2. 更新阶段：
+
+   - `componentWillReceiveProps()`：由父组件重新`render`触发，即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
+
+     ```jsx
+     // 父组件A
+     class A extends React.Component {
+       // 初始化状态
+       state = { carName: '奔驰' }
+       changeCar = () => {
+         this.setState({ carName: '奥拓' })
+       }
+       render() {
+         return (
+           <div>
+             <div>我是A组件</div>
+             <button onClick={this.changeCar}>换车</button>
+             <B carName={this.state.carName} />
+           </div>
+         )
+       }
+     }
+     
+     // 子组件B
+     class B extends React.Component {
+       // 组件将要接收新的props的钩子
+       componentWillReceiveProps(props) {
+         console.log('B---componentWillReceiveProps', props)
+       }
+       render() {
+         console.log('B---render')
+         return <div>我是B组件，接收到的车是:{this.props.carName}</div>
+       }
+     }
+     ```
+
+   - `shouldComponentUpdate()`：由`setState()`触发，默认返回ture，如果返回false则无法继续以下流程
+
+     ```jsx
+     this.state = { count: 0 }
+     ......
+     add = () => {
+       // 获取原状态
+       const { count } = this.state
+       // 更新状态
+       this.setState({ count: count + 1 })
+     }
+     // 控制组件更新的“阀门”
+     shouldComponentUpdate() {
+       console.log('Count---shouldComponentUpdate')
+       return true
+     }
+     ......
+     <button onClick={this.add}>点我+1</button>
+     ```
+
+   - `componentWillUpdate()`：由`forceUpdate()`强制更新触发，即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
+
+     ```jsx
+     force = () => {
+       this.forceUpdate()
+     }
+     componentWillMount() {
+       console.log('Count---componentWillMount')
+     }
+     ......
+     <button onClick={this.force}>不更改任何状态中的数据，强制更新一下</button>
+     ```
+
+   - `render()`
+
+   - `componentDidUpdate()`
+
+3. 卸载组件：由`ReactDOM.unmountComponentAtNode()`触发
+
+   - `componentWillUnmount()`：做一些收尾工作：关闭定时器、取消订阅消息
+
+4. 案例：标题在2秒内不断变暗，点击按钮可以卸载组件
+
+   ```jsx
+   // 创建组件
+   class Life extends React.Component {
+     state = { opacity: 1 }
+     death = () => {
+       // 卸载组件
+       ReactDOM.unmountComponentAtNode(document.getElementById('test'))
+     }
+     // 组件挂完毕
+     componentDidMount() {
+       console.log('componentDidMount')
+       this.timer = setInterval(() => {
+         // 获取原状态
+         let { opacity } = this.state
+         // 减小0.1
+         opacity -= 0.1
+         if (opacity <= 0) opacity = 1
+         // 设置新的透明度
+         this.setState({ opacity })
+       }, 200)
+     }
+     // 组件将要卸载
+     componentWillUnmount() {
+       // 清除定时器
+       clearInterval(this.timer)
+     }
+     // 初始化渲染、状态更新之后
+     render() {
+       console.log('render')
+       return (
+         <div>
+           <h2 style={{ opacity: this.state.opacity }}>React学不会怎么办？</h2>
+           <button onClick={this.death}>不活了</button>
+         </div>
+       )
+     }
+   }
+   // 渲染组件
+   ReactDOM.render(<Life />, document.getElementById('test'))
+   ```
+
+------
+
+#### 2.6.2 生命周期流程(新)
+
+<img :src="$withBase('/imgs/react/react生命周期(新).png')" alt="react生命周期(新)">
+
+1. 初始化阶段：由`ReactDOM.render()`触发初次渲染
+   - `constructor()`
+   - `getDerivedStateFromProps()`
+   - `render()`
+   - `componentDidMount()`：开启监听，发送ajax请求
+2. 更新阶段：由组件内部`this.setSate()`或父组件重新render触发
+   - `getDerivedStateFromProps()`
+   - `shouldComponentUpdate()`
+   - `render()`
+   - `getSnapshotBeforeUpdate()`
+   - `componentDidUpdate()`
+3. 卸载组件：由`ReactDOM.unmountComponentAtNode()`触发
+   - `componentWillUnmount()`：做一些收尾工作，如清理定时器
+
+------
+

@@ -1618,6 +1618,8 @@ next: /server/#第1章-ajax
    const array1 = [1, 4, 9, 16]
    const map1 = array1.map(x => x * 2)
    console.log(map1)	// [2, 8, 18, 32]
+   // 也可以直接用字面量承接新数组
+   {array1.map(x => x * 2)}	// [2, 8, 18, 32]
    
    const numbers = [1, 4, 9]
    const roots = numbers.map(Math.sqrt)
@@ -9024,13 +9026,13 @@ next: /server/#第1章-ajax
 
 * 不带边框：padding、内容
 
-1. `event.clientTop`：返回元素上边框大小
+1. `element.clientTop`：返回元素上边框大小
 
-2. `event.clientLeft`：返回元素左边框大小
+2. `element.clientLeft`：返回元素左边框大小
 
-3. `event.clientWidth`：返回自身包括padding、内容区的宽度，不含边框，返回数值不带单位
+3. `element.clientWidth`：返回自身包括padding、内容区的宽度，不含边框，返回数值不带单位
 
-4. `event.clientHeight`：返回自身包括padding、内容区的高度，不含边框，返回数值不带单位
+4. `element.clientHeight`：返回自身包括padding、内容区的高度，不含边框，返回数值不带单位
 
    ```html
    <style>
@@ -9058,13 +9060,13 @@ next: /server/#第1章-ajax
 
 1. 属性：
 
-   1）`event.scrollTop`：返回被卷去的上侧距离（无单位）
+   1）`element.scrollTop`：返回被卷去的上侧距离（无单位）
 
-   2）`event.scrollLeft`：返回被卷去的左侧距离（无单位）
+   2）`element.scrollLeft`：返回被卷去的左侧距离（无单位）
 
-   3）`event.scrollWidth`：返回自身实际宽度，不含边框（无单位）
+   3）`element.scrollWidth`：返回自身实际宽度，不含边框（无单位）
 
-   4）`event.scrollHeight`：返回自身实际高度，不含边框（无单位）
+   4）`element.scrollHeight`：返回自身实际高度，不含边框（无单位）
 
 2. 事件：scroll
 

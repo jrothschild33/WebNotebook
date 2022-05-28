@@ -268,6 +268,132 @@ next: false
 
 ------
 
+#### 1.3.3 Diffing算法
+
+1. 定义：React使用虚拟DOM，不总是直接操作页面真实DOM，这里就使用了Diffing算法将虚拟和真实DOM进行对比，最小化页面重绘
+
+2. 验证虚拟DOM的Diffing算法的存在：算法比较的最小粒度是HTML标签
+
+   <img :src="$withBase('/imgs/react/验证虚拟DOM的Diffing算法的存在.png')" alt="验证虚拟DOM的Diffing算法的存在">
+
+   ```jsx
+   // 案例：随着时间推移，页面上显示时间的文字不断变化（span标签被不断更新）
+   // 如果input输入框没变化，则React不更新该标签，输入框内容得以保留（算法比较的最小粒度是HTML标签）
+   class Time extends React.Component {
+     state = { date: new Date() }
+     componentDidMount() {
+       setInterval(() => {
+         this.setState({
+           date: new Date(),
+         })
+       }, 1000)
+     }
+     render() {
+       return (
+         <div>
+           <h1>hello</h1>
+           <input type="text" />
+           <span>
+             现在是：{this.state.date.toTimeString()}
+             <input type="text" />
+           </span>
+         </div>
+       )
+     }
+   }
+   ReactDOM.render(<Time />, document.getElementById('test'))
+   ```
+
+------
+
+#### 1.3.4 Key的作用
+
+> key是虚拟DOM对象的标识，在更新显示时key起着极其重要的作用
+
+1. 当状态中的数据发生变化时，React会根据新数据生成新的虚拟DOM，随后进行【新虚拟DOM】与【旧虚拟DOM】的diff比较
+
+   1）旧虚拟DOM中找到了与新虚拟DOM相同的`key`：
+
+   - 若虚拟DOM中内容没变, 直接使用之前的真实DOM
+   - 若虚拟DOM中内容变了, 则生成新的真实DOM，随后替换掉页面中之前的真实DOM
+   
+   2）旧虚拟DOM中未找到与新虚拟DOM相同的`key`：
+   
+   - 根据数据创建新的真实DOM，随后渲染到到页面
+
+3. 用`index`作为`key`可能会引发的问题：
+
+   1）若对数据进行：逆序添加、逆序删除等破坏顺序操作：会产生没有必要的真实DOM更新，界面效果没问题, 但效率低
+
+   2）如果包含输入类的DOM：会产生错误DOM更新，界面有问题（如：input输入框中的内容不跟随DOM移动）
+
+   3）如果不存在对数据的逆序添加、逆序删除等破坏顺序操作，仅用于渲染列表用于展示，使用index作为key是没有问题的
+
+5. 开发中如何选择key：
+
+   1）最好使用每条数据的唯一标识作为key, 比如id、手机号、身份证号、学号等唯一值
+
+   2）如果确定只是简单的展示数据，用index也可以
+
+6. 案例：
+
+   1）使用index（索引值）作为key：input输入框中的内容不跟随DOM移动，界面有问题
+
+   2）使用id（数据的唯一标识）作为key：没问题
+
+   ```jsx
+   class Person extends React.Component {
+     state = {
+       persons: [
+         { id: 1, name: '小张', age: 18 },
+         { id: 2, name: '小李', age: 19 },
+       ],
+     }
+     add = () => {
+       const { persons } = this.state
+       const p = { id: persons.length + 1, name: '小王', age: 20 }
+       this.setState({ persons: [p, ...persons] })
+     }
+     render() {
+       return (
+         <div>
+           <h2>展示人员信息</h2>
+           <button onClick={this.add}>添加一个小王</button>
+           <h3>使用index（索引值）作为key</h3>
+           <ul>
+             {this.state.persons.map((personObj, index) => {
+               return (
+                 <li key={index}>
+                   {personObj.name}---{personObj.age}
+                   <input type="text" />
+                 </li>
+               )
+             })}
+           </ul>
+           
+           <hr />
+           <hr />
+           
+           <h3>使用id（数据的唯一标识）作为key</h3>
+           <ul>
+             {this.state.persons.map((personObj) => {
+               return (
+                 <li key={personObj.id}>
+                   {personObj.name}---{personObj.age}
+                   <input type="text" />
+                 </li>
+               )
+             })}
+           </ul>
+         </div>
+       )
+     }
+   }
+   ReactDOM.render(<Person />, document.getElementById('test'))
+   ```
+
+------
+
 ### 1.4 模块与组件
 
 1. 模块：向外提供特定功能的js程序, 一般就是一个js文件
@@ -947,6 +1073,8 @@ next: false
 
 #### 2.6.1 生命周期流程(旧)
 
+> 旧版本：v17.0之前
+
 <img :src="$withBase('/imgs/react/react生命周期(旧).png')" alt="react生命周期(旧)">
 
 1. 初始化阶段：由`ReactDOM.render()`触发初次渲染
@@ -955,11 +1083,11 @@ next: false
 
    - `componentWillMount()`：即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
    - `render()`：会调用多次
-   - `componentDidMount()`：仅调用一次，做一些初始化工作：开启定时器、发送网络请求、订阅消息
+   - `componentDidMount()`：【常用】仅调用一次，做一些初始化工作：开启定时器、发送网络请求、订阅消息
 
 2. 更新阶段：
 
-   - `componentWillReceiveProps()`：由父组件重新`render`触发，即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
+   - `componentWillReceiveProps()`：由父组件重新`render`触发（第一次不调用），即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
 
      ```jsx
      // 父组件A
@@ -982,18 +1110,17 @@ next: false
      
      // 子组件B
      class B extends React.Component {
-       // 组件将要接收新的props的钩子
+       // 组件将要接收新的props的钩子（第一次不调用，再次更改props时才调用）
        componentWillReceiveProps(props) {
          console.log('B---componentWillReceiveProps', props)
        }
        render() {
-         console.log('B---render')
          return <div>我是B组件，接收到的车是:{this.props.carName}</div>
        }
      }
      ```
 
-   - `shouldComponentUpdate()`：由`setState()`触发，默认返回ture，如果返回false则无法继续以下流程
+   - `shouldComponentUpdate()`：组件更新阀门，由`setState()`触发，默认返回ture，如果返回false则无法继续以下流程
 
      ```jsx
      this.state = { count: 0 }
@@ -1032,7 +1159,7 @@ next: false
 
 3. 卸载组件：由`ReactDOM.unmountComponentAtNode()`触发
 
-   - `componentWillUnmount()`：做一些收尾工作：关闭定时器、取消订阅消息
+   - `componentWillUnmount()`：【常用】做一些收尾工作：关闭定时器、取消订阅消息
 
 4. 案例：标题在2秒内不断变暗，点击按钮可以卸载组件
 
@@ -1081,21 +1208,87 @@ next: false
 
 #### 2.6.2 生命周期流程(新)
 
+> 新版本：v17.0之后
+
 <img :src="$withBase('/imgs/react/react生命周期(新).png')" alt="react生命周期(新)">
 
 1. 初始化阶段：由`ReactDOM.render()`触发初次渲染
+
    - `constructor()`
-   - `getDerivedStateFromProps()`
+
+   - `getDerivedStateFromProps()`：新函数，若state的值在任何时候都取决于props，可使用该函数（一般不用）
+
+     ```jsx
+     static getDerivedStateFromProps(props, state) {
+       console.log('getDerivedStateFromProps', props, state)
+       return null	// 必须返回state对象 或 null
+     }
+     ```
+
    - `render()`
-   - `componentDidMount()`：开启监听，发送ajax请求
-2. 更新阶段：由组件内部`this.setSate()`或父组件重新render触发
-   - `getDerivedStateFromProps()`
+
+   - `componentDidMount()`：【常用】仅调用一次，做一些初始化工作：开启定时器、发送网络请求、订阅消息
+
+2. 更新阶段：
+
+   - `getDerivedStateFromProps()`：新函数，若state的值在任何时候都取决于props，可使用该函数（一般不用）
+
    - `shouldComponentUpdate()`
+
    - `render()`
-   - `getSnapshotBeforeUpdate()`
-   - `componentDidUpdate()`
+
+   - `getSnapshotBeforeUpdate()`：新函数，在最近一次渲染输出DOM之前调用，返回值作为参数传递给componentDidUpdate（一般不用）
+
+   - `componentDidUpdate(preProps, preState, snapshotValue)`：接收参数：上一个props、上一个state、快照值
+
+     ```jsx
+     // 案例：随着新闻列表的不断增加，窗口滚动条不随之运动，而固定在当前阅览的位置
+     class NewsList extends React.Component {
+       state = { newsArr: [] }
+       
+       componentDidMount() {
+         setInterval(() => {
+           // 获取原状态
+           const { newsArr } = this.state
+           // 模拟一条新闻
+           const news = '新闻' + (newsArr.length + 1)
+           // 更新状态
+           this.setState({ newsArr: [news, ...newsArr] })
+         }, 1000)
+       }
+       
+       // scrollHeight：内容区总高度；scrollTop：当前位置距顶端高度
+       // 作用：组件在发生更改之前从DOM中获取一些信息，如：滚动位置
+       getSnapshotBeforeUpdate() {
+         return this.refs.list.scrollHeight	// 返回当前内容区总高度
+       }
+       
+       componentDidUpdate(preProps, preState, height) {
+         // 距顶端高度增加值 = 新内容区总高度 - 旧内容区总高度
+         this.refs.list.scrollTop += this.refs.list.scrollHeight - height
+       }
+       render() {
+         return (
+           <div className="list" ref="list">
+             {this.state.newsArr.map((n, index) => {
+               return (
+                 <div key={index} className="news">
+                   {n}
+                 </div>
+               )
+             })}
+           </div>
+         )
+       }
+     }
+     ReactDOM.render(<NewsList />, document.getElementById('test'))
+     ```
+
 3. 卸载组件：由`ReactDOM.unmountComponentAtNode()`触发
-   - `componentWillUnmount()`：做一些收尾工作，如清理定时器
+
+   - `componentWillUnmount()`：【常用】做一些收尾工作：关闭定时器、取消订阅消息
 
 ------
+
+## 第3章 React脚手架
 

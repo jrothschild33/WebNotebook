@@ -1582,7 +1582,7 @@ next: /server/#第1章-ajax
    ]
    ```
 
-3. `arr.reduce(function(accumulator,currentValue[,index[,array]])[,initialValue])`
+3. `arr.reduce(function(accumulator,currentValue[,index[,array]]) [,initialValue])`
 
    1）参数：
 
@@ -1590,13 +1590,12 @@ next: /server/#第1章-ajax
    * 当前值：currentValue
    * 当前索引：index
    * 源数组：array
+   * 累计器初始值：initialValue
 
    2）案例：
 
    ```js
-   [1, 2, 3, 4].reduce((accumulator, currentValue, currentIndex, array) => {
-     accumulator + currentValue
-   })
+   [1, 2, 3, 4].reduce((accumulator, currentValue, currentIndex, array) => accumulator + currentValue)
    ```
 
    <!-- ![遍历数组-reduce](/imgs/basic/遍历数组-reduce.png) -->
@@ -3354,6 +3353,18 @@ next: /server/#第1章-ajax
      // configurable 如果为false 则不允许删除这个属性 不允许在修改第三个参数里面的特性 默认为false
      configurable: false,
    })
+   ```
+
+3. 删除属性：`delete obj.属性名`
+
+   ```js
+   var obj = {
+     id: 1,
+     pname: '小米',
+     price: 1999,
+   }
+   delete obj.pname
+   console.log(obj)	// {id: 1, price: 1999}
    ```
 
 ------
@@ -6156,7 +6167,15 @@ next: /server/#第1章-ajax
 
 4. `window.parent.XXX()`：如果存在页面嵌套（如iframe），子页面可以跳到父页面js中的方法
 
-5. 代码断点：`debugger`，与F12中手动打断点效果相同
+5. `window.confirm('确定xxx吗？')`：弹出提示框，点击确定返回true，点击取消返回false，常与if语句配合使用
+
+   ```js
+   if (window.confirm('确定xxx吗？')) {
+     // true的情况下执行的语句
+   }
+   ```
+
+6. 代码断点：`debugger`，与F12中手动打断点效果相同
 
    ```js
    const a = document.getElementById('demo')
@@ -6164,11 +6183,11 @@ next: /server/#第1章-ajax
    console.log(typeof a)
    ```
 
-6. 阻止链接`<a>`跳转：`href=javascript:void(0)'`或 `href=javascript:;`
+7. 阻止链接`<a>`跳转：`href=javascript:void(0)'`或 `href=javascript:;`
 
-7. 立即执行函数：`(function(){})()`、`(function(){}())`
+8. 立即执行函数：`(function(){})()`、`(function(){}())`
 
-8. flag开关：
+9. flag开关：
 
    ```html
    <button id="btn">开关灯</button>
@@ -7080,7 +7099,11 @@ next: /server/#第1章-ajax
 
 ##### 3.2.3.8 表单事件
 
-1. checkbox复选框：`change`：状态变化
+1. checkbox复选框：
+
+   1）`change`：状态变化
+
+   2）`e.target.checked`：布尔值，是否选中
 
 2. input输入框：
 
@@ -7137,11 +7160,11 @@ next: /server/#第1章-ajax
 
    2）`change`：绑定change事件，意味着文件选择框被激活
 
-   3）e.target.files：文件列表
+   3）`e.target.files`：文件列表
 
-   4）e.target.files[0]：单个文件
+   4）`e.target.files[0]`：单个文件
 
-   5）URL.createObjectURL(file)：文件转化为路径
+   5）`URL.createObjectURL(file)`：文件转化为路径
 
    ```js
    $('#file').on('change', function (e) {

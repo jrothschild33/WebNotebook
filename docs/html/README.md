@@ -7,14 +7,34 @@ next: /css/
 
 ## 第1章 HTML框架
 
+### 1.1 基本框架
+
 1. 文件类型：`<!DOCTYPE html>`
 
 2. 网站语言：`<html lang="zh-CN">`
 
 3. 头部：`<head>`
 
-   1）`<META ...>`：编码UTF-8、视图自适应、其他、渲染
-   
+   1）元标签：`<meta>`
+
+   2）标题：`<title>`
+
+   3）外部链接：`<link>`
+
+   4）JS脚本：`<script>`
+
+4. 主体：`<body>`
+
+### 1.2 meta标签
+
+1. 网站编码：UTF-8
+
+   ```html
+   <meta charset="utf-8" />
+   ```
+
+2. 视图自适应：IE浏览器适配
+
    ```html
    <meta http-quiv="X-UA-Compatible content="IE="edge">
    <!--如果版本低于IE9-->
@@ -24,9 +44,84 @@ next: /css/
    <![endif]
    ```
 
-   2）标题`<title>`
+3. 网站说明：SEO专业文案
 
-4. 主体：`<body>`
+   ```html
+   <meta name="description" content="XXX" />
+   ```
+
+4. 关键字：6~8个关键词逗号隔开
+
+   ```html
+   <meta name="keywords" content="XXX,XXX,XXX" />
+   ```
+
+5. 理想视口：用于做移动端网页的适配
+
+   - `width`：宽度，可设置device-width特殊值
+   - `initial-scale`：初始缩放比
+   - `maximum-scale`：最大缩放比
+   - `minimum-scale`：最小缩放比
+   - `user-scalable`：用户是否可以缩放，yes/no (1/0)
+
+   ```html
+   <!-- 标准配置 -->
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <!-- 完整配置 -->
+   <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+   ```
+
+6. 配置浏览器页签、地址栏的颜色：仅支持安卓手机浏览器
+
+   ```html
+   <meta name="theme-color" content="red" />
+   ```
+
+### 1.3 link标签
+
+1. 设置页签图标：`favicon.ico`
+
+   ```html
+   <link rel="icon" href="/favicon.ico" />
+   ```
+
+2. 引入css样式：
+
+   ```html
+   <link rel="stylesheet" href="/css/xxx.css" />
+   ```
+
+3. 指定网页添加到iPhone主屏幕后的图标：
+
+   ```html
+   <link rel="apple-touch-icon" href="/logo.png" />
+   ```
+
+4. 引入应用加壳时的配置文件：用于将web应用打包成安卓、iOS应用
+
+   ```html
+   <link rel="manifest" href="/manifest.json" />
+   ```
+
+### 1.4 script标签
+
+1. 引入js脚本：
+
+   ```html
+   <script type="text/javascript" src="/js/xxx.js"></script>
+   ```
+
+2. 使用babel编译：
+
+   ```html
+   <script type="text/babel">......</script>
+   ```
+
+3. 如果浏览器不支持js时进行提示：
+
+   ```html
+   <noscript>You need to enable JavaScript to run this app.</noscript>
+   ```
 
 ------
 

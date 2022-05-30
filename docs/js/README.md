@@ -384,11 +384,28 @@ next: /server/#第1章-ajax
        console.log('我可以演小品')
      },
    }
-   let { name, age, xiaopin } = zhao
+   let { name, age, xiaopin } = zhao	// 也可以取一部分属性：let { name, age } = zhao
    console.log(name)
    console.log(age)
    console.log(xiaopin)
    xiaopin()
+   ```
+
+4. 连续结构赋值
+
+   ```js
+   let obj = { a: { b: 1 } }
+   
+   // 传统解构赋值
+   const { a } = obj
+   
+   // 连续解构赋值
+   const { a: { b } } = obj
+   console.log(b) // 1
+   
+   // 连续解构赋值+重命名
+   const { a: { b: c } } = obj
+   console.log(c) // 1
    ```
 
 #### 2.1.5 globalThis

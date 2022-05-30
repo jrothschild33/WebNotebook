@@ -130,7 +130,7 @@ next: false
 
    2）最终产生的就是一个JS对象
 
-4. 命名规则：
+3. 命名规则：
 
    1）标签名：HTML标签或其它标签
 
@@ -159,11 +159,25 @@ next: false
 
    7）写注释：`{/* 注释内容 */}`，必须用大括号包裹
 
-6. `babel.js`的作用：
+5. `babel.js`的作用：
 
    1）浏览器不能直接解析JSX代码，需要babel转译为纯JS的代码才能运行
 
    2）只要用了JSX，都要加上`type="text/babel"`，声明需要babel来处理
+
+6. 其他注意点：根据浏览器控制台提示操作
+
+   1）超链接`<a>`：如果`target="_blank"`，必须配置`rel="noreferrer"`
+
+   ```jsx
+   <a rel="noreferrer" href=... target="_blank">
+   ```
+
+   2）图像`<img>`：必须配置`alt`
+
+   ```jsx
+   <img alt="xxx" src=... />
+   ```
 
 7. 案例：
 
@@ -797,8 +811,9 @@ next: false
      alert(input1.value)
    }
    showData2 = () => {
-     const { input2 } = this
-     alert(input2.value)
+     // 连续结构赋值+重命名
+     const { input2 : { value : v } } = this
+     alert(v)
    }
    ......
    <input ref={(currentNode) => (this.input1 = currentNode)} type="text" placeholder="点击按钮提示数据" />
@@ -1408,9 +1423,11 @@ next: false
 |     public/     |           index.html            | 主页面，引入文件路径前要带`%PUBLIC_URL%/` |
 | src/components/ |          xxx/index.jsx          |                  子组件                   |
 | src/components/ | xxx/index.css、index.module.css |                子组件样式                 |
+|      src/       |             pages/              |                 路由组件                  |
 |      src/       |         App.js、App.jsx         |                 父组件App                 |
 |      src/       |             App.css             |               父组件App样式               |
 |      src/       |            index.js             |                 入口文件                  |
+|      src/       |          setupProxy.js          |               代理配置文件                |
 |    其他文件     |           .gitignore            |         git版本管制忽略的配置文件         |
 |    其他文件     |            README.md            |               应用描述文件                |
 
@@ -1517,7 +1534,7 @@ next: false
 
 ------
 
-### 3.4 ToDoList案例
+### 3.4 案例：ToDoList
 
 #### 3.4.1 案例知识点
 
@@ -2046,4 +2063,964 @@ next: false
    }
    ```
 
+
+------
+
+## 第4章 React Ajax
+
+### 4.1 配置代理
+
+#### 4.1.1 简单配置代理
+
+1. 优点：配置简单，前端请求资源时可以不加任何前缀
+
+2. 缺点：不能配置多个代理
+
+3. 工作方式：上述方式配置代理，当请求了 3000 不存在的资源时，那么该请求会转发给 5000 （优先匹配前端资源）
+
+4. 语法：在`package.json`中追加如下配置
+
+   ```json
+   "proxy":"http://localhost:5000"
+   ```
+
+#### 4.1.2 完整配置代理
+
+1. 优点：可以配置多个代理，可以灵活的控制请求是否走代理
+
+2. 缺点：配置繁琐，前端请求资源时必须加前缀
+
+3. 在`src`文件夹中创建代理配置文件：`setupProxy.js`
+
+   1）`url前缀`：需要转发的请求（所有带有该前缀的请求都会转发给target目标地址）
+
+   2）`target`：配置转发目标地址（能返回数据的服务器地址），如：http://localhost:5000
+
+   3）`changeOrigin`：控制服务器接收到的请求头中host字段的值，默认为`false`，一般改成`true`
+
+   - false：服务器收到的请求头中的host为：localhost:3000
+   - true：服务器收到的请求头中的host为：localhost:5000
+
+   4）`pathRewrite`：去除请求前缀，保证交给后台服务器的是正常请求地址（必须配置）
+
+   ```js
+   const proxy = require('http-proxy-middleware')
+   module.exports = function (app) {
+     app.use(
+       proxy('/api1', {
+         target: 'http://localhost:5000',
+         changeOrigin: true,
+         pathRewrite: { '^/api1': '' },
+       }),
+       proxy('/api2', {
+         target: 'http://localhost:5001',
+         changeOrigin: true,
+         pathRewrite: { '^/api2': '' },
+       })
+     )
+   }
+   ```
+
+------
+
+### 4.2 发送Ajax请求
+
+1. 前置说明：
+
+   1）React本身只关注于界面，并不包含发送ajax请求的代码
+
+   2）前端应用需要通过ajax请求与后台进行交互（json数据）
+
+   3）React应用中需要集成第三方ajax库（或自己封装）
+
+2. 常用的ajax请求库：
+
+   1）jQuery：比较重，如果需要另外引入不建议使用
+
+   2）[axios](https://github.com/axios/axios)：轻量级，建议使用
+
+   - 封装XmlHttpRequest对象的ajax
+   - promise风格
+   - 可以用在浏览器端和node服务器端
+
+3. GET请求：
+
+   ```jsx
+   getStudentData = () => {
+     axios.get('http://localhost:3000/api1/students').then(
+       (response) => {
+         console.log('成功了', response.data)
+       },
+       (error) => {
+         console.log('失败了', error)
+       }
+     )
+   }
+   ......
+   <button onClick={this.getStudentData}>点我获取学生数据</button>
+   ```
+
+4. POST请求：
+
+   ```jsx
+   getCarData = () => {
+     axios.get('http://localhost:3000/api2/cars').then(
+       (response) => {
+         console.log('成功了', response.data)
+       },
+       (error) => {
+         console.log('失败了', error)
+       }
+     )
+   }
+   ......
+   <button onClick={this.getCarData}>点我获取汽车数据</button>
+   ```
+
+------
+
+### 4.3 消息订阅与发布
+
+> 第三方插件：[PubSubJS](https://github.com/mroderick/PubSubJS)
+
+1. 下载：
+
+   ```bash
+   npm i pubsub-js --save
+   ```
+
+2. 使用方法：
+
+   1）引入PubSub：`import PubSub from 'pubsub-js'`
+
+   2）订阅消息（接收数据）：`PubSub.subscribe('funcName', function(msg, data){...}) `，注意：`msg`一般可以用`_`代替
+
+   3）发布消息（传递数据）：`PubSub.publish('funcName', data)`
+
+   4）取消订阅：`PubSub.subscribe(token) `，这里的token需要在订阅消息时定义
+
+   ```js
+   // 订阅消息（接收数据）
+   var token = PubSub.subscribe('MY TOPIC', (_, data) => {
+     console.log(data)
+   })
    
+   // 发布消息（传递数据）
+   PubSub.publish('MY TOPIC', 'hello world!')
+   
+   // 取消订阅
+   PubSub.unsubscribe(token)
+   ```
+
+------
+
+### 4.4 Fetch
+
+> [Fetch](https://github.github.io/fetch/)是用来替代传统Ajax（XMLHttpRequest，XHR）的一种[新技术](https://segmentfault.com/a/1190000003810652)，它是基于Promise设计的
+
+1. 定义：Fetch是JS原生函数，不再使用XMLHttpRequest对象提交Ajax请求（旧版本浏览器可能不支持）
+
+2. XHR的缺点：（jQuery中的`$.ajax`、Axios都属于该类型）
+
+   1）不符合关注分离的原则，配置和调用方式非常混乱
+
+   2）基于事件的异步模型没有 Promise，generator/yield，async/await 友好
+
+3. Fetch的优点：
+
+   1）语法简洁，更加语义化
+
+   2）关注分离原则：联系服务器、取回数据是分开的
+
+   3）基于标准 Promise 实现，支持 async/await：`response.json()`返回一个Promise对象
+
+   4）同构方便，使用[isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch)
+
+4. GET请求：
+
+   1）传统写法
+
+   ```js
+   fetch(url)
+     .then(function (response) {
+       return response.json()
+     })
+     .then(function (data) {
+       console.log(data)
+     })
+     .catch(function (err) {
+       console.log('请求出错', err)
+     })
+   ```
+
+   2）箭头函数
+
+   ```js
+   fetch(url)
+     .then((response) => response.json())
+     .then((data) => console.log(data))
+     .catch((err) => console.log('请求出错', err))
+   ```
+
+   3）使用async/await优化：await返回的是promise成功的值
+
+   ```js
+   functionName = async () => {
+     try {
+       let response = await fetch(url)
+       let data = await response.json()
+       console.log(data)
+     } catch (err) {
+       console.log('请求出错', err)
+     }
+   }
+   ```
+
+5. POST请求：
+
+   ```js
+   fetch(url, {
+     method: 'POST',
+     body: JSON.stringify(data),
+   })
+     .then(function (data) {
+       console.log(data)
+     })
+     .catch(function (err) {
+       console.log('请求出错', err)
+     })
+   ```
+
+------
+
+### 4.5 案例：Github搜索
+
+> API：https://api.github.com/search/users?q=xxxxxx
+
+#### 4.5.1 应用：Axios
+
+> 注意：需要在public/index.html中引入bootstrap.css样式文件
+
+1. 配置代理：setupProxy.js，设置API地址
+
+   ```js
+   const proxy = require('http-proxy-middleware')
+   
+   module.exports = function (app) {
+     app.use(
+       proxy('/api', {
+         target: 'https://api.github.com',
+         changeOrigin: true,
+         pathRewrite: { '^/api': '' },
+       })
+     )
+   }
+   ```
+
+2. 入口文件：index.js，正常书写
+
+   ```js
+   // 引入react核心库
+   import React from 'react'
+   // 引入ReactDOM
+   import ReactDOM from 'react-dom'
+   // 引入App
+   import App from './App'
+   // 渲染DOM
+   ReactDOM.render(<App />, document.getElementById('root'))
+   ```
+
+3. 父组件：App.jsx，负责存储状态state以及相关操作方法
+
+   1）定义state：users数组、isfirst是否第一次打开页面、isLoading是否加载中、err错误信息
+
+   2）定义更新App的状态函数`updateAppState`，接收子组件Search传递回来的stateObj参数
+
+   3）通过props将updateAppState传递给Search子组件，将state传递给List子组件
+
+   ```jsx
+   import React, { Component } from 'react'
+   import Search from './components/Search'
+   import List from './components/List'
+   
+   export default class App extends Component {
+     state = {
+       // 初始化状态
+       users: [], // users初始值为数组
+       isFirst: true, // 是否为第一次打开页面
+       isLoading: false, // 标识是否处于加载中
+       err: '', // 存储请求相关的错误信息
+     }
+   
+     // 更新App的state
+     updateAppState = (stateObj) => {
+       this.setState(stateObj)
+     }
+   
+     render() {
+       return (
+         <div className="container">
+           <Search updateAppState={this.updateAppState} />
+           <List {...this.state} />
+         </div>
+       )
+     }
+   }
+   ```
+
+4. 子组件：Search，用户在搜索框输入关键词进行搜索
+
+   1）可以通过连续解构赋值，拿到input输入框中的内容：`const {keyWordElement: {value: keyWord}} = this`
+
+   2）发送ajax请求，并将最新stateObj传递给父组件`updateAppState`函数更新state
+
+   ```jsx
+   import React, { Component } from 'react'
+   import axios from 'axios'
+   
+   export default class Search extends Component {
+     search = () => {
+       // 获取用户的输入(连续解构赋值+重命名)
+       const {
+         keyWordElement: { value: keyWord },
+       } = this
+       // 发送请求前通知App更新状态
+       this.props.updateAppState({ isFirst: false, isLoading: true })
+       // 发送网络请求
+       axios.get(`/api/search/users?q=${keyWord}`).then(
+         (response) => {
+           // 请求成功后通知App更新状态
+           this.props.updateAppState({ isLoading: false, users: response.data.items })
+         },
+         (error) => {
+           // 请求失败后通知App更新状态
+           this.props.updateAppState({ isLoading: false, err: error.message })
+         }
+       )
+     }
+   
+     render() {
+       return (
+         <section className="jumbotron">
+           <h3 className="jumbotron-heading">搜索github用户</h3>
+           <div>
+             <input ref={(c) => (this.keyWordElement = c)} type="text" placeholder="输入关键词点击搜索" />
+             &nbsp;
+             <button onClick={this.search}>搜索</button>
+           </div>
+         </section>
+       )
+     }
+   }
+   ```
+
+5. 子组件：List，展示搜索结果
+
+   1）接收父组件传递过来的state
+
+   2）通过连续三元表达式的方式代替if语句，分别判断：是否第一次展示页面、是否加载中、是否有错误提示、正常展示
+
+   ```jsx
+   import React, { Component } from 'react'
+   import './index.css'
+   
+   export default class List extends Component {
+     render() {
+       const { users, isFirst, isLoading, err } = this.props
+       return (
+         // 三元表达式可以连续写
+         <div className="row">
+           {isFirst ? (
+             <h2>欢迎使用，输入关键字，随后点击搜索</h2>
+           ) : isLoading ? (
+             <h2>Loading......</h2>
+           ) : err ? (
+             <h2 style={{ color: 'red' }}>{err}</h2>
+           ) : (
+             users.map((userObj) => {
+               return (
+                 <div key={userObj.id} className="card">
+                   <a rel="noreferrer" href={userObj.html_url} target="_blank">
+                     <img alt="head_portrait" src={userObj.avatar_url} style={{ width: '100px' }} />
+                   </a>
+                   <p className="card-text">{userObj.login}</p>
+                 </div>
+               )
+             })
+           )}
+         </div>
+       )
+     }
+   }
+   ```
+
+   ```css
+   .album {
+     min-height: 50rem; /* Can be removed; just added for demo purposes */
+     padding-top: 3rem;
+     padding-bottom: 3rem;
+     background-color: #f7f7f7;
+   }
+   
+   .card {
+     float: left;
+     width: 33.333%;
+     padding: 0.75rem;
+     margin-bottom: 2rem;
+     border: 1px solid #efefef;
+     text-align: center;
+   }
+   
+   .card > img {
+     margin-bottom: 0.75rem;
+     border-radius: 100px;
+   }
+   
+   .card-text {
+     font-size: 85%;
+   }
+   ```
+
+------
+
+#### 4.5.2 应用：PubSub
+
+1. 父组件：App.jsx，仅留下框架结构
+
+   ```jsx
+   import React, { Component } from 'react'
+   import Search from './components/Search'
+   import List from './components/List'
+   
+   export default class App extends Component {
+     render() {
+       return (
+         <div className="container">
+           <Search />
+           <List />
+         </div>
+       )
+     }
+   }
+   ```
+
+2. 子组件：Search，不再接收父组件传递的props，使用消息发布`PubSub.publish`向子组件List传递最新数据
+
+   ```jsx
+   import React, { Component } from 'react'
+   import PubSub from 'pubsub-js'
+   import axios from 'axios'
+   
+   export default class Search extends Component {
+     search = () => {
+       //获取用户的输入(连续解构赋值+重命名)
+       const {
+         keyWordElement: { value: keyWord },
+       } = this
+       //发送请求前通知List更新状态
+       PubSub.publish('atguigu', { isFirst: false, isLoading: true })
+       //发送网络请求
+       axios.get(`/api/search/users?q=${keyWord}`).then(
+         (response) => {
+           //请求成功后通知List更新状态
+           PubSub.publish('atguigu', { isLoading: false, users: response.data.items })
+         },
+         (error) => {
+           //请求失败后通知App更新状态
+           PubSub.publish('atguigu', { isLoading: false, err: error.message })
+         }
+       )
+     }
+   
+     render() {
+       return (
+         <section className="jumbotron">
+           <h3 className="jumbotron-heading">搜索github用户</h3>
+           <div>
+             <input ref={(c) => (this.keyWordElement = c)} type="text" placeholder="输入关键词点击搜索" />
+             &nbsp;
+             <button onClick={this.search}>搜索</button>
+           </div>
+         </section>
+       )
+     }
+   }
+   ```
+
+3. 子组件：List
+
+   1）存放原本在父组件App中的状态state
+
+   2）`componentDidMount`：使用消息订阅`PubSub.subscribe`接收子组件Search传递过来的数据，并更新state
+
+   3）`componentWillUnmount`：取消订阅，释放名称
+
+   ```jsx
+   import React, { Component } from 'react'
+   import PubSub from 'pubsub-js'
+   import './index.css'
+   
+   export default class List extends Component {
+     state = {
+       // 初始化状态
+       users: [], // users初始值为数组
+       isFirst: true, // 是否为第一次打开页面
+       isLoading: false, // 标识是否处于加载中
+       err: '', // 存储请求相关的错误信息
+     }
+     //  初始化时订阅消息
+     componentDidMount() {
+       this.token = PubSub.subscribe('atguigu', (_, stateObj) => {
+         this.setState(stateObj)
+       })
+     }
+     //  结束时取消订阅
+     componentWillUnmount() {
+       PubSub.unsubscribe(this.token)
+     }
+   
+     render() {
+       const { users, isFirst, isLoading, err } = this.state
+       return (
+         <div className="row">
+           {isFirst ? (
+             <h2>欢迎使用，输入关键字，随后点击搜索</h2>
+           ) : isLoading ? (
+             <h2>Loading......</h2>
+           ) : err ? (
+             <h2 style={{ color: 'red' }}>{err}</h2>
+           ) : (
+             users.map((userObj) => {
+               return (
+                 <div key={userObj.id} className="card">
+                   <a rel="noreferrer" href={userObj.html_url} target="_blank">
+                     <img alt="head_portrait" src={userObj.avatar_url} style={{ width: '100px' }} />
+                   </a>
+                   <p className="card-text">{userObj.login}</p>
+                 </div>
+               )
+             })
+           )}
+         </div>
+       )
+     }
+   }
+   ```
+
+------
+
+#### 4.5.3 应用：Fetch
+
+1. 子组件：Search，将axios修改为fetch
+
+   ```jsx
+   import React, { Component } from 'react'
+   import PubSub from 'pubsub-js'
+   
+   export default class Search extends Component {
+     search = async () => {
+       // 获取用户的输入(连续解构赋值+重命名)
+       const {
+         keyWordElement: { value: keyWord },
+       } = this
+       // 发送请求前通知List更新状态
+       PubSub.publish('atguigu', { isFirst: false, isLoading: true })
+       // 发送网络请求---使用fetch发送（优化）
+       try {
+         const response = await fetch(`/api/search/users?q=${keyWord}`)
+         const data = await response.json()
+         console.log(data)
+         PubSub.publish('atguigu', { isLoading: false, users: data.items })
+       } catch (error) {
+         console.log('请求出错', error)
+         PubSub.publish('atguigu', { isLoading: false, err: error.message })
+       }
+     }
+   
+     render() {
+       return (
+         <section className="jumbotron">
+           <h3 className="jumbotron-heading">搜索github用户</h3>
+           <div>
+             <input ref={(c) => (this.keyWordElement = c)} type="text" placeholder="输入关键词点击搜索" />
+             &nbsp;
+             <button onClick={this.search}>搜索</button>
+           </div>
+         </section>
+       )
+     }
+   }
+   ```
+
+------
+
+## 第5章 React路由
+
+### 5.1 路由简介
+
+1. `react-router-dom`：是react的一个插件库，专门用来实现一个SPA应用
+
+   ```bash
+   npm i react-router-dom
+   ```
+
+2. SPA（Single Page Web Application）单页Web应用
+
+   1）整个应用只有一个完整的页面
+
+   2）点击页面中的链接不会刷新页面，只会做页面的局部更新
+
+   3）数据都需要通过ajax请求获取，并在前端异步展现
+
+2. 路由定义：一个路由就是一个映射关系（key：value），key为路径，value可能是function或component
+
+3. 后端路由：value是`function`，用来处理客户端提交的请求，在node.js中使用
+
+   1）注册路由：`router.get(path，function(req，res))`
+
+   2）工作过程：当node接收到一个请求时，根据请求路径找到匹配的路由，调用路由中的函数来处理请求，返回响应数据
+
+4. 前端路由：浏览器端路由，value是`component`，用于展示页面内容，在React中使用
+
+   1）注册路由：`<Route path="/test" component={Test}>`
+
+   2）工作过程：当浏览器的path变为/test时，当前路由组件就会变为Test组件
+
+------
+
+### 5.2 路由原理
+
+> 历史记录：history是BOM上的API，可以用https://cdn.bootcss.com/history/4.7.2/history.js引入简化操作
+
+1. histroy分类：
+
+   1）H5原生histroy：`History.createBrowserHistory()`，直接显示路径，美观，但兼容性不好
+
+   2）Hash值（锚点）：`History.createHashHistory()`，跳转路径前带有`#`，不美观，但兼容性较好
+
+   ```html
+   <script type="text/javascript" src="https://cdn.bootcss.com/history/4.7.2/history.js"></script>
+   <script>
+     let history = History.createBrowserHistory() 	// 方法一，直接使用H5推出的history身上的API
+     let history = History.createHashHistory() 	// 方法二，hash值（锚点）
+     // 开启控制台的历史记录监听
+     history.listen((location) => {
+       console.log('请求路由路径变化了', location)
+     })
+   </script>
+   ```
+
+2. push方法：浏览器会记录下页面历史记录，可以使用回退、前进再次访问
+
+   1）点击按钮后不进行跳转：`return false`
+
+   ```html
+   <a href="http://www.atguigu.com" onclick="return push('/test1') ">push test1</a><br /><br />
+   <script>
+     ......
+     function push(path) {
+       history.push(path)
+       return false
+     }
+     ......
+   </script>
+   ```
+
+   2）点击使浏览器url后缀变为/test2
+
+   ```html
+   <button onClick="push('/test2')">push test2</button><br /><br />
+   ```
+
+3. repalce方法：替换当前页面的历史记录，使上一条历史记录无法通过回退、前进再次访问
+
+   ```html
+   <button onClick="replace('/test3')">replace test3</button><br /><br />
+   <script>
+     ......
+     function replace(path) {
+       history.replace(path)
+     }
+     ......
+   </script>
+   ```
+
+4. 前进与后退：`forward()`、`back()`
+
+   ```html
+   <button onClick="back()">&lt;= 回退</button>
+   <button onClick="forword()">前进 =&gt;</button>
+   <script>
+     ......
+     function back() {
+       history.goBack()
+     }
+     function forword() {
+       history.goForward()
+     }
+     ......
+   </script>
+   ```
+
+------
+
+### 5.3 基本使用
+
+> 明确好界面中的导航区、展示区
+
+1. 入口文件index.js：`<App>`需要用`<BrowserRouter>`或`<HashRouter>`包裹：
+
+   ```jsx
+   // 引入react核心库
+   import React from 'react'
+   // 引入ReactDOM
+   import ReactDOM from 'react-dom'
+   // 引入路由插件
+   import { BrowserRouter } from 'react-router-dom'
+   // 引入App
+   import App from './App'
+   // 渲染DOM
+   ReactDOM.render(
+     <BrowserRouter>
+       <App />
+     </BrowserRouter>,
+     document.getElementById('root')
+   )
+   ```
+
+2. 导航区：父组件App.jsx，编写路由链接，`<a>`标签改为`<Link>`标签
+
+   ```jsx
+   ......
+   <Link className="list-group-item" to="/about">About</Link>
+   <Link className="list-group-item" to="/home">Home</Link>
+   ......
+   ```
+
+3. 展示区：父组件App.jsx，注册路由，`<Route>`标签进行路径的匹配
+
+   ```jsx
+   ......
+   <Route path="/about" component={About} />
+   <Route path="/home" component={Home} />
+   ......
+   ```
+
+4. 路由组件：pages/About、Home
+
+   ```jsx
+   import React, { Component } from 'react'
+   export default class About extends Component {
+     render() {
+       return <h3>我是About的内容</h3>
+     }
+   }
+   ```
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   export default class Home extends Component {
+     render() {
+       return <h3>我是Home的内容</h3>
+     }
+   }
+   ```
+
+------
+
+### 5.4 路径配置
+
+> React脚手架默认将`public`文件夹作为根路径，如果请求了不存在的资源，默认返回`public/index.html`
+
+#### 5.4.1 资源引入路径
+
+1. 问题：如果在前端路由中配置了多级路径，如：`/atguigu/home`，再刷新页面时容易出现主页引入的css样式丢失的问题
+
+2. 解决：
+
+   1）public/index.html主页中引入样式时不写`./`写`/` 
+
+   ```html
+   <link rel="stylesheet" href="/css/bootstrap.css" />
+   ```
+
+   2）public/index.html主页中引入样式时不写`./`写`%PUBLIC_URL%`
+
+   ```html
+   <link rel="stylesheet" href="%PUBLIC_URL%/css/bootstrap.css" />
+   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+   ```
+
+   3）使用`HashRouter`：路径中带`#`，井号后面的路径都被认为是前端资源，不会发送给服务器
+
+   ```jsx
+   import { HashRouter } from 'react-router-dom'
+   ......
+   ReactDOM.render(
+     <HashRouter>
+       <App />
+     </HashRouter>,
+     document.getElementById('root')
+   )
+   ```
+
+------
+
+#### 5.4.2 严格/模糊匹配
+
+> `exact`：严格匹配不要随便开启，需要再开，有些时候开启会导致无法继续匹配二级路由
+
+1. React默认使用的模糊匹配：【输入的路径】必须包含要【匹配的路径】，且顺序要一致
+
+   ```jsx
+   ......
+   // 导航区
+   <MyNavLink to="/home/a/b">Home</MyNavLink>
+   ......
+   // 展示区：虽然路径不完全匹配，但也可以展示Home路由组件
+   <Route path="/home" component={Home}/>
+   .....
+   ```
+
+2. 开启严格匹配：`exact={true}`或简写为`exact`
+
+   ```jsx
+   ......
+   // 导航区
+   <MyNavLink to="/home/a/b">Home</MyNavLink>
+   ......
+   // 展示区：路径不严格匹配，不展示任何路由组件
+   <Route exact path="/home" component={Home}/>
+   .....
+   ```
+
+------
+
+### 5.5 路由组件
+
+|    对比     |               一般组件               |                       路由组件                       |
+| :---------: | :----------------------------------: | :--------------------------------------------------: |
+|    写法     |              `<Demo/>`               |       `<Route path="/demo" component={Demo}/>`       |
+|  存放位置   |          `components`文件夹          |                    `pages`文件夹                     |
+| 接收的props | 写组件标签时传递了什么，就能收到什么 | 接收到三个固定的属性：`history`、`location`、`match` |
+
+1. 内置组件：共7种
+
+   ```html
+   <BrowserRouter>、<HashRouter>、<Route>、<Link>、<NavLink>、<Switch>、<Redirect>
+   ```
+
+2. 其他API：共3种
+
+   1）`history`对象
+
+   2）`match`对象
+
+   3）`withRouter()`函数
+
+------
+
+#### 5.5.1 NavLink
+
+> `NavLink`可以实现路由链接的高亮，通过`activeClassName`指定样式名；封装时可以通过`this.props.children`获取标签体内容
+
+1. 直接使用：导航区将`<Link>`标签改为`<NavLink>`标签，并配置高亮样式（注意：如果不额外引入css文件，需要在pulic/index.html中书写样式）
+
+   ```jsx
+   ......
+   <NavLink activeClassName="atguigu" className="list-group-item" to="/about">About</NavLink>
+   <NavLink activeClassName="atguigu" className="list-group-item" to="/home">Home</NavLink>
+   ......
+   ```
+
+2. 封装NavLink：components/MyNavLink
+
+   1）在components文件夹中新建组件`MyNavLink`，在标签中批量接收`props`（包含MyNavLink传递过去的`to`等参数）
+
+   - 注意：MyNavLink中间的标签体内容默认传递给`props`中的`children`属性（但不用单独接收，直接批量接收即可）
+
+   ```jsx
+   import React, { Component } from 'react'
+   import { NavLink } from 'react-router-dom'
+   import './index.css'
+   
+   export default class MyNavLink extends Component {
+     render() {
+       // 注意：这里使用自闭和标签
+       return <NavLink activeClassName="atguigu" className="list-group-item" {...this.props} />
+     }
+   }
+   ```
+
+   ```css
+   /* MyNavLink/index.css */
+   .atguigu {
+     background-color: rgb(209, 137, 4) !important;
+     color: white !important;
+   }
+   ```
+
+   2）在导航区直接使用`<MyNavLink>`标签可以实现NavLink的效果
+
+   ```jsx
+   import MyNavLink from './components/MyNavLink'
+   ......
+   // 标签体内容：About、Home，储存在props中的children属性里（而不是title属性）
+   <MyNavLink to="/about">About</MyNavLink>
+   <MyNavLink to="/home">Home</MyNavLink>
+   ......
+   ```
+
+------
+
+#### 5.5.2 Switch
+
+> Switch可以提高路由匹配效率（单一匹配）
+
+1. 通常情况下，path和component是单一对应的关系，如果配置相同路径、不同路由组件，则会同时展示到页面上
+
+   ```jsx
+   // 点击Home导航按钮，页面同时展示Home、Test两个路由组件
+   ......
+   <Route path="/about" component={About} />
+   <Route path="/home" component={Home} />
+   <Route path="/home" component={Test} />
+   ......
+   ```
+
+2. 使用Switch，path只匹配第一个component，即页面仅展示第一个路由组件内容
+
+   ```jsx
+   import { Route, Switch } from 'react-router-dom'
+   ......
+   <Switch>
+     <Route path="/about" component={About} />
+     <Route path="/home" component={Home} />
+     <Route path="/home" component={Test} />
+   </Switch>
+   ......
+   ```
+
+------
+
+#### 5.5.3 Redirect
+
+> Redirect：一般写在所有路由注册的最下方，当所有路由都无法匹配时，跳转到Redirect指定的路由
+
+1. 展示区：Redirect写在最下方，配置`to`参数
+
+   ```jsx
+   ......
+   <Switch>
+     <Route path="/about" component={About} />
+     <Route path="/home" component={Home} />
+     <Redirect to="/about" />
+   </Switch>
+   ......
+   ```
+
+------
+
+### 5.6 嵌套路由
+

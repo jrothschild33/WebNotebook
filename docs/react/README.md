@@ -880,6 +880,8 @@ next: false
 
 ### 2.3 事件处理
 
+> 注意：如果事件绑定的函数需要传递参数（除`event`之外），必须在内部写成箭头函数，如：`onClick={() => this.func(arg1,arg2,...)}`
+
 1. 通过`onXxx`属性指定事件处理函数（注意大小写，如原生JS中的`onclick`要写成`onClick`）
 
    1）更好的兼容性：React使用的是自定义（合成）事件，而不是使用的原生DOM事件
@@ -904,6 +906,10 @@ next: false
        // alert(this.myRef2.current.value)
        alert(event.target.value)		// 这里的event就是input，可以用event.value获取数据
      }
+     // 展示传递的自定义参数
+     showData3 = (name, age) => {
+       console.log(name, age)
+     }
      
      render() {
        return (
@@ -913,6 +919,8 @@ next: false
            <button onClick={this.showData}>点我提示左侧的数据</button>&nbsp;
            <input onBlur={this.showData2} type="text" placeholder="失去焦点提示数据" />
            &nbsp;
+           {/* 如果事件绑定的函数需要传递参数（除event之外），必须在内部写成箭头函数 */}
+           <button onClick={() => this.showData3('tom', 18)}>测试传递自定义参数</button>&nbsp;
          </div>
        )
      }
@@ -2692,6 +2700,8 @@ next: false
 
 > 历史记录：history是BOM上的API，可以用https://cdn.bootcss.com/history/4.7.2/history.js引入简化操作
 
+#### 5.2.1 histroy
+
 1. histroy分类：
 
    1）H5原生histroy：`History.createBrowserHistory()`，直接显示路径，美观，但兼容性不好
@@ -2760,6 +2770,21 @@ next: false
      }
      ......
    </script>
+   ```
+
+#### 5.2.2 跳转模式
+
+1. push模式：React默认的跳转模式，点击导航区的`<Link>`标签跳转后会留下历史记录
+
+   ```jsx
+   <Link to="/about">About</Link>
+   ```
+
+2. replace模式：在`<Link>`标签中书写`replace`可以开启，点击跳转后不会留下历史记录（也无法通过前进、后退按钮再次访问）
+
+   ```jsx
+   <Link repalce to="/about">About</Link>
+   // NavLink、封装后的NavLink都可以按此配置
    ```
 
 ------
@@ -2921,7 +2946,18 @@ next: false
 
 ------
 
-#### 5.5.1 NavLink
+#### 5.5.1 Browser/HashRouter
+
+|      对比      | BrowserRouter                                 | HashRouter                                    |
+| :------------: | --------------------------------------------- | --------------------------------------------- |
+|    底层原理    | 使用的是H5的history API，不兼容IE9及以下版本  | 使用的是URL的哈希值                           |
+|    路径形式    | 路径中没有`#`，如：`localhost:3000/demo/test` | 路径包含`#`，如：`localhost:3000/#/demo/test` |
+| 刷新对参数影响 | 没有影响，因为state保存在history对象中        | 会导致路由state参数的丢失                     |
+|      备注      | 实际开发中比较常用                            | 可以用于解决一些路径错误相关的问题            |
+
+------
+
+#### 5.5.2 NavLink
 
 > `NavLink`可以实现路由链接的高亮，通过`activeClassName`指定样式名；封装时可以通过`this.props.children`获取标签体内容
 
@@ -2974,7 +3010,7 @@ next: false
 
 ------
 
-#### 5.5.2 Switch
+#### 5.5.3 Switch
 
 > Switch可以提高路由匹配效率（单一匹配）
 
@@ -3004,7 +3040,7 @@ next: false
 
 ------
 
-#### 5.5.3 Redirect
+#### 5.5.4 Redirect
 
 > Redirect：一般写在所有路由注册的最下方，当所有路由都无法匹配时，跳转到Redirect指定的路由
 
@@ -3024,3 +3060,478 @@ next: false
 
 ### 5.6 嵌套路由
 
+> 注册子路由时要写上父路由的path值（有几层就写几层，要全写上），路由的匹配是按照注册路由的顺序进行的
+
+1. 给Home路由组件下再添加2个二级路由组件：News、Message
+
+   1）在Home组件下将页面分为导航区、展示区
+
+   2）导航区配置`<MyNavLink>`
+
+   3）展示区注册路由，使用`<Redirect>`配置点击Home之后默认展示的界面（切换到/home之后，还没点击二级路由，所以自动切换至Redirect指定路径）
+
+   ```jsx
+   import React, { Component } from 'react'
+   import MyNavLink from '../../components/MyNavLink'
+   import { Route, Switch, Redirect } from 'react-router-dom'
+   import News from './News'
+   import Message from './Message'
+   
+   export default class Home extends Component {
+     render() {
+       return (
+         <div>
+           <h3>我是Home的内容</h3>
+           <div>
+             <ul className="nav nav-tabs">
+               <li>
+                 <MyNavLink to="/home/news">News</MyNavLink>
+               </li>
+               <li>
+                 <MyNavLink to="/home/message">Message</MyNavLink>
+               </li>
+             </ul>
+             {/* 注册路由 */}
+             <Switch>
+               <Route path="/home/news" component={News} />
+               <Route path="/home/message" component={Message} />
+               <Redirect to="/home/news" />
+             </Switch>
+           </div>
+         </div>
+       )
+     }
+   }
+   ```
+
+2. 二级路由组件：
+
+   1）News二级路由组件
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   export default class News extends Component {
+     render() {
+       return (
+         <ul>
+           <li>news001</li>
+           <li>news002</li>
+           <li>news003</li>
+         </ul>
+       )
+     }
+   }
+   ```
+
+   2）Message二级路由组件
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   export default class Message extends Component {
+     render() {
+       return (
+         <ul>
+           <li>message001</li>
+           <li>message002</li>
+           <li>message003</li>
+         </ul>
+       )
+     }
+   }
+   ```
+
+------
+
+### 5.7 路由组件传参
+
+#### 5.7.1 query参数
+
+> 向子路由组件传递数据，直接在路由路径中书写，数据会暴露在浏览器地址栏中；用`this.props.match.params`接收参数
+
+1. 父路由组件：Message
+
+   1）路由链接(携带参数)：`<Link to='/demo/test/tom/18'}>详情</Link>`
+
+   2）注册路由(声明接收)：`<Route path="/demo/test/:name/:age" component={Test}/>`
+
+   ```jsx
+   import React, { Component } from 'react'
+   import { Link, Route } from 'react-router-dom'
+   import Detail from './Detail'
+   
+   export default class Message extends Component {
+     state = {
+       messageArr: [
+         { id: '01', title: '消息1' },
+         { id: '02', title: '消息2' },
+         { id: '03', title: '消息3' },
+       ],
+     }
+     render() {
+       const { messageArr } = this.state
+       return (
+         <div>
+           <ul>
+             {messageArr.map((msgObj) => {
+               return (
+                 <li key={msgObj.id}>
+                   {/* 向路由组件传递params参数 */}
+                   <Link to={`/home/message/detail/${msgObj.id}/${msgObj.title}`}>{msgObj.title}</Link>
+                 </li>
+               )
+             })}
+           </ul>
+           <hr />
+           {/* 声明接收params参数 */}
+           <Route path="/home/message/detail/:id/:title" component={Detail} />
+         </div>
+       )
+     }
+   }
+   ```
+
+2. 子路由组件：Message/Detail
+
+   1）接收参数：`this.props.match.params`
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   const DetailData = [
+     { id: '01', content: '你好，中国' },
+     { id: '02', content: '你好，尚硅谷' },
+     { id: '03', content: '你好，未来的自己' },
+   ]
+   export default class Detail extends Component {
+     render() {
+       // 接收params参数
+       const { id, title } = this.props.match.params
+       const findResult = DetailData.find((detailObj) => {
+         return detailObj.id === id
+       })
+       return (
+         <ul>
+           <li>ID:{id}</li>
+           <li>TITLE:{title}</li>
+           <li>CONTENT:{findResult.content}</li>
+         </ul>
+       )
+     }
+   }
+   ```
+
+------
+
+#### 5.7.2 search参数
+
+> 向子路由组件传递数据，urlencoded编码格式：`?key1=value1%key=value2`，数据暴露在地址栏中；用`this.props.location.search`接收参数
+
+1. 父路由组件：Message
+
+   1）路由链接(携带参数)：`<Link to='/demo/test?name=tom&age=18'}>详情</Link>`
+
+   2）注册路由(无需声明，正常注册即可)：`<Route path="/demo/test" component={Test}/>`
+
+   ```jsx
+   ......
+   {/* 向路由组件传递search参数 */}
+   <Link to={`/home/message/detail/?id=${msgObj.id}&title=${msgObj.title}`}>{msgObj.title}</Link>
+   ......
+   {/* search参数无需声明接收，正常注册路由即可 */}
+   <Route path="/home/message/detail" component={Detail} />
+   ......
+   ```
+
+2. 子路由组件：Message/Detail
+
+   1）接收参数：`this.props.location.search`
+
+   2）获取到的search是urlencoded编码字符串
+
+   3）使用`querystring`插件可以解析urlencoded编码类型的数据（类似于JSON）
+
+   - `qs.stringfy({name:'tom',age:18})`，结果为：name=tom&age=18
+   - `qs.parse('name=tom&age=18')`，结果为：{name:'tom',age:18}
+
+   ```jsx
+   ......
+   import qs from 'querystring'
+   ......
+   // 接收search参数
+   const { search } = this.props.location			// id=01&title=消息1
+   const { id, title } = qs.parse(search.slice(1))	// {id:'01',title:'消息1'}
+   ......
+   ```
+
+------
+
+#### 5.7.3 state参数
+
+> 向子路由组件传递数据，写成对象形式，数据不会暴露在浏览器地址栏中；用`this.props.location.state`接收参数
+
+1. 父路由组件：Message
+
+   1）路由链接(携带参数)：注意这里面不是双花括号，只是单层花括号包裹了对象数据
+
+   ```jsx
+   <Link to={{pathname:'/demo/test',state:{name:'tom',age:18}}}>详情</Link>
+   ```
+
+   2）注册路由(无需声明，正常注册即可)：`<Route path="/demo/test" component={Test}/>`
+
+   ```jsx
+   ......
+   {/* 向路由组件传递state参数 */}
+   <Link to={{ pathname: '/home/message/detail', state: { id: msgObj.id, title: msgObj.title } }}>{msgObj.title}</Link>
+   ......
+   {/* state参数无需声明接收，正常注册路由即可 */}
+   <Route path="/home/message/detail" component={Detail} />
+   ```
+
+2. 子路由组件：Message/Detail
+
+   1）接收参数：`this.props.location.state`
+
+   2）刷新也可以保留住参数（由于query、search在路径中携带数据，刷新肯定也可以保留参数）
+
+   3）注意：如果清除缓存和历史记录，会导致state参数丢失，所以需要在接收state的同时写上备用的空对象
+
+   ```jsx
+   ......
+   // 接收state参数
+   const { id, title } = this.props.location.state || {}
+   ......
+   // 如果清除缓存和历史记录，会导致state参数丢失，所以需要在接收state的同时写上备用的空对象
+   const findResult = DetailData.find((detailObj) => {
+       return detailObj.id === id }) || {}
+   ......
+   ```
+
+------
+
+### 5.8 编程式路由导航
+
+> 不通过用户点击跳转，而借助`this.prosp.history`对象上的API对操作路由跳转、前进、后退；事件绑定必须写成箭头函数形式
+
+#### 5.8.1 push跳转
+
+1. 语法：`this.props.history.push(...)`，括号内根据传递的query、search、state参数而定
+
+2. 传递query参数：
+
+   1）父路由组件
+
+   ```jsx
+   pushShow = (id, title) => {
+     //push跳转+携带params参数
+     this.props.history.push(`/home/message/detail/${id}/${title}`)
+   }
+   ......
+   {/* 向路由组件传递params参数 */}
+   <Link to={`/home/message/detail/${msgObj.id}/${msgObj.title}`}>{msgObj.title}</Link>
+   // 注意这里函数的写法，必须写成箭头函数的形式
+   <button onClick={() => this.pushShow(msgObj.id, msgObj.title)}>push查看</button>
+   ......
+   {/* 声明接收params参数 */}
+   <Route path="/home/message/detail/:id/:title" component={Detail}/>
+   ......
+   ```
+
+   2）子路由组件
+
+   ```jsx
+   ......
+   // 接收params参数
+   const {id,title} = this.props.match.params
+   ......
+   ```
+
+3. 传递search参数：
+
+   1）父路由组件
+
+   ```jsx
+   pushShow = (id, title) => {
+     //push跳转+携带search参数
+     this.props.history.push(`/home/message/detail?id=${id}&title=${title}`)
+   }
+   ......
+   {/* 向路由组件传递search参数 */}
+   <Link to={`/home/message/detail/?id=${msgObj.id}&title=${msgObj.title}`}>{msgObj.title}</Link>
+   <button onClick={() => this.pushShow(msgObj.id, msgObj.title)}>push查看</button>
+   ......
+   {/* search参数无需声明接收，正常注册路由即可 */}
+   <Route path="/home/message/detail" component={Detail}/>
+   ......
+   ```
+
+   2）子路由组件
+
+   ```jsx
+   ......
+   // 接收search参数
+   const {search} = this.props.location
+   const {id,title} = qs.parse(search.slice(1))
+   ......
+   ```
+
+4. 传递state参数：
+
+   1）父路由组件
+
+   ```jsx
+   pushShow = (id, title) => {
+     //push跳转+携带state参数
+     this.props.history.push(`/home/message/detail`, { id, title })
+   }
+   ......
+   {/* 向路由组件传递state参数 */}
+   <Link to={{ pathname: '/home/message/detail', state: { id: msgObj.id, title: msgObj.title } }}>{msgObj.title}</Link>
+   <button onClick={() => this.pushShow(msgObj.id, msgObj.title)}>push查看</button>
+   ......
+   {/* state参数无需声明接收，正常注册路由即可 */}
+   <Route path="/home/message/detail" component={Detail} />
+   ......
+   ```
+
+   2）子路由组件
+
+   ```jsx
+   ......
+   // 接收state参数
+   const {id,title} = this.props.location.state || {}
+   const findResult = DetailData.find((detailObj)=>{ return detailObj.id === id }) || {}
+   ......
+   ```
+
+------
+
+#### 5.8.2 replace跳转
+
+1. 语法：`this.props.history.replace(...)`，括号内根据传递的query、search、state参数而定
+
+2. 具体案例与push相同
+
+   ```jsx
+   replaceShow = (id, title) => {
+     //replace跳转+携带params参数
+     //this.props.history.replace(`/home/message/detail/${id}/${title}`)
+     
+     //replace跳转+携带search参数
+     // this.props.history.replace(`/home/message/detail?id=${id}&title=${title}`)
+     
+     //replace跳转+携带state参数
+     this.props.history.replace(`/home/message/detail`, { id, title })
+   }
+   ......
+   <button onClick={() => this.replaceShow(msgObj.id, msgObj.title)}>replace查看</button>
+   ......
+   {/* 声明接收params参数 */}
+   {/* <Route path="/home/message/detail/:id/:title" component={Detail}/> */}
+   {/* search参数无需声明接收，正常注册路由即可 */}
+   {/* <Route path="/home/message/detail" component={Detail}/> */}
+   {/* state参数无需声明接收，正常注册路由即可 */}
+   <Route path="/home/message/detail" component={Detail} />
+   ......
+   ```
+
+------
+
+#### 5.8.3 前进与后退
+
+1. 前进：`this.props.history.goForward()`
+
+2. 后退：`this.props.history.goBack()`
+
+3. 跳转指定页数：`this.props.history.go(n)`，n为正数即前进，n为负数即后退
+
+   ```jsx
+   ......
+   back = () => {
+     this.props.history.goBack()
+   }
+   forward = () => {
+     this.props.history.goForward()
+   }
+   go = () => {
+     this.props.history.go(-2)
+   }
+   ......
+   <button onClick={this.back}>回退</button>
+   <button onClick={this.forward}>前进</button>
+   <button onClick={this.go}>go</button>
+   ......
+   ```
+
+------
+
+### 5.9 withRouter函数
+
+> withRouter可以加工一般组件，让一般组件具备路由组件所特有的API，返回值是一个新组件
+
+1. 使用方法：
+
+   1）导入`withRouter`：`import { withRouter } from 'react-router-dom'`
+
+   2）在一般组件components中以路由组件的语法进行定义
+
+   3）使用withRouter导出一般组件：`export default withRouter(xxx)`
+
+2. 案例：将前进、后退、go按钮放到一般组件components/Header中
+
+   ```jsx
+   import React, { Component } from 'react'
+   import { withRouter } from 'react-router-dom'
+   
+   class Header extends Component {
+     back = () => {
+       this.props.history.goBack()
+     }
+     forward = () => {
+       this.props.history.goForward()
+     }
+     go = () => {
+       this.props.history.go(-2)
+     }
+     render() {
+       console.log('Header组件收到的props是', this.props)
+       return (
+         <div className="page-header">
+           <h2>React Router Demo</h2>
+           <button onClick={this.back}>回退</button>&nbsp;
+           <button onClick={this.forward}>前进</button>&nbsp;
+           <button onClick={this.go}>go</button>
+         </div>
+       )
+     }
+   }
+   export default withRouter(Header)
+   ```
+
+------
+
+## 第6章 React UI组件库
+
+### 6.1 常用UI组件库
+
+1. material-ui（国外）：[http://www.material-ui.com/#/](http://www.material-ui.com/#/)
+
+2. ant-design（蚂蚁金服）：[https://ant.design/index-cn](https://ant.design/index-cn)
+
+### 6.2 Antd
+
+1. 安装：
+
+   ```bash
+   yarn add antd
+   ```
+
+2. 安装依赖
+
+   ```bash
+   yarn add react-app-rewired customize-cra babel-plugin-import less less-loader
+   ```
+
+   

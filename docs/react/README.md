@@ -3520,6 +3520,10 @@ next: false
 
 2. ant-design（蚂蚁金服）：[https://ant.design/index-cn](https://ant.design/index-cn)
 
+3. element-ui（饿了么）：[https://element.eleme.cn/#/zh-CN](https://element.eleme.cn/#/zh-CN)
+
+4. Vant（移动端）：[https://youzan.github.io/vant-weapp/#/home](https://youzan.github.io/vant-weapp/#/home)
+
 ### 6.2 Antd
 
 1. 安装：
@@ -3528,10 +3532,419 @@ next: false
    yarn add antd
    ```
 
-2. 安装依赖
+2. 安装依赖：
 
    ```bash
    yarn add react-app-rewired customize-cra babel-plugin-import less less-loader
+   ```
+
+3. 简单使用：不推荐，因为全部引入体积较大
+
+   ```jsx
+   import React, { Component } from 'react'
+   import { Button, DatePicker } from 'antd'
+   import { WechatOutlined, WeiboOutlined, SearchOutlined } from '@ant-design/icons'
+   import 'antd/dist/antd.css'	// 这里引入后体积较大，按官方配置后无需再引入
+   const { RangePicker } = DatePicker
+   
+   export default class App extends Component {
+     render() {
+       return (
+         <div>
+           App....
+           <button>点我</button>
+           <Button type="primary">按钮1</Button>
+           <Button>按钮2</Button>
+           <Button type="link">按钮3</Button>
+           <Button type="primary" icon={<SearchOutlined />}>
+             Search
+           </Button>
+           <WechatOutlined />
+           <WeiboOutlined />
+           <DatePicker />
+           <RangePicker />
+         </div>
+       )
+     }
+   }
+   
+   ```
+
+4. 在 create-react-app 中使用：[官方推荐方法](https://ant.design/docs/react/use-with-create-react-app-cn)
+
+   1）修改`package.json`文件
+
+   ```json
+   ......
+   "scripts": {
+   	"start": "react-app-rewired start",
+   	"build": "react-app-rewired build",
+   	"test": "react-app-rewired test",
+   	"eject": "react-scripts eject"
+   },
+   ......
+   ```
+
+   2）项目根目录下创建`config-overrides.js`
+
+   ```js
+   // 配置具体的修改规则
+   const { override, fixBabelImports, addLessLoader } = require('customize-cra')
+   
+   module.exports = override(
+     fixBabelImports('import', {
+       libraryName: 'antd',
+       libraryDirectory: 'es',
+       style: true,
+     }),
+     addLessLoader({
+       lessOptions: {
+         javascriptEnabled: true,	// 允许用JS修改Antd底层的less文件
+         modifyVars: { '@primary-color': 'green' },	// 自定义主题颜色
+       },
+     })
+   )
+   ```
+
+   3）不用在组件里亲自引入样式了，删掉：`import 'antd/dist/antd.css'`
+   
+   4）自定义主题：[https://ant.design/docs/react/customize-theme-cn](https://ant.design/docs/react/customize-theme-cn)
+
+------
+
+## 第7章 Redux
+
+> Redux：可以集中式管理React应用中多个组件共享的状态
+
+### 7.1 Redux简介
+
+1. 官方文文档：
+   - 英文文档：[https://redux.js.org/](https://redux.js.org/)
+   - 中文文档：[http://www.redux.org.cn/](http://www.redux.org.cn/)
+   - Github：[https://github.com/reactjs/redux](https://github.com/reactjs/redux)
+
+2. 定义：redux是一个专门用于做状态管理的JS库（不是react插件库）,可以用在react、angular、vue等项目中，但基本与react配合使用
+
+3. 安装：
+
+   ```bash
+   npm i redux / yarn add redux
+   ```
+
+4. 应用场景：
+
+   1）某个组件的状态，需要让其他组件可以随时拿到（共享）
+
+   2）一个组件需要改变另一个组件的状态（通信）
+
+   3）总体原则：能不用就不用，如果不用比较吃力才考虑使用
+
+5. 工作原理图：
+
+   <img :src="$withBase('/imgs/react/redux原理图.png')" alt="redux原理图">
+
+------
+
+### 7.2 核心概念
+
+#### 7.2.1 action
+
+> `action`是动作的对象(obj)，储存函数名和待加工数据，由`store`中的`dispatch`方法发放
+
+1. 属性：
+
+   1）`type`：标识属性，值为字符串，唯一，必要属性
+
+   2）`data`：数据属性，值类型任意，可选属性
+
+2. 定义`action`：
+
+   ```jsx
+   {type: 'ADD_STUDENT', data: {name: 'tom', age: 18}}
+   ```
+
+------
+
+#### 7.2.2 reducer
+
+> `reducer`用于初始化状态、加工状态，根据旧state(`previousState`)和`action`，产生新state(`newState`)的纯函数
+
+1. 定义：reducer的本质是一个函数，接收：`previousState`、`action`，返回加工后的新状态(newState)
+
+2. 文件位置：src/redux/xxx_reducer.js
+
+3. reducer被第一次调用时，是store自动触发的
+
+   1）传递的`previousState`：`undefined`
+
+   2）传递的`action`：`{type:'@@REDUX/INIT_a.2.b.4}`
+
+------
+
+#### 7.2.3 store
+
+> `store`是将state、action、reducer联系在一起的对象，将旧state(`previousState`)和`action`传递给`reducer`
+
+1. 定义：store是redux库最核心的管理对象，内部维护着`state`和`reducer`
+
+2. 文件位置：src/redux/store.js
+
+3. 创建：使用`createStore()`创建store对象
+
+4. 方法：
+
+   1）`store.getState()`：得到state
+
+   2）`store.dispatch(action)`：分发action，触发reducer调用，产生新的state
+
+   ```jsx
+   store.dispatch({ type: 'increment', data: value * 1 })
+   ```
+
+   3）`store.subscribe(listener)`：在入口文件`index.js`中注册监听，当产生了新的state时，自动调用，重新渲染`<App/>`
+
+   ```js
+   // 入口文件：index.js
+   // redux只负责管理状态，至于状态的改变驱动着页面的展示，要自己写
+   store.subscribe(() => {
+     ReactDOM.render(<App />, document.getElementById('root'))
+   })
+   ```
+
+------
+
+### 7.3 Redux API
+
+#### 7.3.1 createStore
+
+> 创建包含指定`reducer`的`store`对象
+
+1. 语法：src/redux/store.js
+
+   ```js
+   import {createStore} from 'redux'
+   import reducer from './reducers'
+   const store = createStore(reducer)
+   ```
+
+#### 7.3.2 applyMiddleware
+
+> 应用上基于redux的中间件（插件库）
+
+
+
+#### 7.3.3 combineReducers
+
+> 合并多个`reducer`函数
+
+
+
+------
+
+### 7.4 求和案例
+
+#### 7.4.1 纯React版
+
+1. 入口文件：index.js
+
+   ```js
+   import React from 'react'
+   import ReactDOM from 'react-dom'
+   import App from './App'
+   
+   ReactDOM.render(<App />, document.getElementById('root'))
+   ```
+
+2. 父组件：App.jsx
+
+   ```jsx
+   import React, { Component } from 'react'
+   import Count from './components/Count'
+   
+   export default class App extends Component {
+     render() {
+       return (
+         <div>
+           <Count />
+         </div>
+       )
+     }
+   }
+   ```
+
+3. 子组件：components/Count
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   export default class Count extends Component {
+     state = { count: 0 }
+   
+     // 加法
+     increment = () => {
+       const { value } = this.selectNumber
+       const { count } = this.state
+       // 这里乘1是为了避免解析为字符串拼接
+       this.setState({ count: count + value * 1 })
+     }
+     // 减法
+     decrement = () => {
+       const { value } = this.selectNumber
+       const { count } = this.state
+       this.setState({ count: count - value * 1 })
+     }
+     // 奇数再加
+     incrementIfOdd = () => {
+       const { value } = this.selectNumber
+       const { count } = this.state
+       if (count % 2 !== 0) {
+         this.setState({ count: count + value * 1 })
+       }
+     }
+     // 异步加（等待一定时间后再加）
+     incrementAsync = () => {
+       const { value } = this.selectNumber
+       const { count } = this.state
+       setTimeout(() => {
+         this.setState({ count: count + value * 1 })
+       }, 500)
+     }
+   
+     render() {
+       return (
+         <div>
+           <h1>当前求和为：{this.state.count}</h1>
+           <select ref={(c) => (this.selectNumber = c)}>
+             <option value="1">1</option>
+             <option value="2">2</option>
+             <option value="3">3</option>
+           </select>
+           &nbsp;
+           <button onClick={this.increment}>+</button>&nbsp;
+           <button onClick={this.decrement}>-</button>&nbsp;
+           <button onClick={this.incrementIfOdd}>当前求和为奇数再加</button>&nbsp;
+           <button onClick={this.incrementAsync}>异步加</button>&nbsp;
+         </div>
+       )
+     }
+   }
+   ```
+
+------
+
+#### 7.3.2 Redux精简版
+
+1. 入口文件：index.js，监测store中状态的改变，一旦发生改变重新渲染`<App/>`
+
+   ```js
+   import React from 'react'
+   import ReactDOM from 'react-dom'
+   import App from './App'
+   import store from './redux/store'
+   
+   ReactDOM.render(<App />, document.getElementById('root'))
+   
+   // redux只负责管理状态，至于状态的改变驱动着页面的展示，要靠我们自己写
+   store.subscribe(() => {
+     ReactDOM.render(<App />, document.getElementById('root'))
+   })
+   ```
+
+2. 父组件：App.jsx，无变化
+
+3. 使用redux：在src下创建redux文件夹
+
+   1）`count_reducer.js`：创建一个为Count组件服务的reducer，接收`previousState`、`action`这两个参数
+
+   ```js
+   const initState = 0 // 初始化状态
+   export default function countReducer(preState = initState, action) {
+     // 从action对象中获取：type、data
+     const { type, data } = action
+     // 根据type决定如何加工数据
+     switch (type) {
+       case 'increment': // 如果是加
+         return preState + data
+       case 'decrement': // 若果是减
+         return preState - data
+       default:
+         return preState
+     }
+   }
+   ```
+
+   2）`store.js`：专门用于暴露一个store对象，整个应用只有一个store对象
+
+   ```js
+   // 引入createStore，专门用于创建redux中最为核心的store对象
+   import { createStore } from 'redux'
+   // 引入为Count组件服务的reducer
+   import countReducer from './count_reducer'
+   // 暴露store
+   export default createStore(countReducer)
+   ```
+
+4. 子组件：components/Count
+
+   ```jsx
+   import React, { Component } from 'react'
+   // 引入store，用于获取redux中保存状态
+   import store from '../../redux/store'
+   
+   export default class Count extends Component {
+     state = { carName: '奔驰c63' }
+   
+     /* componentDidMount(){
+   		// 检测redux中状态的变化，只要变化，就调用render
+   		store.subscribe(()=>{
+   			this.setState({})
+   		})
+   	} */
+   
+     // 加法
+     increment = () => {
+       const { value } = this.selectNumber
+       store.dispatch({ type: 'increment', data: value * 1 })
+     }
+     // 减法
+     decrement = () => {
+       const { value } = this.selectNumber
+       store.dispatch({ type: 'decrement', data: value * 1 })
+     }
+     // 奇数再加
+     incrementIfOdd = () => {
+       const { value } = this.selectNumber
+       const count = store.getState()
+       if (count % 2 !== 0) {
+         store.dispatch({ type: 'increment', data: value * 1 })
+       }
+     }
+     // 异步加
+     incrementAsync = () => {
+       const { value } = this.selectNumber
+       setTimeout(() => {
+         store.dispatch({ type: 'increment', data: value * 1 })
+       }, 500)
+     }
+   
+     render() {
+       return (
+         <div>
+           <h1>当前求和为：{store.getState()}</h1>
+           <select ref={(c) => (this.selectNumber = c)}>
+             <option value="1">1</option>
+             <option value="2">2</option>
+             <option value="3">3</option>
+           </select>
+           &nbsp;
+           <button onClick={this.increment}>+</button>&nbsp;
+           <button onClick={this.decrement}>-</button>&nbsp;
+           <button onClick={this.incrementIfOdd}>当前求和为奇数再加</button>&nbsp;
+           <button onClick={this.incrementAsync}>异步加</button>&nbsp;
+         </div>
+       )
+     }
+   }
    ```
 
    

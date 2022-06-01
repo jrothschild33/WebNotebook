@@ -3673,7 +3673,9 @@ next: false
 
 2. 文件位置：src/redux/xxx_reducer.js
 
-3. reducer被第一次调用时，是store自动触发的
+3. 注意：reducer已经接管了state，此时子组件中的state已经与redux中的state无关了
+
+4. reducer被第一次调用时，是store自动触发的
 
    1）传递的`previousState`：`undefined`
 
@@ -3701,7 +3703,7 @@ next: false
    store.dispatch({ type: 'increment', data: value * 1 })
    ```
 
-   3）`store.subscribe(listener)`：在入口文件`index.js`中注册监听，当产生了新的state时，自动调用，重新渲染`<App/>`
+   3）`store.subscribe(listener)`：在入口文件`index.js`中注册监听，当redux管理的state发生改变时自动调用，重新渲染`<App/>`
 
    ```js
    // 入口文件：index.js
@@ -3857,7 +3859,8 @@ next: false
    1）`count_reducer.js`：创建一个为Count组件服务的reducer，接收`previousState`、`action`这两个参数
 
    ```js
-   const initState = 0 // 初始化状态
+   const initState = 0 // 初始化状态（接管子组件中的state，可用store.getState()获取，从此子组件中的state与redux无关了）
+   // preState = initState：基本JS语法，形参默认值，如果没有传递preState参数，或传递值为undefined，preState默认等于initState
    export default function countReducer(preState = initState, action) {
      // 从action对象中获取：type、data
      const { type, data } = action
@@ -3867,6 +3870,7 @@ next: false
          return preState + data
        case 'decrement': // 若果是减
          return preState - data
+       // 初始化时
        default:
          return preState
      }
@@ -3884,7 +3888,7 @@ next: false
    export default createStore(countReducer)
    ```
 
-4. 子组件：components/Count
+4. 子组件：components/Count，去除Count组件自身的状态，此时该组件中的state已经与redux无关了
 
    ```jsx
    import React, { Component } from 'react'
@@ -3892,18 +3896,20 @@ next: false
    import store from '../../redux/store'
    
    export default class Count extends Component {
-     state = { carName: '奔驰c63' }
+     // 这里的state随便写，与redux无关，真正的state已经交给reducer了（initState）
+     state = { carName: '奔驰c63' }	
    
      /* componentDidMount(){
    		// 检测redux中状态的变化，只要变化，就调用render
    		store.subscribe(()=>{
-   			this.setState({})
+   			this.setState({})	// 另类方法：setState中不传递任何参数，但也会引起react重新渲染页面
    		})
    	} */
    
      // 加法
      increment = () => {
        const { value } = this.selectNumber
+       // 通过dispatch方法将action传递给reducer
        store.dispatch({ type: 'increment', data: value * 1 })
      }
      // 减法
@@ -3946,5 +3952,5 @@ next: false
      }
    }
    ```
-
+   
    

@@ -2896,8 +2896,31 @@ next: /server/#第1章-ajax
 
 2. 语法：
 
+   1）完整写法
+
    ```js
    let fn = (arg1, arg2, arg3) => { return arg1 + arg2 + arg3;}
+   ```
+
+   2）如果传递的参数只有一个，可以省略`()`；如果返回的结果只有一个，可以省略`{}`
+
+   ```js
+   const a = b => b
+   console.log(a(1))	// 1
+   ```
+
+   3）返回对象obj：（空对象也可以）
+
+   - 用小括号包裹住大花括号
+
+   ```js
+   const foo = () => ({})
+   ```
+
+   - 两层花括号（不推荐）
+
+   ```js
+   const foo = () => {return {}}
    ```
 
 3. 特点：

@@ -3059,6 +3059,49 @@ next: /server/#第1章-ajax
    const result = arr.filter((item) => item % 2 === 0)
    ```
 
+------
+
+#### 2.7.12 纯函数
+
+1. 定义：只要是同样的输入（实参），必定得到同样的输出（返回）
+
+2. 要求：
+
+   1）不得改写参数数据（如数组arr中的`push`、`unshift`等方法，都属于改变参数数据，推荐使用扩展运算符）
+
+   2）不能产生任何副作用，例如网络请求、输入和输出设备
+
+   3）不能调用`Date.now()`或者`Math.random()`等不纯的方法
+
+3. 案例：
+
+   1）最简单的纯函数
+
+   ```js
+   function demo(a) {
+     return a
+   }
+   ```
+
+   2）如果传入的参数是数组，不得调用数组中的新增、删除、修改等方法
+
+   ```js
+   // 修改了数组，不再是纯函数
+   function demo(arr) {
+     arr.push(1)
+     return arr
+   }
+   console.log(demo(['a', 'b', 'c']))	// [ 'a', 'b', 'c', 1 ]
+   ```
+
+   ```js
+   // 如果涉及对数组进行修改，可以新设变量，并使用扩展运算符，这样就符合纯函数了
+   function demo(arr) {
+     const newArr = [...arr, 1]
+     return newArr
+   }
+   console.log(demo(['a', 'b', 'c']))	// [ 'a', 'b', 'c', 1 ]
+   ```
 
 ------
 

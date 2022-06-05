@@ -3382,7 +3382,9 @@ next: false
 
 ------
 
-## 第5章 React路由
+## 第5章 React Router 5
+
+> [React Router 5](https://v5.reactrouter.com/)：类式组件的React路由
 
 ### 5.1 路由简介
 
@@ -4282,9 +4284,472 @@ next: false
 
 ------
 
-## 第6章 React UI组件库
+## 第6章 React Router 6
 
-### 6.1 常用UI组件库
+> [React Router 6](https://reactrouterdotcom.fly.dev/)：函数式组件的React路由
+
+### 6.1 新版简介
+
+1. React Router 以三个不同的包发布到 npm 上，它们分别为：
+
+   - react-router: 路由的核心库，提供了很多的：组件、钩子
+   - react-router-dom：包含react-router所有内容，并添加一些专门用于 DOM 的组件，例如 `<BrowserRouter>`等
+   - react-router-native: 包括react-router所有内容，并添加一些专门用于ReactNative的API，例如:`<NativeRouter>`等
+
+2. 第6版更新内容：
+
+   1）内置组件的变化：移除`<Switch/>`，新增`<Routes/>`等
+
+   2）语法的变化：`component={About}`变为`element={<About/>}`等
+
+   3）新增多个hook：`useParams`、`useNavigate`、`useMatch`等
+
+   4）官方明确推荐函数式组件
+
+------
+
+### 6.2 路由组件
+
+#### 6.2.1 Browser/HashRouter
+
+> `<BrowserRouter>`与`<HashRouter>`都用于包裹整个应用，`<HashRouter>`修改的是地址栏的hash值
+
+1. 说明：v6版本中`<BrowserRouter>`、`<HashRouter>`的用法与v5相同
+
+   ```jsx
+   import React from 'react'
+   import ReactDOM from 'react-dom'
+   import { BrowserRouter } from 'react-router-dom'
+   import App from './App'
+   
+   ReactDOM.render(
+     <BrowserRouter>
+       <App />
+     </BrowserRouter>,
+     document.getElementById('root')
+   )
+   ```
+
+------
+
+#### 6.2.2 Routes
+
+> v6版本中使用`<Routes>`代替`<Switch>`，`<Routes>`和`<Route>`要配合使用，且必须要用`<Routes>`包裹`<Route>`
+
+1. 作用：`<Route>`相当于一个if语句，如果其路径与当前 URL 匹配，则呈现其对应的组件
+2. `<Route caseSensitive>`属性用于指定：匹配时是否区分大小写（默认false）
+3. 当URL发生变化时，`<Routes> `都会查看其所有子` <Route>`元素以找到最佳匹配并呈现组件
+4. `<Route>`也可以嵌套使用，且可配合`useRoutes()`配置 “路由表”，但需要通过`<Outlet>`组件来渲染其子路由
+
+5. 案例：
+
+   ```jsx
+   <Routes>
+     // path属性用于定义路径，element属性用于定义当前路径所对应的组件
+     <Route path="/login" element={<Login />}></Route>
+     // 用于定义嵌套路由，home是一级路由，对应的路径/home
+     <Route path="home" element={<Home />}>
+       // test1 和 test2 是二级路由,对应的路径是/home/test1 或 /home/test2
+       <Route path="test1" element={<Test />}></Route>
+       <Route path="test2" element={<Test2 />}></Route>
+     </Route>
+     // Route也可以不写element属性, 这时就是用于展示嵌套的路由 .所对应的路径是/users/xxx
+     <Route path="users">
+       <Route path="xxx" element={<Demo />} />
+     </Route>
+   </Routes>
+   ```
+
+------
+
+#### 6.2.3 Link
+
+> `<Link>`用于修改URL，且不发送网络请求（路由链接），外侧需要用`<BrowserRouter>`或`<HashRouter>`包裹
+
+1. 语法：
+
+   ```jsx
+   import { Link } from 'react-router-dom'
+   
+   function Test() {
+     return (
+       <div>
+         <Link to="/路径">按钮</Link>
+       </div>
+     )
+   }
+   ```
+
+------
+
+#### 6.2.4 NavLink
+
+> `<NavLink`>与`<Link>`组件类似，且可实现导航的“高亮”效果
+
+1. 语法：
+
+   ```jsx
+   // 注意: NavLink默认类名是active，下面是指定自定义的class
+   
+   //自定义样式
+   <NavLink
+       to="login"
+       className={({ isActive }) => {
+           console.log('home', isActive)
+           return isActive ? 'base one' : 'base'
+       }}
+   >login</NavLink>
+   
+   /*
+   	默认情况下，当Home的子组件匹配成功，Home的导航也会高亮，
+   	当NavLink上添加了end属性后，若Home的子组件匹配成功，则Home的导航没有高亮效果。
+   */
+   <NavLink to="home" end >home</NavLink>
+   ```
+
+------
+
+#### 6.2.5 Navigate
+
+> 只要`<Navigate>`组件被渲染，就会修改路径，切换视图
+
+1. 跳转模式：`push`（默认）、`repalce`
+
+2. 案例：
+
+   ```jsx
+   import React, { useState } from 'react'
+   import { Navigate } from 'react-router-dom'
+   
+   export default function Home() {
+     const [sum, setSum] = useState(1)
+     return (
+       <div>
+         <h3>我是Home的内容</h3>
+         {/* 根据sum的值决定是否切换视图 */}
+         {sum === 1 ? <h4>sum的值为{sum}</h4> : <Navigate to="/about" replace={true} />}
+         <button onClick={() => setSum(2)}>点我将sum变为2</button>
+       </div>
+     )
+   }
+   ```
+
+------
+
+#### 6.2.6 Outlet
+
+> 当`<Route>`产生嵌套时，`<Outlet>`渲染其对应的后续子路由
+
+1. 路由规则：
+
+   ```js
+   // 根据路由表生成对应的路由规则
+   const element = useRoutes([
+     {
+       path: '/about',
+       element: <About />,
+     },
+     {
+       path: '/home',
+       element: <Home />,
+       children: [
+         {
+           path: 'news',
+           element: <News />,
+         },
+         {
+           path: 'message',
+           element: <Message />,
+         },
+       ],
+     },
+   ])
+   ```
+
+2. Home.jsx
+
+   ```jsx
+   import React from 'react'
+   import { NavLink, Outlet } from 'react-router-dom'
+   
+   export default function Home() {
+     return (
+       <div>
+         <h2>Home组件内容</h2>
+         <div>
+           <ul className="nav nav-tabs">
+             <li>
+               <NavLink className="list-group-item" to="news">
+                 News
+               </NavLink>
+             </li>
+             <li>
+               <NavLink className="list-group-item" to="message">
+                 Message
+               </NavLink>
+             </li>
+           </ul>
+           {/* 指定路由组件呈现的位置 */}
+           <Outlet />
+         </div>
+       </div>
+     )
+   }
+   ```
+
+------
+
+### 6.3 路由Hooks
+
+#### 6.3.1 useRoutes
+
+1. 作用：根据路由表，动态创建`<Routes>`和`<Route>`。
+
+2. 示例代码：
+
+   ```jsx
+   //路由表配置：src/routes/index.js
+   import About from '../pages/About'
+   import Home from '../pages/Home'
+   import {Navigate} from 'react-router-dom'
+   
+   export default [
+   	{
+   		path:'/about',
+   		element:<About/>
+   	},
+   	{
+   		path:'/home',
+   		element:<Home/>
+   	},
+   	{
+   		path:'/',
+   		element:<Navigate to="/about"/>
+   	}
+   ]
+   
+   //App.jsx
+   import React from 'react'
+   import {NavLink,useRoutes} from 'react-router-dom'
+   import routes from './routes'
+   
+   export default function App() {
+   	//根据路由表生成对应的路由规则
+   	const element = useRoutes(routes)
+   	return (
+   		<div>
+   			......
+         {/* 注册路由 */}
+         {element}
+   		  ......
+   		</div>
+   	)
+   }
+   
+   ```
+
+------
+
+#### 6.3.2 useNavigate
+
+1. 作用：返回一个函数用来实现编程式导航
+
+2. 示例代码：
+
+   ```jsx
+   import React from 'react'
+   import { useNavigate } from 'react-router-dom'
+   
+   export default function Demo() {
+     const navigate = useNavigate()
+     const handle = () => {
+       // 第一种使用方式：指定具体的路径
+       navigate('/login', {
+         replace: false,
+         state: { a: 1, b: 2 },
+       })
+       // 第二种使用方式：传入数值进行前进或后退，类似于5.x中的 history.go()方法
+       navigate(-1)
+     }
+   
+     return (
+       <div>
+         <button onClick={handle}>按钮</button>
+       </div>
+     )
+   }
+   ```
+
+------
+
+#### 6.3.3 useParams
+
+1. 作用：回当前匹配路由的`params`参数，类似于5.x中的`match.params`。
+
+2. 示例代码：
+
+   ```jsx
+   import React from 'react'
+   import { Routes, Route, useParams } from 'react-router-dom'
+   import User from './pages/User.jsx'
+   
+   function ProfilePage() {
+     // 获取URL中携带过来的params参数
+     let { id } = useParams()
+   }
+   
+   function App() {
+     return (
+       <Routes>
+         <Route path="users/:id" element={<User />} />
+       </Routes>
+     )
+   }
+   ```
+
+------
+
+#### 6.3.4 useSearchParams
+
+1. 作用：用于读取和修改当前位置的 URL 中的查询字符串。
+
+2. 返回一个包含两个值的数组，内容分别为：当前的seaech参数、更新search的函数。
+
+3. 示例代码：
+
+   ```jsx
+   import React from 'react'
+   import { useSearchParams } from 'react-router-dom'
+   
+   export default function Detail() {
+     const [search, setSearch] = useSearchParams()
+     const id = search.get('id')
+     const title = search.get('title')
+     const content = search.get('content')
+     return (
+       <ul>
+         <li>
+           <button onClick={() => setSearch('id=008&title=哈哈&content=嘻嘻')}>点我更新一下收到的search参数</button>
+         </li>
+         <li>消息编号：{id}</li>
+         <li>消息标题：{title}</li>
+         <li>消息内容：{content}</li>
+       </ul>
+     )
+   }
+   ```
+
+------
+
+#### 6.3.5 useLocation
+
+1. 作用：获取当前 location 信息，对标5.x中的路由组件的`location`属性。
+
+2. 示例代码：
+
+   ```jsx
+   import React from 'react'
+   import { useLocation } from 'react-router-dom'
+   
+   export default function Detail() {
+     const x = useLocation()
+     console.log('@', x)
+     // x就是location对象:
+     /*
+   		{
+         hash: "",
+         key: "ah9nv6sz",
+         pathname: "/login",
+         search: "?name=zs&age=18",
+         state: {a: 1, b: 2}
+       }
+   	*/
+     return (
+       <ul>
+         <li>消息编号：{id}</li>
+         <li>消息标题：{title}</li>
+         <li>消息内容：{content}</li>
+       </ul>
+     )
+   }
+   ```
+
+------
+
+#### 6.3.6 useMatch
+
+1. 作用：返回当前匹配信息，对标5.x中的路由组件的`match`属性。
+
+2. 示例代码：
+
+   ```jsx
+   <Route path="/login/:page/:pageSize" element={<Login />}/>
+   <NavLink to="/login/1/10">登录</NavLink>
+   
+   export default function Login() {
+     const match = useMatch('/login/:x/:y')
+     console.log(match) // 输出match对象
+     // match对象内容如下：
+     /*
+     	{
+         params: {x: '1', y: '10'}
+         pathname: "/LoGin/1/10"  
+         pathnameBase: "/LoGin/1/10"
+         pattern: {
+         	path: '/login/:x/:y', 
+         	caseSensitive: false, 
+         	end: false
+         }
+       }
+     */
+     return (
+     	<div>
+         <h1>Login</h1>
+       </div>
+     )
+   }
+   ```
+
+------
+
+#### 6.3.7 useInRouterContext
+
+1. 作用：如果组件在 `<Router>` 的上下文中呈现，则 `useInRouterContext` 钩子返回 true，否则返回 false。
+
+------
+
+#### 6.3.8 useNavigationType
+
+1. 作用：返回当前的导航类型（用户是如何来到当前页面的）。
+2. 返回值：`POP`、`PUSH`、`REPLACE`。
+3. 备注：`POP`是指在浏览器中直接打开了这个路由组件（刷新页面）。
+
+------
+
+#### 6.3.9 useOutlet
+
+1. 作用：用来呈现当前组件中渲染的嵌套路由。
+
+2. 示例代码：
+
+   ```jsx
+   const result = useOutlet()
+   console.log(result)
+   // 如果嵌套路由没有挂载,则result为null
+   // 如果嵌套路由已经挂载,则展示嵌套的路由对象
+   ```
+
+------
+
+#### 6.3.10 useResolvedPath
+
+1. 作用：给定一个 URL值，解析其中的：path、search、hash值。
+
+------
+
+## 第7章 React UI组件库
+
+### 7.1 常用UI组件库
 
 1. material-ui（国外）：[http://www.material-ui.com/#/](http://www.material-ui.com/#/)
 
@@ -4294,7 +4759,7 @@ next: false
 
 4. Vant（移动端）：[https://youzan.github.io/vant-weapp/#/home](https://youzan.github.io/vant-weapp/#/home)
 
-### 6.2 Antd
+### 7.2 Antd
 
 1. 安装：
 
@@ -4382,11 +4847,11 @@ next: false
 
 ------
 
-## 第7章 Redux
+## 第8章 Redux
 
 > Redux：可以集中式管理React应用中多个组件共享的状态
 
-### 7.1 Redux简介
+### 8.1 Redux简介
 
 1. 官方文文档：
    - 英文文档：[https://redux.js.org/](https://redux.js.org/)
@@ -4415,9 +4880,9 @@ next: false
 
 ------
 
-### 7.2 核心概念
+### 8.2 核心概念
 
-#### 7.2.1 action
+#### 8.2.1 action
 
 > `action`是对象（同步）或函数（异步），储存函数名和待加工数据，由`store`中的`dispatch`方法发放
 
@@ -4469,7 +4934,7 @@ next: false
 
 ------
 
-#### 7.2.2 reducer
+#### 8.2.2 reducer
 
 > `reducer`用于初始化状态、加工状态，根据旧state(`previousState`)和`action`，产生新state(`newState`)的纯函数
 
@@ -4514,7 +4979,7 @@ next: false
 
 ------
 
-#### 7.2.3 store
+#### 8.2.3 store
 
 > `store`是将state、action、reducer联系在一起的对象，将旧state(`previousState`)和`action`传递给`reducer`
 
@@ -4546,9 +5011,9 @@ next: false
 
 ------
 
-### 7.3 Redux API
+### 8.3 Redux API
 
-#### 7.3.1 createStore
+#### 8.3.1 createStore
 
 > 创建包含指定`reducer`的`store`对象
 
@@ -4561,7 +5026,7 @@ next: false
    const store = createStore(reducer)
    ```
 
-#### 7.3.2 applyMiddleware
+#### 8.3.2 applyMiddleware
 
 > 应用上基于redux的中间件（插件库），例如支持异步action的`redux-thunk`插件
 
@@ -4576,7 +5041,7 @@ next: false
    export default createStore(reducer, applyMiddleware(thunk))
    ```
 
-#### 7.3.3 combineReducers
+#### 8.3.3 combineReducers
 
 > 合并多个容器组件的`reducer`，合并后的总状态是一个对象，在UI组件中通过`state.xxx`调用
 
@@ -4599,13 +5064,13 @@ next: false
 
 ------
 
-### 7.4 React-redux
+### 8.4 React-redux
 
 > react插件库，专门用来简化react应用中使用redux
 
 <img :src="$withBase('/imgs/react/react-redux模型图.png')" alt="react-redux模型图">
 
-#### 7.4.1 基本概念
+#### 8.4.1 基本概念
 
 1. 安装：
 
@@ -4648,7 +5113,7 @@ next: false
 
 ------
 
-#### 7.4.2 相关API
+#### 8.4.2 相关API
 
 1. `Provider`：让所有组件都可以得到state数据（在入口文件index.js中配置）
 
@@ -4735,7 +5200,7 @@ next: false
 ------
 
 
-#### 7.4.3 开发者工具
+#### 8.4.3 开发者工具
 
 1. Chrome插件：[Redux Dev Tools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd/related?hl=zh-CN)
 
@@ -4758,9 +5223,9 @@ next: false
 
 ------
 
-### 7.5 求和案例
+### 8.5 求和案例
 
-#### 7.5.1 React版
+#### 8.5.1 React版
 
 1. 入口文件：index.js
 
@@ -4849,7 +5314,7 @@ next: false
 
 ------
 
-#### 7.5.2 Redux版
+#### 8.5.2 Redux版
 
 > 利用redux中的action、reducer、store接管组件中的状态和方法，并实现异步action
 
@@ -5011,7 +5476,7 @@ next: false
 
 ------
 
-#### 7.5.5 React-redux版
+#### 8.5.3 React-redux版
 
 > 容器组件负责与redux通信，通过`props`将数据和方法传递给UI组件（容器与UI组件可以合并）；使用`Provider`使所有组件都可以得到`state`数据
 

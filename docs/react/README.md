@@ -416,6 +416,67 @@ next: false
 
 ------
 
+#### 1.3.5 Fragment
+
+> 在脚手架中使用`<Fragment>`作为组件的最外层结构，可以不用必须有一个真实的DOM根标签了
+
+1. 作用：使用`<Fragment>`作为最外层HTML标签（之前只能用`<div>`），React在渲染时会将其去掉，使整体项目结构更加简洁
+
+2. 父组件：App.jsx
+
+   ```jsx
+   import React, { Component, Fragment } from 'react'
+   import Demo from './components/Demo'
+   
+   export default class App extends Component {
+     render() {
+       return (
+         <Fragment>
+           <Demo />
+         </Fragment>
+       )
+     }
+   }
+   ```
+
+3. 子组件：
+
+   1）如果涉及遍历，可以携带`key`参数（不能携带其他参数）
+
+   ```jsx
+   import React, { Component, Fragment } from 'react'
+   
+   export default class Demo extends Component {
+     render() {
+       return (
+         <Fragment key={1}>
+           <input type="text" />
+           <input type="text" />
+         </Fragment>
+       )
+     }
+   }
+   ```
+
+   2）如果不需要指定`key`，可以简写为空标签`< >...</>`
+
+   ```jsx
+   import React, { Component, Fragment } from 'react'
+   
+   export default class Demo extends Component {
+     render() {
+       return (
+         <>
+           <input type="text" />
+           <input type="text" />
+         </>
+       )
+     }
+   }
+   ```
+
+------
+
 ### 1.4 模块与组件
 
 1. 模块：向外提供特定功能的js程序, 一般就是一个js文件
@@ -436,13 +497,39 @@ next: false
 
 ------
 
+### 1.5 组件间通信
+
+#### 1.5.1 通信方式
+
+1. props：
+
+   1）children props：通过组件标签体传入结构，但无法做到让组件间共享数据
+
+   2）render props：通过组件标签属性传入结构，而且可以携带数据
+
+2. 消息订阅与发布：pubs-sub、event等
+
+3. 集中式管理：redux、dva等
+
+4. Context：生产者-消费者模式
+
+#### 1.5.2 搭配方式
+
+|         组件         |                           通信方式                           |
+| :------------------: | :----------------------------------------------------------: |
+|       父子组件       |                            props                             |
+| 兄弟组件(非嵌套组件) |                  消息订阅与发布、集中式管理                  |
+|  祖孙组件(跨级组件)  | 消息订阅与发布、集中式管理、Context(开发用的少，封装插件用的多) |
+
+------
+
 ## 第2章 面向组件编程
 
 ### 2.1 创建组件
 
 #### 2.1.1 函数式组件
 
-> 适用于【简单组件】的定义，因为没有`this`，所以只能有`props`属性
+> 适用于【简单组件】的定义，因为没有`this`，所以只能有`props`属性，但在React17版本后可使用`hooks`实现完整功能
 
 1. React解析组件标签，找到了MyComponent组件
 
@@ -505,11 +592,9 @@ next: false
    - 强制绑定this：通过函数对象的`bind`
    - 赋值语句+箭头函数
 
-3. 更改状态：`setState({ key:value })`
+3. 更改状态：`setState(stateChange/updater, [callback])`
 
-   1）状态(state)不可直接更改
-
-   2）状态必须通过setState进行更新，且更新是一种合并，不是替换
+   1）状态不可直接更改，必须通过`setState`进行更新（是异步更新的），而且更新是一种合并，不是替换
 
    ```jsx
    // 正确写法
@@ -518,13 +603,78 @@ next: false
    this.state.isHot = !isHot
    ```
 
-   3）注意：如果使用传递参数的方式更改状态，必须用`[]`包裹住参数作为key，否则参数本身会被解析为字符串
+   2）如果使用传递参数的方式更改状态，必须用`[]`包裹住参数作为key，否则参数本身会被解析为字符串
 
    ```jsx
    saveFormData = (dataType) => {
      return (event) => {
        // 注意：这里必须用[]包裹住dataType，否则会将dataType理解为字符串，作为新key传入state
        this.setState({ [dataType]: event.target.value })
+     }
+   }
+   ```
+
+   3）写法1：对象式`setState(stateChange, [callback])`：适用于新状态不依赖于原状态，是函数式的setState的简写方式
+
+   - `stateChange`为状态改变对象（该对象可以体现出状态的更改）
+   - `callback`是可选的回调函数, 它在状态更新完毕、界面也更新后（render调用后）才被调用，可以读取最新的状态数据
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   export default class Demo extends Component {
+     state = { count: 0 }
+   
+     add = () => {
+       // 写法1：对象式的setState
+       // 1.获取原来的count值
+       const { count } = this.state
+       // 2.更新状态（异步）
+       this.setState({ count: count + 1 }, () => {
+         console.log(this.state.count)
+       })
+       // 注意：如果用同步的方式查看，无法检测到state的变化
+       console.log('12行的输出', this.state.count) // 0
+     }
+   
+     render() {
+       return (
+         <div>
+           <h1>当前求和为：{this.state.count}</h1>
+           <button onClick={this.add}>点我+1</button>
+         </div>
+       )
+     }
+   }
+   ```
+
+   4）写法2：函数式`setState(updater, [callback])`：适用于新状态依赖于原状态
+
+   - `updater`为返回stateChange对象的函数，可以接收到`state`和`props`
+   - `callback`是可选的回调函数, 它在状态更新、界面也更新后(render调用后)才被调用，可以读取最新的状态数据
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   export default class Demo extends Component {
+     state = { count: 0 }
+   
+     add = () => {
+       // 写法2：函数式的setState（可以接收state、props这两个参数）
+       this.setState((state, props) => {
+         // 在父组件中传递props
+         console.log(state, props)
+         return { count: state.count + 1 }
+       })
+     }
+   
+     render() {
+       return (
+         <div>
+           <h1>当前求和为：{this.state.count}</h1>
+           <button onClick={this.add}>点我+1</button>
+         </div>
+       )
      }
    }
    ```
@@ -774,6 +924,96 @@ next: false
    }
    // 渲染组件到页面
    ReactDOM.render(<Person name="jerry" />, document.getElementById('test'))
+   ```
+
+8. 向组件内部动态传入带内容的结构：
+
+   1）children props: 通过组件标签体传入结构，但无法做到让组件共享数据，使用`this.props.children`获取标签体之间的内容
+
+   ```jsx
+   import React, { Component } from 'react'
+   import './index.css'
+   
+   export default class Parent extends Component {
+     render() {
+       return (
+         <div className="parent">
+           <h3>我是Parent组件</h3>
+           <A>
+             <B>Hello!</B>
+           </A>
+         </div>
+       )
+     }
+   }
+   
+   class A extends Component {
+     render() {
+       return (
+         <div className="a">
+           <h3>我是A组件</h3>
+           {/* 里接收到Parent组件写在A组件之间的内容：B组件 */}
+           {this.props.children}
+         </div>
+       )
+     }
+   }
+   
+   class B extends Component {
+     render() {
+       return (
+         <div className="b">
+           <h3>我是B组件</h3>
+           {/* 这里接收到Parent组件写在B组件之间的内容：Hello! */}
+           {this.props.children}
+         </div>
+       )
+     }
+   }
+   ```
+
+   2）render props: 通过组件标签属性传入结构，而且可以携带数据，一般用`render`函数属性
+
+   ```jsx
+   import React, { Component } from 'react'
+   import './index.css'
+   
+   export default class Parent extends Component {
+     render() {
+       return (
+         <div className="parent">
+           <h3>我是Parent组件</h3>
+           {/* 通过props向A组件传递一个函数，名称为render，并可通过name再向其他组件传递数据 */}
+           <A render={(name) => <B name={name} />} />
+         </div>
+       )
+     }
+   }
+   
+   class A extends Component {
+     state = { name: 'tom' }
+     render() {
+       const { name } = this.state
+       return (
+         <div className="a">
+           <h3>我是A组件</h3>
+           {/* 相当于插槽，可以插入任意指定组件 */}
+           {this.props.render(name)}
+         </div>
+       )
+     }
+   }
+   
+   class B extends Component {
+     render() {
+       return (
+         <div className="b">
+           {/* 可以共享A组件中的数据 */}
+           <h3>我是B组件,{this.props.name}</h3>
+         </div>
+       )
+     }
+   }
    ```
 
 ------
@@ -1143,83 +1383,85 @@ next: false
 
 1. 初始化阶段：由`ReactDOM.render()`触发初次渲染
 
-   - `constructor()`
+   1）`constructor()`
 
-   - `componentWillMount()`：即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
-   - `render()`：会调用多次
-   - `componentDidMount()`：【常用】仅调用一次，做一些初始化工作：开启定时器、发送网络请求、订阅消息
+   2）`componentWillMount()`：即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
+
+   3）`render()`：会调用多次
+
+   4）`componentDidMount()`：【常用】仅调用一次，做一些初始化工作：开启定时器、发送网络请求、订阅消息
 
 2. 更新阶段：
 
-   - `componentWillReceiveProps()`：由父组件重新`render`触发（第一次不调用），即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
+   1）`componentWillReceiveProps()`：由父组件重新`render`触发（第一次不调用），即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
 
-     ```jsx
-     // 父组件A
-     class A extends React.Component {
-       // 初始化状态
-       state = { carName: '奔驰' }
-       changeCar = () => {
-         this.setState({ carName: '奥拓' })
-       }
-       render() {
-         return (
-           <div>
-             <div>我是A组件</div>
-             <button onClick={this.changeCar}>换车</button>
-             <B carName={this.state.carName} />
-           </div>
-         )
-       }
+   ```jsx
+   // 父组件A
+   class A extends React.Component {
+     // 初始化状态
+     state = { carName: '奔驰' }
+     changeCar = () => {
+       this.setState({ carName: '奥拓' })
      }
-     
-     // 子组件B
-     class B extends React.Component {
-       // 组件将要接收新的props的钩子（第一次不调用，再次更改props时才调用）
-       componentWillReceiveProps(props) {
-         console.log('B---componentWillReceiveProps', props)
-       }
-       render() {
-         return <div>我是B组件，接收到的车是:{this.props.carName}</div>
-       }
+     render() {
+       return (
+         <div>
+           <div>我是A组件</div>
+           <button onClick={this.changeCar}>换车</button>
+           <B carName={this.state.carName} />
+         </div>
+       )
      }
-     ```
-
-   - `shouldComponentUpdate()`：组件更新阀门，由`setState()`触发，默认返回ture，如果返回false则无法继续以下流程
-
-     ```jsx
-     this.state = { count: 0 }
-     ......
-     add = () => {
-       // 获取原状态
-       const { count } = this.state
-       // 更新状态
-       this.setState({ count: count + 1 })
+   }
+   
+   // 子组件B
+   class B extends React.Component {
+     // 组件将要接收新的props的钩子（第一次不调用，再次更改props时才调用）
+     componentWillReceiveProps(props) {
+       console.log('B---componentWillReceiveProps', props)
      }
-     // 控制组件更新的“阀门”
-     shouldComponentUpdate() {
-       console.log('Count---shouldComponentUpdate')
-       return true
+     render() {
+       return <div>我是B组件，接收到的车是:{this.props.carName}</div>
      }
-     ......
-     <button onClick={this.add}>点我+1</button>
-     ```
+   }
+   ```
 
-   - `componentWillUpdate()`：由`forceUpdate()`强制更新触发，即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
+   2）`shouldComponentUpdate(nextProps, nextState)`：组件更新阀门，由`setState()`触发，默认返回ture，如果返回false则无法继续
 
-     ```jsx
-     force = () => {
-       this.forceUpdate()
-     }
-     componentWillMount() {
-       console.log('Count---componentWillMount')
-     }
-     ......
-     <button onClick={this.force}>不更改任何状态中的数据，强制更新一下</button>
-     ```
+   ```jsx
+   this.state = { count: 0 }
+   ......
+   add = () => {
+     // 获取原状态
+     const { count } = this.state
+     // 更新状态
+     this.setState({ count: count + 1 })
+   }
+   // 控制组件更新的“阀门”
+   shouldComponentUpdate() {
+     console.log('Count---shouldComponentUpdate')
+     return true
+   }
+   ......
+   <button onClick={this.add}>点我+1</button>
+   ```
 
-   - `render()`
+   3）`componentWillUpdate()`：由`forceUpdate()`强制更新触发，即将废弃，下一个大版本需要加上`UNSAFE_`前缀才能使用
 
-   - `componentDidUpdate()`
+   ```jsx
+   force = () => {
+     this.forceUpdate()
+   }
+   componentWillMount() {
+     console.log('Count---componentWillMount')
+   }
+   ......
+   <button onClick={this.force}>不更改任何状态中的数据，强制更新一下</button>
+   ```
+
+   4）`render()`
+
+   5）`componentDidUpdate()`：接收参数：上一个props、上一个state、快照值
 
 3. 卸载组件：由`ReactDOM.unmountComponentAtNode()`触发
 
@@ -1278,79 +1520,532 @@ next: false
 
 1. 初始化阶段：由`ReactDOM.render()`触发初次渲染
 
-   - `constructor()`
+   1）`constructor()`
 
-   - `getDerivedStateFromProps()`：新函数，若state的值在任何时候都取决于props，可使用该函数（一般不用）
+   2）`getDerivedStateFromProps()`：新函数，若state的值在任何时候都取决于props，可使用该函数（一般不用）
 
-     ```jsx
-     static getDerivedStateFromProps(props, state) {
-       console.log('getDerivedStateFromProps', props, state)
-       return null	// 必须返回state对象 或 null
-     }
-     ```
+   ```jsx
+   static getDerivedStateFromProps(props, state) {
+     console.log('getDerivedStateFromProps', props, state)
+     return null	// 必须返回state对象 或 null
+   }
+   ```
 
-   - `render()`
+   3）`render()`
 
-   - `componentDidMount()`：【常用】仅调用一次，做一些初始化工作：开启定时器、发送网络请求、订阅消息
+   4）`componentDidMount()`：【常用】仅调用一次，做一些初始化工作：开启定时器、发送网络请求、订阅消息
 
 2. 更新阶段：
 
-   - `getDerivedStateFromProps()`：新函数，若state的值在任何时候都取决于props，可使用该函数（一般不用）
+   1）`getDerivedStateFromProps()`：新函数，若state的值在任何时候都取决于props，可使用该函数（一般不用）
 
-   - `shouldComponentUpdate()`
+   2）`shouldComponentUpdate(nextProps, nextState)`
 
-   - `render()`
+   3）`render()`
 
-   - `getSnapshotBeforeUpdate()`：新函数，在最近一次渲染输出DOM之前调用，返回值作为参数传递给componentDidUpdate（一般不用）
+   4）`getSnapshotBeforeUpdate()`：新函数，在最近一次渲染输出DOM之前调用，返回值作为参数传递给componentDidUpdate（一般不用）
 
-   - `componentDidUpdate(preProps, preState, snapshotValue)`：接收参数：上一个props、上一个state、快照值
+   5）`componentDidUpdate(preProps, preState, snapshotValue)`：接收参数：上一个props、上一个state、快照值
 
-     ```jsx
-     // 案例：随着新闻列表的不断增加，窗口滚动条不随之运动，而固定在当前阅览的位置
-     class NewsList extends React.Component {
-       state = { newsArr: [] }
-       
-       componentDidMount() {
-         setInterval(() => {
-           // 获取原状态
-           const { newsArr } = this.state
-           // 模拟一条新闻
-           const news = '新闻' + (newsArr.length + 1)
-           // 更新状态
-           this.setState({ newsArr: [news, ...newsArr] })
-         }, 1000)
-       }
-       
-       // scrollHeight：内容区总高度；scrollTop：当前位置距顶端高度
-       // 作用：组件在发生更改之前从DOM中获取一些信息，如：滚动位置
-       getSnapshotBeforeUpdate() {
-         return this.refs.list.scrollHeight	// 返回当前内容区总高度
-       }
-       
-       componentDidUpdate(preProps, preState, height) {
-         // 距顶端高度增加值 = 新内容区总高度 - 旧内容区总高度
-         this.refs.list.scrollTop += this.refs.list.scrollHeight - height
-       }
-       render() {
-         return (
-           <div className="list" ref="list">
-             {this.state.newsArr.map((n, index) => {
-               return (
-                 <div key={index} className="news">
-                   {n}
-                 </div>
-               )
-             })}
-           </div>
-         )
-       }
+   ```jsx
+   // 案例：随着新闻列表的不断增加，窗口滚动条不随之运动，而固定在当前阅览的位置
+   class NewsList extends React.Component {
+     state = { newsArr: [] }
+     
+     componentDidMount() {
+       setInterval(() => {
+         // 获取原状态
+         const { newsArr } = this.state
+         // 模拟一条新闻
+         const news = '新闻' + (newsArr.length + 1)
+         // 更新状态
+         this.setState({ newsArr: [news, ...newsArr] })
+       }, 1000)
      }
-     ReactDOM.render(<NewsList />, document.getElementById('test'))
-     ```
+     
+     // scrollHeight：内容区总高度；scrollTop：当前位置距顶端高度
+     // 作用：组件在发生更改之前从DOM中获取一些信息，如：滚动位置
+     getSnapshotBeforeUpdate() {
+       return this.refs.list.scrollHeight	// 返回当前内容区总高度
+     }
+     
+     componentDidUpdate(preProps, preState, height) {
+       // 距顶端高度增加值 = 新内容区总高度 - 旧内容区总高度
+       this.refs.list.scrollTop += this.refs.list.scrollHeight - height
+     }
+     render() {
+       return (
+         <div className="list" ref="list">
+           {this.state.newsArr.map((n, index) => {
+             return (
+               <div key={index} className="news">
+                 {n}
+               </div>
+             )
+           })}
+         </div>
+       )
+     }
+   }
+   ReactDOM.render(<NewsList />, document.getElementById('test'))
+   ```
 
 3. 卸载组件：由`ReactDOM.unmountComponentAtNode()`触发
 
    - `componentWillUnmount()`：【常用】做一些收尾工作：关闭定时器、取消订阅消息
+
+------
+
+#### 2.6.3 组件优化
+
+> 使用`PureComponent`优化，只有当组件的state或props数据发生改变时才重新render
+
+1. 低效问题：
+
+   1）只要执行setState()，即使不改变状态数据，组件也会重新render()
+
+   2）只当前组件重新render()，就会自动重新render子组件，纵使子组件没有用到父组件的任何数据
+
+2. 原因：Component中的`shouldComponentUpdate()`总是返回true
+
+3. 解决方法：使用`PureComponent`重写`shouldComponentUpdate()`, 只有state或props数据有变化才返回true
+
+   1）只是进行state和props数据的浅比较, 如果只是数据对象内部数据变了, 返回false（必须用`setState`变更数据才行）
+
+   ```jsx
+   // 正确写法：使用setState才能让PureComponent正常工作
+   this.setState({carName:'迈巴赫'})
+   
+   // 错误写法：PureComponent只是进行state和props数据的浅比较, 如果只是数据对象内部数据变了, 返回false
+   const obj = this.state
+   obj.carName = '迈巴赫'
+   this.setState(obj)
+   ```
+
+   2）不要直接修改state数据, 而是要产生新数据（不要用数组中的`push`、`unshift`方法，要用扩展运算符）
+
+   ```jsx
+   // 正确写法：使用扩展运算符，产生新数据
+   const { stus } = this.state
+   this.setState({ stus: ['小刘', ...stus] })
+   
+   // 错误写法：使用unshift对state进行修改
+   const { stus } = this.state
+   stus.unshift('小刘')
+   this.setState({ stus })
+   ```
+
+4. 案例：
+
+   ```jsx
+   import React, { PureComponent } from 'react'
+   import './index.css'
+   
+   export default class Parent extends PureComponent {
+     state = { carName: '奔驰c36', stus: ['小张', '小李', '小王'] }
+     
+     addStu = () => {
+       const { stus } = this.state
+       this.setState({ stus: ['小刘', ...stus] })
+     }
+     
+     changeCar = () => {
+       // 使用setState才能让PureComponent正常工作
+       this.setState({carName:'迈巴赫'})
+     }
+     
+     render() {
+       console.log('Parent---render')
+       const { carName } = this.state
+       return (
+         <div className="parent">
+           <h3>我是Parent组件</h3>
+           {this.state.stus}&nbsp;
+           <span>我的车名字是：{carName}</span>
+           <br />
+           <button onClick={this.changeCar}>点我换车</button>
+           <button onClick={this.addStu}>添加一个小刘</button>
+           <Child carName="奥拓" />
+         </div>
+       )
+     }
+   }
+   
+   class Child extends PureComponent {
+     render() {
+       console.log('Child---render')
+       return (
+         <div className="child">
+           <h3>我是Child组件</h3>
+           <span>我接到的车是：{this.props.carName}</span>
+         </div>
+       )
+     }
+   }
+   ```
+
+------
+
+#### 2.6.4 错误边界
+
+> 错误边界(Error boundary)：在祖组件中借助`getDerivedStateFromError()`捕获后代组件错误，渲染出备用页面（适用于生产环境）
+
+1. 原理：当Parent的子组件出现报错时，会触发`getDerivedStateFromError`调用，并携带错误信息
+
+2. 特点：只能捕获后代组件生命周期产生的错误，不能捕获自己组件产生的错误和其他组件在合成事件、定时器中产生的错误
+
+3. 使用：`getDerivedStateFromError`配合`componentDidCatch`
+
+4. 案例：
+
+   1）父组件：Parent.jsx
+
+   ```jsx
+   import React, { Component } from 'react'
+   import Child from './Child'
+   
+   export default class Parent extends Component {
+     state = {
+       hasError: '', // 用于标识子组件是否产生错误
+     }
+   
+     // 当Parent的子组件出现报错时，会触发getDerivedStateFromError调用，并携带错误信息
+     static getDerivedStateFromError(error) {
+       console.log('发生错误：', error)
+       // 在render之前触发，返回新的state
+       return { hasError: error }
+     }
+     // 生命周期函数：当组件产生错误时调用
+     componentDidCatch(error, info) {
+       console.log('此处统计错误，反馈给服务器，用于通知编码人员进行bug的解决')
+       console.log(error, info)
+     }
+   
+     render() {
+       return (
+         <div>
+           <h2>我是Parent组件</h2>
+           {this.state.hasError ? <h2>当前网络不稳定，稍后再试</h2> : <Child />}
+         </div>
+       )
+     }
+   }
+   ```
+
+   2）子组件：Child.jsx
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   export default class Child extends Component {
+     state = {
+       users: [
+         { id: '001', name: 'tom', age: 18 },
+         { id: '002', name: 'jack', age: 19 },
+         { id: '003', name: 'peiqi', age: 20 },
+       ],
+       // users:'abc'	// 这行代码会认为产生错误
+     }
+   
+     render() {
+       return (
+         <div>
+           <h2>我是Child组件</h2>
+           {this.state.users.map((userObj) => {
+             return (
+               <h4 key={userObj.id}>
+                 {userObj.name}----{userObj.age}
+               </h4>
+             )
+           })}
+         </div>
+       )
+     }
+   }
+   ```
+
+------
+
+### 2.7 Context
+
+> 一种组件间通信方式, 常用于【祖组件】与【后代组件】间通信（一般开发中不用，封装react插件时使用）
+
+1. 创建`Context`对象：
+
+   ```jsx
+   const MyContext = React.createContext()
+   const { Provider, Consumer } = MyContext
+   ```
+
+2. 在祖组件中使用`<Provider value={...}>`指定向后代组件提供的数据
+
+   ```jsx
+   export default class A extends Component {
+     state = { username: 'tom', age: 18 }
+     render() {
+       const { username, age } = this.state
+       return (
+         <div className="parent">
+           <h3>我是A组件</h3>
+           <h4>我的用户名是:{username}</h4>
+           <Provider value={{ username, age }}>
+             <B />
+           </Provider>
+         </div>
+       )
+     }
+   }
+   // B是A的子组件
+   class B extends Component {
+     render() {
+       return (
+         <div className="child">
+           <h3>我是B组件</h3>
+           <C />
+         </div>
+       )
+     }
+   }
+   ```
+
+3. 在后代组件中使用`context`（类式组件）或`<Consumer>{value=>(...)}`（函数式组件）接收祖组件传递过来的数据
+
+   1）类式组件
+
+   ```jsx
+   class C extends Component {
+     // 声明接收context
+     static contextType = MyContext
+     render() {
+       const { username, age } = this.context
+       return (
+         <div className="grand">
+           <h3>我是C组件</h3>
+           <h4>
+             我从A组件接收到的用户名:{username},年龄是{age}
+           </h4>
+         </div>
+       )
+     }
+   }
+   ```
+
+   2）函数式组件
+
+   ```jsx
+   function C() {
+     return (
+       <div className="grand">
+         <h3>我是C组件</h3>
+         <h4>
+           我从A组件接收到的用户名:
+           <Consumer>{(value) => `${value.username},年龄是${value.age}`}</Consumer>
+         </h4>
+       </div>
+     )
+   }
+   ```
+
+------
+
+### 2.8 Hooks
+
+> Hook是React 16.8.0版本增加的新特性，可以在函数组件中使用`state`以及其他的React特性
+
+#### 2.8.1 State Hook
+
+> State Hook让函数组件也可以有`state`状态, 并进行状态数据的读写操作
+
+1. 语法: `const [xxx, setXxx] = React.useState(initValue)`
+
+2. `useState()`说明：
+
+   1）参数: 第一次初始化指定的值在内部作缓存
+
+   2）返回: 包含2个元素的数组, 第1个为内部当前状态值, 第2个为更新状态值的函数
+
+3. `setXxx()`的2种写法:
+
+   1）`setXxx(newValue)`：参数为非函数值，直接指定新的状态值，内部用其覆盖原来的状态值
+
+   2）`setXxx(value => newValue)`：参数为函数，接收原本的状态值，返回新的状态值，内部用其覆盖原来的状态值
+
+4. 案例：
+
+   ```jsx
+   function Demo() {
+     const [count, setCount] = React.useState(0)
+     // 加的回调
+     function add() {
+       // setCount(count+1) 			// 第1种写法：参数为非函数值
+       setCount((count) => count + 1)	// 第2种写法：参数为函数
+     }
+     return (
+       <div>
+         <h2>当前求和为：{count}</h2>
+         <button onClick={add}>点我+1</button>
+       </div>
+     )
+   }
+   export default Demo
+   ```
+
+------
+
+#### 2.8.2 Ref Hook
+
+> Ref Hook可以在函数组件中存储、查找组件内的标签或任意其它数据
+
+1. 语法: `const refContainer = useRef()`
+
+2. 作用：保存标签对象，功能与`React.createRef()`一样
+
+3. 案例：
+
+   ```jsx
+   function Demo() {
+     const [count, setCount] = React.useState(0)
+     const myRef = React.useRef()
+     // 加的回调
+     function add() {
+       // setCount(count+1) 			// 第1种写法：参数为非函数值
+       setCount((count) => count + 1) 	// 第2种写法：参数为函数
+     }
+     // 提示输入的回调
+     function show() {
+       alert(myRef.current.value)
+     }
+     return (
+       <div>
+         <input type="text" ref={myRef} />
+         <h2>当前求和为：{count}</h2>
+         <button onClick={add}>点我+1</button>
+         <button onClick={show}>点我提示数据</button>
+       </div>
+     )
+   }
+   export default Demo
+   ```
+
+------
+
+#### 2.8.3 Effect Hook
+
+> Effect Hook可以在函数组件中执行副作用操作（用于模拟类组件中的生命周期钩子）
+
+1. React中的副作用操作：
+
+   1）发Ajax请求数据获取
+
+   2）设置订阅、启动定时器
+
+   3）手动更改真实DOM（不常用）
+
+2. 语法：
+
+   ```jsx
+   React.useEffect(() => {
+     // 在此可以执行任何带副作用操作
+     return () => {
+       // 在组件卸载前执行，在此做一些收尾工作, 比如清除定时器/取消订阅等
+     }
+   }, [stateValue]) // 指定监测的state元素：如果指定的是[], 回调函数只会在第一次render()后执行
+   ```
+
+3. 可以把`useEffect()`看做如下三个函数的组合：
+
+   - `componentDidMount()`：做一些初始化工作：开启定时器、发送网络请求、订阅消息
+   - `componentDidUpdate()`：如果`[stateValue]`中指定了需要监测的元素，则每次状态变更时生效，否则不生效
+   - `componentWillUnmount()`：做一些收尾工作：关闭定时器、取消订阅消息
+
+4. 案例：
+
+   1）函数式组件
+
+   ```jsx
+   function Demo() {
+     const [count, setCount] = React.useState(0)
+     const myRef = React.useRef()
+     
+     // Effect Hook：开启定时器，让数字每隔1秒自动加1
+     React.useEffect(() => {
+       // 在此可以执行任何带副作用操作
+       let timer = setInterval(() => {
+         setCount((count) => count + 1)
+       }, 1000)
+       return () => {
+         // 在组件卸载前执行，在此做一些收尾工作, 比如清除定时器/取消订阅等
+         clearInterval(timer)
+       }
+     }, []) // 指定监测的state元素：如果指定的是[], 回调函数只会在第一次render()后执行
+     
+     // 加的回调
+     function add() {
+       // setCount(count+1) // 第1种写法：参数为非函数值
+       setCount((count) => count + 1) // 第2种写法：参数为函数
+     }
+     // 提示输入的回调
+     function show() {
+       alert(myRef.current.value)
+     }
+     // Effect Hook：卸载组件的回调
+     function unmount() {
+       ReactDOM.unmountComponentAtNode(document.getElementById('root'))
+     }
+     return (
+       <div>
+         <input type="text" ref={myRef} />
+         <h2>当前求和为：{count}</h2>
+         <button onClick={add}>点我+1</button>
+         <button onClick={unmount}>卸载组件</button>
+         <button onClick={show}>点我提示数据</button>
+       </div>
+     )
+   }
+   // 暴露组件
+   export default Demo
+   ```
+   2）对比：类式组件
+   
+   ```jsx
+   export default class Demo extends React.Component {
+     state = { count: 0 }
+     myRef = React.createRef()
+     // 加的回调
+     add = () => {
+       this.setState((state) => ({ count: state.count + 1 }))
+     }
+     // 卸载组件的回调
+     unmount = () => {
+       ReactDOM.unmountComponentAtNode(document.getElementById('root'))
+     }
+     // 提示输入的回调
+     show = () => {
+       alert(this.myRef.current.value)
+     }
+     // 生命周期函数：开启定时器，让数字每隔1秒自动加1
+     componentDidMount() {
+       this.timer = setInterval(() => {
+         this.setState((state) => ({ count: state.count + 1 }))
+       }, 1000)
+     }
+     // 生命周期函数：清除定时器
+     componentWillUnmount() {
+       clearInterval(this.timer)
+     }
+     render() {
+       return (
+         <div>
+           <input type="text" ref={this.myRef} />
+           <h2>当前求和为{this.state.count}</h2>
+           <button onClick={this.add}>点我+1</button>
+           <button onClick={this.unmount}>卸载组件</button>
+           <button onClick={this.show}>点击提示数据</button>
+         </div>
+       )
+     }
+   }
+   ```
 
 ------
 
@@ -3533,6 +4228,56 @@ next: false
      }
    }
    export default withRouter(Header)
+   ```
+
+------
+
+### 5.10 懒加载
+
+> 使用React中内置的`lazy`、`Suspence`可以实现懒加载，常用在路由组件中，如果不配置则默认加载全部路由组件后再展示页面
+
+1. 定义懒加载需要呈现的组件界面：components/Loading
+
+   ```jsx
+   import React, { Component } from 'react'
+   
+   export default class Loading extends Component {
+     render() {
+       return (
+         <div>
+           <h1 style={{ backgroundColor: 'gray', color: 'orange' }}>Loading....</h1>
+         </div>
+       )
+     }
+   }
+   ```
+
+2. 父组件：App.jsx
+
+   1）引入懒加载所需的`lazy`、`Suspence`
+
+   ```jsx
+   import React, { Component, lazy, Suspense } from 'react'
+   ```
+
+   2）引入定义好的Loading组件，并将其他需要懒加载的组件使用`lazy(() => import(...))`引入
+
+   ```jsx
+   import Loading from './Loading'
+   const Home = lazy(() => import('./Home'))
+   const About = lazy(() => import('./About'))
+   ```
+
+   3）在展示区使用`<Suspense fallback={...}>`包裹注册路由
+
+   ```jsx
+   ......
+   <Suspense fallback={<Loading />}>
+     {/* 注册路由 */}
+     <Route path="/about" component={About} />
+     <Route path="/home" component={Home} />
+   </Suspense>
+   ......
    ```
 
 ------

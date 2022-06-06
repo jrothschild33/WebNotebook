@@ -1,5 +1,5 @@
 ---
-prev: /js/
+prev: /ts/
 next: /vue2/
 ---
 

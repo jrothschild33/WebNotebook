@@ -14,6 +14,7 @@ module.exports = {
       { text: 'HTML', link: '/html/' },
       { text: 'CSS', link: '/css/' },
       { text: 'JS', link: '/js/' },
+      { text: 'TS', link: '/ts/' },
       {
         text: 'Server',
         ariaLabel: 'Server Menu',

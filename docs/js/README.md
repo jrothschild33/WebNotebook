@@ -1,6 +1,6 @@
 ---
 prev: /css/
-next: /server/#第1章-ajax
+next: /ts/
 ---
 
 # JavaScript

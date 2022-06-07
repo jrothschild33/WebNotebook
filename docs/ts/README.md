@@ -1149,44 +1149,97 @@ next: /server/#第1章-ajax
    dog.bark()
    ```
 
-3. `super`：在子类中可以使用super来完成对父类的引用
+3. `super`：如果子类中写了constructor，必须在子类this之前调用`super`
+
+   ```typescript
+   class Animal {
+     name: string
+     constructor(name: string) {
+       this.name = name
+     }
+     sayHello() {
+       console.log('动物在叫~')
+     }
+   }
+   
+   class Dog extends Animal {
+     age: number
+     constructor(name: string, age: number) {
+       // 如果在子类中写了构造函数，在子类构造函数中必须对父类的构造函数进行调用
+       super(name)
+       this.age = age
+     }
+     sayHello() {
+       // 可以用super直接调用父类中的函数
+       super.sayHello()
+       
+       // 也可以继续改造或重写该同名函数
+       console.log('汪汪汪汪！')
+     }
+   }
+   
+   const dog = new Dog('旺财', 3)
+   dog.sayHello() // 动物在叫~	  汪汪汪汪！
+   ```
 
 ------
 
 ### 5.6 抽象类
 
-1. 抽象类是专门用来被其他类所继承的类，它只能被其他类所继承不能用来创建实例
+1. 抽象类：专门用来被其他类所继承的类，不能用来创建实例对象
 
-2. 使用abstract开头的方法叫做抽象方法，抽象方法没有方法体只能定义在抽象类中，继承抽象类时抽象方法必须要实现
+2. 抽象方法：使用`abstract`开头的方法，抽象方法没有方法体，只能定义在抽象类中，继承抽象类时抽象方法必须要实现
 
    ```typescript
+   // 抽象类不能用来创建对象，专门用来被继承的类
    abstract class Animal {
-     abstract run(): void
-     bark() {
-       console.log('动物在叫~')
+     name: string
+     constructor(name: string) {
+       this.name = name
+     }
+     // 抽象方法：abstract开头，没有方法体
+     // 只能定义在抽象类中，子类必须对抽象方法进行重写
+     abstract sayHello(): void
+   }
+   
+   class Dog extends Animal {
+     // 子类必须对抽象方法进行重写
+     sayHello() {
+       console.log('汪汪汪汪！')
      }
    }
    
-   class Dog extends Animals {
-     run() {
-       console.log('狗在跑~')
-     }
-   }
+   const dog = new Dog('旺财')
+   dog.sayHello()
    ```
 
 ------
 
 ## 第6章 接口 Interface
 
-1. 定义：接口的作用类似于抽象类，但接口中的所有方法和属性都是没有实值的，即接口中的所有方法都是抽象方法
+1. 定义：接口类似于抽象类，但接口中的所有方法和属性都是没有实值的，即接口中的所有方法都是抽象方法
 
-2. 作用：定义一个类的结构，接口可以去限制一个对象的接口，对象只有包含接口中定义的所有属性和方法时才能匹配接口
+2. 作用：用来定义一个类结构，定义一个类中应该包含哪些属性和方法，也可以当成类型声明去使用
 
-3. 可以让一个类去实现接口，实现接口时类中要保护接口中的所有属性
+   1）案例1：使用接口定义类结构
 
-4. 案例：
+   ```typescript
+   interface myInterface {
+     name: string
+     age: number
+   }
+   // 可以重复声明，会合并一起
+   interface myInterface {
+     gender: string
+   }
+   const obj: myInterface = {
+     name: 'sss',
+     age: 111,
+     gender: '男',
+   }
+   ```
 
-   1）检查对象类型
+   2）案例2：使用接口定义函数结构
 
    ```typescript
    interface Person {
@@ -1201,12 +1254,12 @@ next: /server/#第1章-ajax
    fn({
      name: '孙悟空',
      sayHello() {
-       console.log(`Hello, 我是 ${this.name}`)
+       console.log(`Hello, 我是${this.name}`)
      },
    })
    ```
 
-   2）案例：实现
+3. `implements`：定义类时，可以使类去实现一个接口（使类满足接口的要求）
 
    ```typescript
    interface Person {
@@ -1214,13 +1267,27 @@ next: /server/#第1章-ajax
      sayHello(): void
    }
    
+   // 方法1：使用public修饰符（推荐）
    class Student implements Person {
      constructor(public name: string) {}
-   
      sayHello() {
        console.log('大家好，我是' + this.name)
      }
    }
+   
+   // 方法2：传统方法
+   /* class Student implements Person {
+     name: string
+     constructor(name: string) {
+       this.name = name
+     }
+     sayHello() {
+       console.log('大家好，我是' + this.name)
+     }
+   } */
+   
+   const s = new Student('小明')
+   s.sayHello()
    ```
 
 ------

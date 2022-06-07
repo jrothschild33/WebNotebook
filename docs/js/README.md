@@ -6244,7 +6244,11 @@ next: /ts/
 
 1. `console.dir`：显示元素对象的属性和方法
 
-2. `document.write()`：如果页面文档流加载完毕，再调用这句话会导致页面重绘，例：document.write('<div>123</div>')
+2. `document.write()`：如果页面文档流加载完毕，再调用这句话会导致页面重绘
+
+   ```js
+   document.write('<div>123</div>')
+   ```
 
 3. `window.onload=function(){}`：页面加载完毕再执行JS的函数
 

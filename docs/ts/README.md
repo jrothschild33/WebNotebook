@@ -2161,3 +2161,19 @@ next: /server/#第1章-ajax
 
 ------
 
+### 8.4 打包项目
+
+1. 将所有ts文件打包成js文件，位置在dist文件夹中
+
+   ```bash
+   npm run build
+   ```
+
+2. 打开dist文件夹中的index.html，或启动服务器实时预览
+
+   ```bash
+   npm start
+   ```
+
+------
+

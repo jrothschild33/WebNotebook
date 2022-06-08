@@ -649,6 +649,9 @@ next: /server/#第1章-ajax
    box1?.addEventListener('click', function () {
      alert('hello')
    })
+   
+   // 解决方案3：加感叹号!
+   let box1 = document.getElementById('box1')!
    ```
 
 8. `strictPropertyInitialization`：严格检查属性是否初始化
@@ -705,6 +708,8 @@ next: /server/#第1章-ajax
    7）`clean-webpack-plugin`：webpack中的清除插件，每次构建都会先清除目录
 
 3. 根目录下创建webpack的配置文件：`webpack.config.js`
+
+   1）注意：loader执行顺序是从下至上
 
    ```js
    // 引入一个包
@@ -978,6 +983,8 @@ next: /server/#第1章-ajax
 
 1. `public`（默认值）：可以在类、子类和对象中修改
 
+   1）正常写法：在构造函数外部声明变量类型，并在构造函数内部用`this`指定属性
+
    ```typescript
    class Person {
      public name: string // 写或什么都不写都是public
@@ -1005,6 +1012,20 @@ next: /server/#第1章-ajax
    
    ```
 
+   2）简写：直接在构造函数传参处使用`public`修饰符声明变量类型，无需再内部用`this`指定属性
+
+   ```typescript
+   class Person {
+     constructor(public name: string, public age: number) {}
+     sayHello() {
+       console.log(`大家好，我是${this.name}`)
+     }
+   }
+   const p = new Person('孙悟空', 18)
+   p.sayHello()
+   console.log(p.name)
+   ```
+
 2. `protected`：可以在类、子类中修改
 
    ```typescript
@@ -1025,7 +1046,7 @@ next: /server/#第1章-ajax
    class Employee extends Person {
      constructor(name: string, age: number) {
        super(name, age)
-       this.name = name //子类中可以修改
+       this.name = name // 子类中可以修改
      }
    }
    
@@ -1033,7 +1054,7 @@ next: /server/#第1章-ajax
    p.name = '猪八戒' // 不能修改
    ```
 
-3. `private`：只可以在类中修改
+3. `private`：只可以在类中修改（如果想修改，用`getter`、`setter`）
 
    ```typescript
    class Person {
@@ -1053,12 +1074,12 @@ next: /server/#第1章-ajax
    class Employee extends Person {
      constructor(name: string, age: number) {
        super(name, age)
-       this.name = name //子类中不能修改
+       this.name = name // 子类中不能修改，报错
      }
    }
    
    const p = new Person('孙悟空', 18)
-   p.name = '猪八戒' // 不能修改
+   p.name = '猪八戒' // 不能修改，报错
    ```
 
 ------
@@ -1073,8 +1094,9 @@ next: /server/#第1章-ajax
    class Person {
      private _name: string
    
-     constructor(name: string) {
+     constructor(name: string, age: number) {
        this._name = name
+       this._age = age
      }
    
      get name() {
@@ -1084,11 +1106,22 @@ next: /server/#第1章-ajax
      set name(name: string) {
        this._name = name
      }
+     
+     get age() {
+       return this._age
+     }
+     
+     set age(value: number) {
+       if (value >= 0) {
+         this._age = value
+       }
+     }
    }
    
-   const p1 = new Person('孙悟空')
-   console.log(p1.name) // 通过getter读取name属性
-   p1.name = '猪八戒' // 通过setter修改name属性
+   const per = new Person('孙悟空', 18)
+   console.log(per.name) // 通过getter读取name属性
+   per.name = '猪八戒' 	// 通过setter修改name属性
+   per.age = -33 		  // 修改age时不能为负数，修改失败，age依然为18
    ```
 
 ------
@@ -1334,10 +1367,26 @@ next: /server/#第1章-ajax
 
    ```typescript
    function test<T, K>(a: T, b: K): K {
+     console.log(a)
      return b
    }
    
    test<number, string>(10, 'hello')
+   ```
+
+4. 对泛型的范围进行约束：`T extends MyInter`表示泛型T必须是MyInter的子类，不一定非要使用接口，类和抽象类同样适用
+
+   ```typescript
+   interface MyInter {
+     length: number
+   }
+   
+   function test<T extends MyInter>(arg: T): number {
+     return arg.length
+   }
+   
+   test('123') // 正常输出
+   test(123)	// 报错，由于123是数值型，没有length属性，不符合MyInter接口中的规定
    ```
 
 ### 7.2 类使用泛型
@@ -1352,18 +1401,763 @@ next: /server/#第1章-ajax
        this.prop = prop
      }
    }
+   
+   const mc = new MyClass<string>('孙悟空')
    ```
 
-2. 对泛型的范围进行约束：`T extends MyInter`表示泛型T必须是MyInter的子类，不一定非要使用接口，类和抽象类同样适用
+------
+
+## 第8章 贪食蛇项目
+
+<img :src="$withBase('/imgs/basic/贪食蛇项目设计.png')" alt="贪食蛇项目设计">
+
+### 8.1 配置文件
+
+1. 初始化项目
+
+   ```bash
+   npm init -y
+   ```
+
+2. 下载构建工具
+
+   ```bash
+   npm i -D webpack webpack-cli webpack-dev-server typescript ts-loader html-webpack-plugin clean-webpack-plugin @babel/core @babel/preset-env babel-loader core-js
+   ```
+
+3. 下载css相关依赖包
+
+   ```bash
+   npm i -D less-loader css-loader style-loader postcss postcss-loader post-preset-env
+   ```
+
+4. 配置`tsconfig.json`
+
+   ```json
+   {
+     "compilerOptions": {
+       "module": "ES2015",
+       "target": "ES2015",
+       "strict": true,
+       "noEmitOnError": true,
+       // 2022-06-08新增配置
+       "moduleResolution": "node",
+       "useUnknownInCatchVariables": false
+     }
+   }
+   
+   ```
+
+5. 配置`webpack.config.js`
+
+   ```js
+   // 引入一个包
+   const path = require('path')
+   // 引入html插件
+   const HTMLWebpackPlugin = require('html-webpack-plugin')
+   // 引入clean插件
+   const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+   
+   // webpack中的所有的配置信息都应该写在module.exports中
+   module.exports = {
+     // 指定入口文件
+     entry: './src/index.ts',
+   
+     // 指定打包文件所在目录
+     output: {
+       // 指定打包文件的目录
+       path: path.resolve(__dirname, 'dist'),
+       // 打包后文件的文件
+       filename: 'bundle.js',
+   
+       // 告诉webpack不使用箭头、不使用const（为了兼容IE）
+       environment: {
+         arrowFunction: false,
+         const: false,
+       },
+     },
+   
+     // 指定webpack打包时要使用模块
+     module: {
+       // 指定要加载的规则
+       rules: [
+         {
+           // test指定的是规则生效的文件
+           test: /\.ts$/,
+           // 要使用的loader
+           use: [
+             // 配置babel
+             {
+               // 指定加载器
+               loader: 'babel-loader',
+               // 设置babel
+               options: {
+                 // 设置预定义的环境
+                 presets: [
+                   [
+                     // 指定环境的插件
+                     '@babel/preset-env',
+                     // 配置信息
+                     {
+                       // 要兼容的目标浏览器
+                       targets: {
+                         chrome: '58',
+                         ie: '11',
+                       },
+                       // 指定corejs的版本
+                       corejs: '3',
+                       // 使用corejs的方式 "usage" 表示按需加载
+                       useBuiltIns: 'usage',
+                     },
+                   ],
+                 ],
+               },
+             },
+             'ts-loader',
+           ],
+           // 要排除的文件
+           exclude: /node-modules/,
+         },
+   
+         // 设置less文件的处理
+         {
+           test: /\.less$/,
+           use: [
+             'style-loader',
+             'css-loader',
+   
+             // 引入postcss
+             {
+               loader: 'postcss-loader',
+               options: {
+                 postcssOptions: {
+                   plugins: [
+                     [
+                       'postcss-preset-env',
+                       {
+                         browsers: 'last 2 versions',	// 兼容最新2个版本的浏览器
+                       },
+                     ],
+                   ],
+                 },
+               },
+             },
+             'less-loader',
+           ],
+         },
+       ],
+     },
+   
+     // 配置Webpack插件
+     plugins: [
+       new CleanWebpackPlugin(),
+       new HTMLWebpackPlugin({
+         // title: "这是一个自定义的title"
+         template: './src/index.html',
+       }),
+     ],
+   
+     // 用来设置引用模块
+     resolve: {
+       extensions: ['.ts', '.js'],
+     },
+   }
+   ```
+
+------
+
+### 8.2 基本结构
+
+1. HTML结构：index.html
+
+   ```html
+   <!DOCTYPE html>
+   <html lang="zh">
+     <head>
+       <meta charset="UTF-8" />
+       <title>贪食蛇</title>
+     </head>
+     <body>
+       <!--创建游戏的主容器-->
+       <div id="main">
+         <!--设置游戏的舞台-->
+         <div id="stage">
+           <!--设置蛇-->
+           <div id="snake">
+             <!--snake内部的div 表示蛇的各部分-->
+             <div></div>
+           </div>
+   
+           <!--设置食物-->
+           <div id="food">
+             <!--添加四个小div 来设置食物的样式-->
+             <div></div>
+             <div></div>
+             <div></div>
+             <div></div>
+           </div>
+         </div>
+   
+         <!--设置游戏的积分牌-->
+         <div id="score-panel">
+           <div>SCORE:<span id="score">0</span></div>
+           <div>level:<span id="level">1</span></div>
+         </div>
+       </div>
+     </body>
+   </html>
+   ```
+
+2. 样式：index.less
+
+   ```less
+   // 设置变量
+   @bg-color: #b7d4a8;
+   
+   //清除默认样式
+   * {
+     margin: 0;
+     padding: 0;
+     // 改变盒子模型的计算方式
+     box-sizing: border-box;
+   }
+   
+   body {
+     font: bold 20px 'Courier';
+   }
+   
+   //设置主窗口的样式
+   #main {
+     width: 360px;
+     height: 420px;
+     // 设置背景颜色
+     background-color: @bg-color;
+     // 设置居中
+     margin: 100px auto;
+     border: 10px solid black;
+     // 设置圆角
+     border-radius: 40px;
+   
+     // 开启弹性盒模型
+     display: flex;
+     // 设置主轴的方向
+     flex-flow: column;
+     // 设置侧轴的对齐方式
+     align-items: center;
+     // 设置主轴的对齐方式
+     justify-content: space-around;
+   
+     // 游戏舞台
+     #stage {
+       width: 304px;
+       height: 304px;
+       border: 2px solid black;
+       // 开启相对定位
+       position: relative;
+   
+       // 设置蛇的样式
+       #snake {
+         // &代表父类本身
+         & > div {
+           width: 10px;
+           height: 10px;
+           background-color: #000;
+           border: 1px solid @bg-color;
+           // 开启绝对定位
+           position: absolute;
+         }
+       }
+   
+       // 设置食物
+       #food {
+         width: 10px;
+         height: 10px;
+         position: absolute;
+         left: 40px;
+         top: 100px;
+   
+         // 开启弹性盒
+         display: flex;
+         // 设置横轴为主轴，wrap表示会自动换行
+         flex-flow: row wrap;
+   
+         // 设置主轴和侧轴的空白空间分配到元素之间
+         justify-content: space-between;
+         align-content: space-between;
+   
+         & > div {
+           width: 4px;
+           height: 4px;
+           background-color: black;
+   
+           // 使四个div旋转45度
+           transform: rotate(45deg);
+         }
+       }
+     }
+   
+     // 记分牌
+     #score-panel {
+       width: 300px;
+       display: flex;
+       // 设置主轴的对齐方式
+       justify-content: space-between;
+     }
+   }
+   ```
+
+------
+
+### 8.3 脚本文件
+
+#### 8.3.1 Food
+
+> 定义食物Food，贪食蛇吃掉后会随机出现在屏幕的其他位置
+
+1. 功能：
+
+   1）定义食物对应的HTML元素：`element: HTMLElement`
+
+   2）定义获取食物X、Y坐标的方法：`get X()`、`get Y()`
+
+   3）修改食物位置：`change()`
+
+   4）导出模块：`export default Food`
+
+2. 代码：
 
    ```typescript
-   interface MyInter {
-     length: number
+   // 定义食物类Food
+   class Food {
+     // 定义一个属性表示食物所对应的元素
+     element: HTMLElement
+   
+     constructor() {
+       // 获取页面中的food元素并将其赋值给element（叹号表示该元素不会为空值）
+       this.element = document.getElementById('food')!
+     }
+   
+     // 定义一个获取食物X轴坐标的方法
+     get X() {
+       return this.element.offsetLeft
+     }
+   
+     // 定义一个获取食物Y轴坐标的方法
+     get Y() {
+       return this.element.offsetTop
+     }
+   
+     // 修改食物的位置
+     change() {
+       // 生成一个随机的位置
+       // 食物的位置最小是0 最大是290
+       // 蛇移动一次就是一格，一格的大小就是10，所以就要求食物的坐标必须是整10
+   
+       let left = Math.round(Math.random() * 29) * 10
+       let top = Math.round(Math.random() * 29) * 10
+   
+       this.element.style.left = left + 'px'
+       this.element.style.top = top + 'px'
+     }
    }
    
-   function test<T extends MyInter>(arg: T): number {
-     return arg.length
-   }
+   export default Food
+   
+   // 测试代码
+   // const food =  new Food();
+   // console.log(food.X, food.Y);
+   // food.change();
+   // console.log(food.X, food.Y);
    ```
 
+------
+
+#### 8.3.2 ScorePanel
+
+> 定义记分牌ScorePanel，用来加分和升级
+
+1. 功能：
+
+   1）定义用来记录分数和等级的变量：`score=0`、`level=1`
+
+   2）定义分数和等级元素：`scoreEle: HTMLElement`、`levelEle: HTMLElement`
+
+   3）定义限制等级的变量：`maxLevel: number`
+
+   4）定义升级分数门槛的变量：`upScore: number`
+
+   5）定义加分方法：`addScore()`
+
+   6）定义提升等级方法：`levelUp()`
+
+   7）导出模块：`export default ScorePanel`
+
+2. 代码：
+
+   ```typescript
+   // 定义表示记分牌的类
+   class ScorePanel {
+     // score和level用来记录分数和等级
+     score = 0
+     level = 1
    
+     // 分数和等级所在的元素，在构造函数中进行初始化
+     scoreEle: HTMLElement
+     levelEle: HTMLElement
+   
+     // 设置一个变量限制等级
+     maxLevel: number
+     // 设置一个变量表示多少分时升级
+     upScore: number
+   
+     constructor(maxLevel: number = 10, upScore: number = 10) {
+       this.scoreEle = document.getElementById('score')!
+       this.levelEle = document.getElementById('level')!
+       this.maxLevel = maxLevel
+       this.upScore = upScore
+     }
+   
+     // 设置一个加分的方法
+     addScore() {
+       // 使分数自增（并转为字符串）
+       this.scoreEle.innerHTML = ++this.score + ''
+       // 判断分数是多少
+       if (this.score % this.upScore === 0) {
+         this.levelUp()
+       }
+     }
+   
+     // 提升等级的方法
+     levelUp() {
+       if (this.level < this.maxLevel) {
+         this.levelEle.innerHTML = ++this.level + ''
+       }
+     }
+   }
+   
+   export default ScorePanel
+   
+   // 测试代码
+   // const scorePanel = new ScorePanel(100, 2);
+   // for(let i=0; i<200; i++){
+   //     scorePanel.addScore();
+   // }
+   ```
+
+------
+
+#### 8.3.3 Snack
+
+> 定义贪食蛇Snack
+
+1. 功能：
+
+   1）定义蛇头元素：`head: HTMLElement`
+
+   2）定义蛇身元素（含蛇头）：`bodies: HTMLCollection`
+
+   3）获取蛇的容器：`element: HTMLElement`
+
+   4）获取蛇头坐标X、Y：`get X()`、`get Y()`
+
+   5）设置蛇头的坐标：`set X(value)`、`set Y(value)`
+
+   6）定义增加蛇身长度方法：`addBody()`
+
+   7）定义蛇身移动方法：`moveBody()`
+
+   8）定义检查蛇身是否撞到身体的方法：`checkHeadBody()`
+
+   9）导出模块：`export default Snake`
+
+2. 代码：
+
+   ```typescript
+   class Snake {
+     // 表示蛇头的元素
+     head: HTMLElement
+     // 蛇的身体（包括蛇头）
+     bodies: HTMLCollection
+     // 获取蛇的容器
+     element: HTMLElement
+   
+     constructor() {
+       this.element = document.getElementById('snake')!
+       // querySelector返回的是Element类型，需要断言改成HTMLElement
+       this.head = document.querySelector('#snake > div') as HTMLElement
+       this.bodies = this.element.getElementsByTagName('div')
+     }
+   
+     // 获取蛇的坐标（蛇头坐标）
+     get X() {
+       return this.head.offsetLeft
+     }
+   
+     // 获取蛇的Y轴坐标
+     get Y() {
+       return this.head.offsetTop
+     }
+   
+     // 设置蛇头的坐标
+     set X(value) {
+       // 如果新值和旧值相同，则直接返回不再修改
+       if (this.X === value) {
+         return
+       }
+   
+       // X的值的合法范围0-290之间
+       if (value < 0 || value > 290) {
+         // 进入判断说明蛇撞墙了
+         throw new Error('蛇撞墙了！')
+       }
+   
+       // 如果修改了X，判断是否有第二节身体（没有的话可以掉头）
+       // 例：向左移动时，蛇头X坐标100，第二节身体X坐标110，此时向右掉头，X+=10，即value为110
+       // 此时第二节身体X坐标与value值相同，说明用户发生了掉头动作
+       if (this.bodies[1] && (this.bodies[1] as HTMLElement).offsetLeft === value) {
+         // 如果新值value大于旧值X，则说明用户想向右走
+         if (value > this.X) {
+           // 应将value改为100-10=90，使蛇继续向左移动
+           value = this.X - 10
+           // 如果新值value小于旧值X，则说明用户想向左走
+         } else {
+           // 应将value改为100+10=110，使蛇继续向右移动
+           value = this.X + 10
+         }
+       }
+   
+       // 移动身体
+       this.moveBody()
+   
+       this.head.style.left = value + 'px'
+       // 检查有没有撞到自己
+       this.checkHeadBody()
+     }
+   
+     set Y(value) {
+       // 如果新值和旧值相同，则直接返回不再修改
+       if (this.Y === value) {
+         return
+       }
+   
+       // Y的值的合法范围0-290之间
+       if (value < 0 || value > 290) {
+         // 进入判断说明蛇撞墙了，抛出一个异常
+         throw new Error('蛇撞墙了！')
+       }
+   
+       // 如果修改了Y，判断是否有第二节身体（没有的话可以掉头）
+       // 例：向下移动时，蛇头Y坐标100，第二节身体Y坐标110，此时向上掉头，Y+=10，即value为110
+       // 此时第二节身体Y坐标与value值相同，说明用户发生了掉头动作
+       if (this.bodies[1] && (this.bodies[1] as HTMLElement).offsetTop === value) {
+           // 如果新值value大于旧值Y，则说明用户想向上走
+           if (value > this.Y) {
+           // 应将value改为100-10=90，使蛇继续向下移动
+           value = this.Y - 10
+           // 如果新值value小于旧值Y，则说明用户想向下走
+         } else {
+           // 应将value改为100+10=110，使蛇继续向上移动
+           value = this.Y + 10
+         }
+       }
+   
+       // 移动身体
+       this.moveBody()
+       this.head.style.top = value + 'px'
+       // 检查有没有撞到自己
+       this.checkHeadBody()
+     }
+   
+     // 蛇增加身体的方法
+     addBody() {
+       // 向element中添加一个div
+       this.element.insertAdjacentHTML('beforeend', '<div></div>')
+     }
+   
+     // 添加一个蛇身体移动的方法
+     moveBody() {
+       // 将后边的身体设置为前边身体的位置（从后往前设置）
+       // 第4节 = 第3节的位置、第3节 = 第2节的位置、第2节 = 蛇头的位置
+       // 遍历获取所有的身体
+       for (let i = this.bodies.length - 1; i > 0; i--) {
+         // 获取前边身体的位置
+         let X = (this.bodies[i - 1] as HTMLElement).offsetLeft
+         let Y = (this.bodies[i - 1] as HTMLElement).offsetTop
+   
+         // 将值设置到当前身体上
+         ;(this.bodies[i] as HTMLElement).style.left = X + 'px'
+         ;(this.bodies[i] as HTMLElement).style.top = Y + 'px'
+       }
+     }
+   
+     // 检查蛇头是否撞到身体的方法
+     checkHeadBody() {
+       // 获取所有的身体，检查其是否和蛇头的坐标发生重叠
+       for (let i = 1; i < this.bodies.length; i++) {
+         let bd = this.bodies[i] as HTMLElement
+         if (this.X === bd.offsetLeft && this.Y === bd.offsetTop) {
+           // 进入判断说明蛇头撞到了身体，游戏结束
+           throw new Error('撞到自己了！')
+         }
+       }
+     }
+   }
+   
+   export default Snake
+   ```
+
+------
+
+#### 8.3.4 GameControl
+
+> 定义游戏控制方法GameControl
+
+1. 功能：
+
+   1）导入前三个模块：`Food`、`ScorePanel`、`Snack`
+
+   2）定义蛇、食物、记分牌三个属性：`snake: Snake`、`food: Food`、`scorePanel: ScorePanel`
+
+   3）定义存储蛇的移动方向的属性：`direction: string = ''`
+
+   4）定义记录游戏是否结束的属性：`isLive = true`
+
+   5）定义初始化游戏的方法：`init()`
+
+   6）定义键盘按下的响应函数：`keydownHandler(event: KeyboardEvent)`
+
+   7）定义控制蛇移动的方法：`run()`
+
+   8）定义检查蛇是否吃到食物的方法：`checkEat(X: number, Y: number)`
+
+   9）导出模块：`export default GameControl`
+
+2. 代码：
+
+   ```typescript
+   // 引入其他的类
+   import Snake from './Snake'
+   import Food from './Food'
+   import ScorePanel from './ScorePanel'
+   
+   // 游戏控制器，控制其他的所有类
+   class GameControl {
+     // 定义三个属性
+     // 蛇
+     snake: Snake
+     // 食物
+     food: Food
+     // 记分牌
+     scorePanel: ScorePanel
+     // 创建一个属性来存储蛇的移动方向（也就是按键的方向）
+     direction: string = ''
+     // 创建一个属性用来记录游戏是否结束
+     isLive = true
+   
+     constructor() {
+       this.snake = new Snake()
+       this.food = new Food()
+       this.scorePanel = new ScorePanel(10, 2)
+   	// 写在这里的意思是：创建实例对象后，即调用init()方法
+       this.init()
+     }
+   
+     // 游戏的初始化方法，调用后游戏即开始
+     init() {
+       // 绑定键盘按键按下的事件
+       // 注意：这里用bind使keydownHandler中的this重新指向GameControl，否则指向document
+       document.addEventListener('keydown', this.keydownHandler.bind(this))
+       // 调用run方法，使蛇移动
+       this.run()
+     }
+   
+     // ArrowUp/ArrowDown/ArrowLeft/ArrowRight
+     // IE中：Up/Down/Left/Right
+     // 创建一个键盘按下的响应函数
+     keydownHandler(event: KeyboardEvent) {
+       // 需要检查event.key的值是否合法（用户是否按了正确的按键）
+       // 修改direction属性
+       this.direction = event.key
+     }
+   
+     // 创建一个控制蛇移动的方法
+     run() {
+       // 根据方向（this.direction）来使蛇的位置改变
+       // 向上 top 减少、向下 top 增加、向左  left 减少、向右  left 增加
+       // 获取蛇现在坐标
+       let X = this.snake.X
+       let Y = this.snake.Y
+   
+       // 根据按键方向来修改X值和Y值
+       switch (this.direction) {
+         case 'ArrowUp':
+         case 'Up':
+           // 向上移动 top 减少
+           Y -= 10
+           break
+         case 'ArrowDown':
+         case 'Down':
+           // 向下移动 top 增加
+           Y += 10
+           break
+         case 'ArrowLeft':
+         case 'Left':
+           // 向左移动 left 减少
+           X -= 10
+           break
+         case 'ArrowRight':
+         case 'Right':
+           // 向右移动 left 增加
+           X += 10
+           break
+       }
+   
+       // 检查蛇是否吃到了食物
+       this.checkEat(X, Y)
+   
+       // 修改蛇的X和Y值
+       try {
+         this.snake.X = X
+         this.snake.Y = Y
+       } catch (e) {
+         // 进入到catch，说明出现了异常，游戏结束，弹出一个提示信息
+         alert(e.message + ' GAME OVER!')
+         // 将isLive设置为false
+         this.isLive = false
+       }
+   
+       // 开启一个定时调用（随着等级变高，定时器调用间隔变短，移动速度变快）
+       // 短路运算：a && b，若a为真，返回b；若a为假，返回a
+       this.isLive && setTimeout(this.run.bind(this), 300 - (this.scorePanel.level - 1) * 30)
+     }
+   
+     // 定义一个方法，用来检查蛇是否吃到食物
+     checkEat(X: number, Y: number) {
+       if (X === this.food.X && Y === this.food.Y) {
+         // 食物的位置要进行重置
+         this.food.change()
+         // 分数增加
+         this.scorePanel.addScore()
+         // 蛇要增加一节
+         this.snake.addBody()
+       }
+     }
+   }
+   
+   export default GameControl
+   ```
+
+------
+
+#### 8.3.5 入口文件
+
+1. index.ts：
+
+   ```typescript
+   import './style/index.less'
+   import GameControl from './moduls/GameControl'
+   const gameControl = new GameControl()
+   ```
+
+------
+

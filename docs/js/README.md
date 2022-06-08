@@ -889,6 +889,8 @@ next: /ts/
 
    2）如果当前的case里面没有break 则不会退出switch，而是继续执行下一个case
    
+   3）可以连写case，表示满足其中之一的值（不能写成`case value1 | value2`）
+   
    ```js
    var num = prompt('请输入数值：')
    switch (parseFloat(num)) {
@@ -903,6 +905,12 @@ next: /ts/
      case 3:
        console.log('这是3')
        alert('这是3')
+       break
+     // 可以连写，表示如果满足4或5
+     case 4:
+     case 5:
+       console.log('大于3')
+       alert('大于3')
        break
      default:
        console.log('没有匹配结果')

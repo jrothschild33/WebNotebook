@@ -5,6 +5,7 @@ module.exports = {
   title: 'Jason的前端笔记',
   description: '全栈工程师成长记录',
   base: '/WebNotebook/',
+  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   markdown: {
     extractHeaders: {
       level: [2, 3, 4],

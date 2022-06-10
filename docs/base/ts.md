@@ -1,8 +1,3 @@
----
-prev: /js/
-next: /server/#第1章-ajax
----
-
 # TypeScript
 
 ## 第1章 概述

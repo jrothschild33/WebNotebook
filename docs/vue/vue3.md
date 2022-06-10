@@ -1,13 +1,8 @@
----
-prev: /vue2/
-next: /react/
----
-
 # Vue3
 
-## 第 1 章 Vue3 基本用法
+## 第1章 Vue3基本用法
 
-### 1.1 Vue3 简介
+### 1.1 Vue3简介
 
 1. 简介：
 
@@ -60,9 +55,9 @@ next: /react/
 
 ---
 
-### 1.2 创建 Vue3 工程
+### 1.2 创建Vue3工程
 
-#### 1.2.1 用 vue-cil 创建
+#### 1.2.1 用vue-cil创建
 
 > 官方文档：[https://cli.vuejs.org/zh/guide/creating-a-project.html#vue-create](https://cli.vuejs.org/zh/guide/creating-a-project.html#vue-create)
 
@@ -91,13 +86,13 @@ next: /react/
    npm run serve
    ```
 
-#### 1.2.2 用 vite 创建
+#### 1.2.2 用vite创建
 
 > 官方文档：[https://v3.cn.vuejs.org/guide/installation.html#vite](https://v3.cn.vuejs.org/guide/installation.html#vite)
 >
 > vite 官网：[https://vitejs.cn](https://vitejs.cn)
 
-##### 1.2.2.1 vite 简介
+##### 1.2.2.1 vite简介
 
 1. 定义：`vite`是新一代前端构建工具（以前是`webpack`、`grunt`、`gulp`）
 
@@ -114,7 +109,7 @@ next: /react/
    | <img src="https://cn.vitejs.dev/assets/bundler.37740380.png" style="width:500px;height:280px" /> | <img src="https://cn.vitejs.dev/assets/esm.3070012d.png" style="width:480px;height:280px" /> |
    | :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
 
-##### 1.2.2.2 vite 搭建流程
+##### 1.2.2.2 vite搭建流程
 
 1. 创建工程
 
@@ -185,9 +180,9 @@ next: /react/
 
 ---
 
-### 1.4 Vue3 新特性
+### 1.4 Vue3新特性
 
-#### 1.4.1 全局 API 转移
+#### 1.4.1 全局API转移
 
 1. Vue2 有许多全局 API 和配置（`Vue.xxx`）：如：注册全局组件、注册全局指令等
 
@@ -310,7 +305,7 @@ next: /react/
 
 ---
 
-### 1.5 Vue3 优势
+### 1.5 Vue3优势
 
 1. `Options API`的问题：新增或者修改一个需求，就需要分别在 data、methods、computed 里修改
 
@@ -324,7 +319,7 @@ next: /react/
 
 ---
 
-## 第 2 章 Composition API
+## 第2章 Composition API
 
 > 官方文档: [https://v3.cn.vuejs.org/guide/composition-api-introduction.html](https://v3.cn.vuejs.org/guide/composition-api-introduction.html)
 
@@ -478,7 +473,7 @@ next: /react/
 
 ---
 
-### 2.2 ref 函数
+### 2.2 ref函数
 
 1. 作用: 定义响应式数据
 
@@ -543,7 +538,7 @@ next: /react/
 
 ---
 
-### 2.3 reactive 函数
+### 2.3 reactive函数
 
 #### 2.3.1 基本用法
 
@@ -1566,7 +1561,7 @@ next: /react/
 
 ---
 
-### 2.13 provide 与 inject
+### 2.13 provide与inject
 
 > 实现祖与后代组件间通信：父组件使用`provide`选项来提供数据，后代组件使用`inject`选项来开始使用这些数据
 
@@ -1629,7 +1624,7 @@ next: /react/
 
 ---
 
-## 第 3 章 Vue3 组件
+## 第3章 Vue3组件
 
 ### 3.1 Fragment
 

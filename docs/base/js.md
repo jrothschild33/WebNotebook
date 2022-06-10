@@ -1,8 +1,3 @@
----
-prev: /css/
-next: /ts/
----
-
 # JavaScript
 
 ## 第1章 JavaScript介绍

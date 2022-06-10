@@ -1,8 +1,3 @@
----
-prev: /html/
-next: /js/
----
-
 # CSS
 
 ## 第1章 CSS基础知识

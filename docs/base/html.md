@@ -1,8 +1,3 @@
----
-prev: false
-next: /css/
----
-
 # HTML
 
 ## 第1章 HTML框架

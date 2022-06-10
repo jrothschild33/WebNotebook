@@ -1,8 +1,3 @@
----
-prev: /vue3/
-next: false
----
-
 # React
 
 ## 第1章 React基础知识

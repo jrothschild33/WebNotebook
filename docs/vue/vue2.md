@@ -1,8 +1,3 @@
----
-prev: /server/#第1章-ajax
-next: /vue3/
----
-
 # Vue2
 
 ## 第1章 Vue基本用法

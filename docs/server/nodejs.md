@@ -41,15 +41,50 @@
 
 ## 第2章 内置API
 
+### 2.0 Buffer模块
+
+> Buffer和数组的结构的非常类似，Buffer是用来存储二进制数据的
+
+1. `Buffer.from(字符串)`：将一个字符串中内容保存到一个buffer中
+2. `buf.toString()`：将buffer转换为一个字符串
+3. `Buffer.alloc(size)`：创建一个指定大小的buffer对象
+4. `Buffer.allocUnsafe(size)`：创建一个指定大小的buffer对象，可以包含敏感数据
+
+------
+
 ### 2.1 FS模块
 
-> fs模块是官方提供的、用来操作文件的模块。
+> fs模块是官方提供的、用来操作文件的模块，提供同步方法sync和异步方法
 
-1. 导入：
+- 导入：
 
    ```js
    const fs = require('fs')
    ```
+
+#### 2.1.1 打开文件
+
+1. `fs.open(path, flags[, mode], callback)`：异步打开文件
+2. `fs.openSync(path, flags[, mode])`：同步打开文件
+
+#### 2.1.2 读写文件
+
+1. `fs.read(fd, buffer, offset, length, position, callback)`：异步读取文件
+
+2. `fs.readSync(fd, buffer, offset, length, position)`：同步读取文件
+
+3. `fs.write(fd, string[, position[, encoding]], callback)`：异步写入文件
+
+4. `fs.writeSync(fd, string[, position[, encoding]])`：同步写入文件
+
+#### 2.1.3 关闭文件
+
+1. `fs.close(fd,callback)`：异步关闭文件
+2. `fs.closeSync(fd)`：同步关闭文件
+
+#### 2.1.4 简单读写
+
+1. `fs.readFileSync(path[, options])`：同步读取文件
 
 2. `fs.readFile(path[,options],callback) `：用来读取指定文件中的内容
 
@@ -74,7 +109,9 @@
    })
    ```
 
-3. `fs.writeFile(file,data[,options],callback)`：用来向指定的文件中写入内容
+3. `fs.writeFileSync(file, data[, options])`：同步写入文件
+
+4. `fs.writeFile(file,data[,options],callback)`：用来向指定的文件中写入内容（只能用来创建文件，不能用来创建路径）
 
    1）参数：
 
@@ -87,9 +124,7 @@
 
    * err：如果为 `null`，表示写入成功；如果是 `ture`，可用 err.message 显示错误信息
 
-   3）fs.writeFile() 方法只能用来创建文件，不能用来创建路径
-
-   4）重复调用 fs.writeFile() 写入同一个文件，新写入的内容会覆盖之前的旧内容
+   3）重复调用 fs.writeFile() 写入同一个文件，新写入的内容会覆盖之前的旧内容
 
    ```js
    const fs = require('fs')
@@ -128,7 +163,7 @@
    })
    ```
 
-4. 路径动态拼接的问题
+5. 路径动态拼接的问题
 
    1）问题：如果提供的操作路径是以 `./` 或 `../` 开头的相对路径时，很容易出现路径动态拼接错误的问题
 
@@ -163,6 +198,11 @@
      console.log('读取文件成功！' + dataStr)
    })
    ```
+
+#### 2.1.5 流式读写
+
+1. `fs.createReadStream(path[, options])`：读取较大的文件
+2. `fs.createWriteStream(path[, options])`：写入较大的文件
 
 ------
 
@@ -660,7 +700,7 @@
 
    2）`package-lock.json` 配置文件：记录 node_modules 目录下的每一个包的下载信息，例如包的名字、版本号、下载地址等
 
-3. 包管理配置文件：`package.json`
+4. 包管理配置文件：`package.json`
 
    1）引子：多人协作时，第三方包的体积过大，不方便团队成员之间共享项目源代码，需要删除node_modules文件夹
 
@@ -679,22 +719,32 @@
 
    6）devDependencies 节点：只在项目开发阶段会用到的包，在项目上线之后不会用到
 
-4. 一次性安装所有包：npm 先读取package.json中的dependencies节点，一次性下载到项目中
+5. 查看npm版本：
 
    ```bash
-   npm install
-   npm i
+   npm -v
    ```
 
-5. 卸载包：执行成功后，会把卸载的包自动从 package.json 的 dependencies 中移除掉
+6. 搜索包：
 
-   1）卸载项目包：
+   ```bash
+   npm s/search packageName
+   ```
+
+7. 一次性安装所有包：npm 先读取package.json中的dependencies节点，一次性下载到项目中
+
+   ```bash
+   npm i/install
+   ```
+
+8. 卸载包：执行成功后，会把卸载的包自动从 package.json 的 dependencies 中移除掉
 
    ```bash
    npm uninstall packageName
+   npm r/remove packageName
    ```
 
-6. 切换镜像：
+9. 切换镜像：
 
    1）查看镜像源
 

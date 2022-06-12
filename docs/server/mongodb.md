@@ -118,8 +118,8 @@
 
    | 参数                       | 说明                                  |
    | :------------------------- | :------------------------------------ |
-   | help <option>              | 语法帮助                              |
-   | use <database>             | 更改当前操作的数据库                  |
+   | help `<option>`            | 语法帮助                              |
+   | use `<database>`           | 更改当前操作的数据库                  |
    | db                         | 显示当前所在的数据库                  |
    | show dbs                   | 显示数据库列表                        |
    | show collections           | 显示当前数据库的集合                  |
@@ -131,7 +131,7 @@
 
 ------
 
-## 第2章 MongoDB操作
+## 第2章 [MongoDB操作](/docs/ReferenceCards.pdf)
 
 > 官方文档：[https://www.mongodb.com/docs/manual/crud/](https://www.mongodb.com/docs/manual/crud/)
 
@@ -140,7 +140,6 @@
 1. `use <数据库名>`：如果数据库存在则会进入到相应的数据库，如果不存在则会自动创建，一旦进入数据库，则可以使用db来引用当前库
 2. `db.dropDatabase()`：删除一个数据库
 3. `db.createCollection()`：创建一个新的集合
-4. `db.collection.remove({})`：清空一个集合
 5. `db.<collection>.drop()`：删除集合
 
 ------
@@ -166,6 +165,20 @@
      { name: '白骨精', age: 16, gender: '女' },
      { name: '蜘蛛精', age: 14, gender: '女' },
    ])
+   ```
+
+   ```js
+   // 向numbers中插入20000条数据
+   // 低效方法：7.2秒（逐条插入）
+   for (var i = 1; i <= 20000; i++) {
+     db.numbers.insert({ num: i })
+   }
+   // 高效方法：0.4秒（先生成数组，再统一插入）
+   var arr = []
+   for (var i = 1; i <= 20000; i++) {
+     arr.push({ num: i })
+   }
+   db.numbers.insert(arr)
    ```
 
 2. `db.<collection>.insertOne()`：向集合中插入一个文档
@@ -246,16 +259,26 @@
 
    1）需要一个查询文档作为参数，如果不传该参数，则会返回集合中的所有元素
 
-   2）可以将查询条件以键值对的形式添加到查询文档中
-
-   ```txt
-   $lt、$lte、$gt、$gte、$ne、$or、$in、$nin、$not、$exists、$and
-   ```
+   2）可以将查询条件以键值对的形式添加到查询文档中：`$lt`、`$lte`、`$gt`、`$gte`、`$ne`、`$or`、`$in`、`$nin`、`$not`、`$exists`、`$and`等
 
    ```js
    db.stus.find({ _id: 'hello' })
    db.stus.find({ age: 16, name: '白骨精' })
    db.stus.find({ age: 28 })
+   ```
+
+   3）内嵌文档：文档的属性值也可以是一个文档，通过`.`的形式匹配，属性名必须使用引号
+
+   ```js
+   db.users.update({ username: '吴京' }, { $set: { hobby: { movies: ['战狼2', '长津湖战役'] } } })
+   db.users.find({ 'hobby.movies': 'hero' })
+   ```
+
+   4）投影：第二个参数中设置，可以选择需要显示的列
+
+   ```js
+   // 查询结果中只显示ename、sal这两列
+   db.users.find({}, { ename: 1, _id: 0, sal: 1 })
    ```
 
 2. `db.<collection>.findOne()`：查询第一个符合条件的文档，返回对象
@@ -271,21 +294,77 @@
    db.stus.find({}).count()
    ```
 
+4. `db.<collection>.find().limit(n)`：设置显示数据的上限
+
+   ```js
+   // 查看numbers集合中的前10条数据
+   db.numbers.find().limit(10)
+   ```
+
+5. `db.<collection>.find().skip(n)`：跳过指定数量的数据，常与limit配合使用
+
+   ```js
+   // 查看numbers集合中的第11条到20条数据
+   db.numbers.find().skip(10).limit(10)
+   db.numbers.find().limit(10).skip(10)	// MongoDB会自动调整skip和limit的位置，效果相同
+   // 查看numbers集合中的第21条到30条数据
+   db.numbers.find().skip(20).limit(10)
+   ```
+
+6. `db.<collection>.find().sort()`：指定文档的排序的规则，1表示升序，-1表示降序
+
+   ```js
+   // 查询结果按sal升序、empno降序显示
+   db.users.find().sort({ sal: 1, empno: -1 })
+   ```
+
 ------
 
 ### 2.4 修改文档
 
-1. `db.<collection>.update()`：修改文档
+1. `db.<collection>.update(<query>,<update>,{upsert,multi,weiteConcern,collation})`：修改文档（默认只修改一个）
 
-   1）前两个参数，一个是查询文档，一个是新的文档，这样符和条件的文档将会被新文档所替换
+   1）query：必填，查询符合条件的文档
 
-   2）第三个参数，用来指定是否使用upsert，默认为false
+   2）update：必填，需要更新的内容（默认覆盖原文档）
 
-   3）第四个参数，用来指定是否同时修改多个文档，默认为false
+   3）upsert：选填，默认false，是否在未查询到符合条件的文档时进行插入操作
+
+   4）multi：选填，默认false，是否同时修改多个文档
+
+   ```js
+   // 用{ age: 28 }替换 name为'沙和尚'的整条数据（仅第一条）
+   db.stus.update({ name: '沙和尚' }, { age: 28 })
+   ```
 
 2. `db.<collection>.updateOne()`：修改集合中的一个文档
 
+   ```js
+   // 仅修改name为'猪八戒'的第一条数据中的address属性
+   db.stus.updateOne(
+     { name: '猪八戒' },
+     { $set: {address: '高老庄',},}
+   )
+   ```
+
 3. `db.<collection>.updateMany()`：修改集合中的多个文档
+
+   ```js
+   // 修改全部name为'猪八戒'的数据中的address属性
+   db.stus.updateMany(
+     { name: '猪八戒' },
+     { $set: {address: '高老庄',},}
+   )
+   ```
+
+   ```js
+   // 使用update，设置multi为true也可以实现
+   db.stus.update(
+     { name: '猪八戒' },
+     { $set: { address: '高老庄',},},
+     { multi: true,}
+   )
+   ```
 
 4. `db.<collection>.replaceOne()`：替换集合中的一个文档
 
@@ -293,11 +372,31 @@
 
 ### 2.5 删除文档
 
-1. `db.<collection>.remove()`：删除文档，默认删除多个
+1. `db.<collection>.remove(<query>,<justOne>)`：删除文档，默认删除多个（若第二个参数设为true，则只删除一个）
 
-   1）方法接收一个查询文档作为参数，只有符合条件的文档才会被删除
+   1）接收一个查询文档作为参数，只有符合条件的文档才会被删除，不能撤销
 
-   2）删除数据是永久的，不能撤销
+   ```js
+   // 删除所有name为'沙和尚'的数据
+   db.stus.remove({ name: '沙和尚' })
+   // 删除name为'沙和尚'的第一条数据
+   db.stus.remove({ name: '沙和尚' },true)
+   ```
+
+   2）如果传递一个空对象作为参数，则会删除所有文档
+
+   ```js
+   // 删除stus集合中的所有文档
+   db.stus.remove({})
+   ```
+
+   3）数据库中的数据都不会删除，所以删除的方法很少调用，一般会在数据中添加一个字段，来表示数据是否被删除
+
+   ```js
+   // 为数据添加isDel属性，来代表是否删除
+   db.stus.updateOne({ name: '沙和尚' }, { $set: { isDel: 1 } })
+   db.stus.find({ isDel: 0 })
+   ```
 
 2. `db.<collection>.deleteOne()`：删除集合中的一个文档
 
@@ -305,17 +404,121 @@
 
 ------
 
-### 2.6 修改器
+### 2.6 操作符
 
-> 使用修改器可以对文档的数据进行局部修改
+> 使用操作符可以对文档的数据进行局部修改
+
+#### 2.6.1 [修改操作符](https://www.mongodb.com/docs/manual/reference/operator/update/)
 
 1. `$set`：用来指定一个字段的值，如果这个字段不存在，则创建它
+
+   ```js
+   // 仅修改name为'沙和尚'这条数据中的gender、address属性，而非替换整条数据
+   db.stus.update(
+     { name: '沙和尚' },
+     { $set: { gender: '男',address: '流沙河',},}
+   )
+   ```
+
 2. `$unset`：用来删除文档中一个不需要的字段，用法和set类似
+
+   ```js
+   // 仅删除name为'沙和尚'这条数据中的address属性
+   db.stus.update(
+     { name: '沙和尚' },
+     { $unset: { address: '流沙河',},}
+   )
+   ```
+
 3. `$inc`：用来增加已有键的值，或者该键不存在则创建一个，只能用于Number类型的值
+
+   ```js
+   // 为所有薪资低于1000的员工增加工资400元
+   db.users.updateMany({ sal: { $lte: 1000 } }, { $inc: { sal: 400 } })
+   ```
+
+4. `$push`：向数组中添加一个新的元素
+
+   ```js
+   db.users.update({ username: 'tangseng' }, { $push: { 'hobby.movies': 'Interstellar' } })
+   ```
+
+5. `$addToSet`：向数组中添加一个新元素，如果数组中已经存在了该元素，则不会添加
+
+   ```js
+   db.users.update({ username: 'tangseng' }, { $addToSet: { 'hobby.movies': 'Interstellar' } })
+   ```
+
+------
+
+#### 2.6.2 [查询操作符](https://www.mongodb.com/docs/manual/reference/operator/query/)
+
+1. 比较符：`$eq`：等于；`$ne`：不等于；`$lt`：小于；`$lte`：小于等于；`$gt`：大于；`$gte`：大于等于；`$in`：在数组中；`$nin`：不在数组中
+
+   ```js
+   // 查询numbers中num大于500的文档
+   db.numbers.find({ num: { $gt: 500 } })
+   // 查询numbers中num等于500的文档
+   db.numbers.find({ num: { $eq: 500 } })
+   // 查询numbers中num小于30的文档
+   db.numbers.find({ num: { $lt: 30 } })
+   // 查询numbers中num大于40小于50的文档
+   db.numbers.find({ num: { $gt: 40, $lt: 50 } })
+   ```
+
+2. 逻辑符：`$and`：和；`$not`：非；`$or`：或；`$nor`：都不
+
+   ```js
+   // 查询工资小于1000或大于2500的员工
+   db.emp.find({ $or: [{ sal: { $lt: 1000 } }, { sal: { $gt: 2500 } }] })
+   ```
+
+------
+
+### 2.7 文档关系
+
+1. 一对一：可以通过内嵌文档的形式来体现出一对一的关系
+
+   ```js
+   db.wifeAndHusband.insert([
+     { name: '黄蓉', husband: { name: '郭靖',},},
+     { name: '潘金莲',husband: { name: '武大郎',},},
+   ])
+   ```
+
+2. 一对多：用户vs订单、文章vs评论
+
+   ```js
+   db.users.insert([
+     { username: 'swk',},
+     { username: 'zbj',},
+   ])
+   
+   db.order.insert({
+     list: ['牛肉', '漫画'],
+     user_id: ObjectId('59c47e35241d8d36a1d50de0'),
+   })
+   
+   //查找用户swk的订单
+   var user_id = db.users.findOne({ username: 'zbj' })._id
+   db.order.find({ user_id: user_id })
+   ```
+
+3. 多对多：分类vs商品、老师vs学生
+
+   ```js
+   db.teachers.insert([{ name: '洪七公' }, { name: '黄药师' }, { name: '龟仙人' }])
+   db.stus.insert([
+     { name: '郭靖', teacherName: ['洪七公','黄药师'],},
+     { name: '孙悟空', teacherName: ['洪七公','黄药师','龟仙人'],},
+   ])
+   ```
 
 ------
 
 ## 第3章 Mongoose
+
+> 官网：[https://mongoosejs.com/docs/guide.html](https://mongoosejs.com/docs/guide.html)
 
 ### 3.1 Mongoose简介
 
@@ -345,41 +548,53 @@
 
 ### 3.2 连接MongoDB
 
-#### 3.2.1 基本连接
+1. 连接MongoDB数据库后，底层的`Connection`对象就可以通过mongoose模块的`conection`属性来访问
 
-1. 安装mongoose：
+2. `connection`对象是对数据库连接的抽象，它提供了对象连接、底层的db对象和表示结合的Model对象的访问
+
+   1）可以对`connection`对象上的一些事件进行监听，来获悉数据库连接的开始与端开
+
+   2）例：可以通过`open`和`close`事件来监控连接的打开和关闭
+
+3. 安装mongoose：
 
    ```bash
    npm i mongoose
    ```
 
-2. 引入mongoose：
+4. 引入mongoose：
 
    ```js
    const mongoose = require("mongoose")
    ```
 
-3. 连接数据库：
+5. 连接数据库：如果端口号是默认端口号（27017），可以省略不写
 
    ```js
-   mongoose.connect("mongodb://127.0.0.1/mongodbname")
+   mongoose.connect('mongodb://数据库的ip地址:端口号/数据库名', { useMongoClient: true})
    ```
 
-4. 断开连接：
+6. 数据库连接成功的事件：
+
+   ```js
+   mongoose.connection.once('open', function () {
+     console.log('数据库连接成功!')
+   })
+   ```
+
+7. 数据库断开的事件：
+
+   ```js
+   mongoose.connection.once('close', function () {
+     console.log('数据库连接断开!')
+   })
+   ```
+
+8. 断开连接：一般不需要调用
 
    ```js
    mongoose.disconnect()
    ```
-
-#### 3.2.2 Connection
-
-1. 定义：连接MongoDB数据库后，底层的`Connection`对象就可以通过mongoose模块的`conection`属性来访问
-
-2. 作用：`connection`对象是对数据库连接的抽象，它提供了对象连接、底层的db对象和表示结合的Model对象的访问
-
-   1）可以对`connection`对象上的一些事件进行监听，来获悉数据库连接的开始与端开
-
-   2）例子：可以通过`open`和`close`事件来监控连接的打开和关闭
 
 ------
 
@@ -409,71 +624,410 @@
    | _id            | 布尔值，是否自动分配id字段，默认true                   |
    | strict         | 布尔值，不符合Schema的对象不会被插入进数据库，默认true |
 
+4. 案例：
+
+   ```js
+   // 创建并连接数据库
+   var mongoose = require('mongoose')
+   mongoose.connect('mongodb://127.0.0.1/mongoose_test', { useMongoClient: true })
+   mongoose.connection.once('open', function () {
+     console.log('数据库连接成功!')
+   })
+   
+   // 将mongoose.Schema 赋值给一个变量
+   var Schema = mongoose.Schema
+   
+   // 创建Schema（模式）对象
+   var stuSchema = new Schema({
+     name: String,
+     age: Number,
+     gender: {
+       type: String,
+       default: 'female',
+     },
+     address: String,
+   })
+   
+   // 通过Schema来创建Model：mongoose.model(modelName, schema)
+   // modelName：要映射的集合名，mongoose会自动将集合名变成复数！（如果已经是复数则不变了）
+   var StuModel = mongoose.model('student', stuSchema)	 // 名称自动变为students
+   
+   // 向数据库中插入一个文档：modelName.create(doc, function(err){})
+   StuModel.create(
+     {
+       name: '白骨精',
+       age: 16,
+       address: '白骨洞',
+     },
+     function (err) {
+       if (!err) {
+         console.log('插入成功~~~')
+       }
+     }
+   )
+   ```
+
 ------
 
 ### 3.4 Model模型对象
 
 > Model对象：相当于数据库中的集合，通过Model可以完成对集合的CRUD操作
 
-1. 工作流程：定义Schema对象后，就需要通过该Schema对象来创建Model对象；创建Model对象后，就会自动和数据库中对应的集合建立连接，以确保在应用更改时，集合已经创建并具有适当的索引，且设置了必须性和唯一性
+- 工作流程：定义Schema对象后，就需要通过该Schema对象来创建Model对象；创建Model对象后，就会自动和数据库中对应的集合建立连接，以确保在应用更改时，集合已经创建并具有适当的索引，且设置了必须性和唯一性
 
-2. 创建Model模型对象：`model(name,[schema],[collection],[skipInit])`
+#### 3.4.1 创建Model
 
-   1）`name`：模型的名字，用于查找模型
+1. 语法：`mongoose.model(name,[schema],[collection],[skipInit])`
 
-   2）`schema`：创建好的模式对象
+2. 参数：
 
-   3）`collection`：要连接的集合名
+   - `name`：模型的名字，用于查找模型
+   - `schema`：创建好的模式对象
+   - `collection`：要连接的集合名
+   - `skipInit`：是否跳过初始化，默认false
 
-   4）`skipInit`：是否跳过初始化，默认false
+   ```js
+   // 创建并连接数据库
+   var mongoose = require('mongoose')
+   mongoose.connect('mongodb://127.0.0.1/mongoose_test', { useMongoClient: true })
+   mongoose.connection.once('open', function () {
+     console.log('数据库连接成功!')
+   })
+   
+   var Schema = mongoose.Schema
+   var stuSchema = new Schema({
+     name: String,
+     age: Number,
+     gender: {
+       type: String,
+       default: 'female',
+     },
+     address: String,
+   })
+   var StuModel = mongoose.model('student', stuSchema)
+   ```
 
-3. 常用方法：
+------
 
-   1）`remove(conditions, callback)`
+#### 3.4.2 创建文档
 
-   2）`deleteOne(conditions, callback)`
+1. 语法：`Model.create(doc(s),[callback])`
 
-   3）`deleteMany(conditions, callback)`
+   ```js
+   StuModel.create(
+     [
+       {name: '沙和尚',age: 38,gender: 'male',address: '流沙河',},
+       {name: '孙悟空',age: 26,gender: 'male',address: '花果山',},
+     ],
+     function (err) {
+       if (!err) {
+         console.log(arguments)
+       }
+     }
+   )
+   ```
 
-   4）`find(conditions, projection, options, callback)`
+------
 
-   5）`findById(id, projection, options, callback)`
+#### 3.4.3 查询文档
 
-   6）`findOne(conditions, projection, options, callback)`
+1. `Model.find(conditions,[projection],[options],[callback])`：查询所有符合条件的文档，返回一个数组
 
-   7）`count(conditions, callback)`
+2. `Model.findOne([conditions],[projection],[options],[callback])`：查询符合条件的第一个文档，返回一个具体的文档对象
 
-   8）`create(doc, callback)`
+3. `Model.findById(id,[projection],[options],[callback])`：根据文档的id属性查询文档
 
-   9）`update(conditions, doc, options, callback)`
+4. 参数说明：
+
+   1）`conditions`：查询的条件
+
+   2）`projection`：投影，语法1：`{name:1, _id:0}`，语法2：`"name -_id"`
+
+   3）`options`：查询选项，可指定`skip`、`limit`
+
+   4）`callback`：回调函数(必填)，查询结果会通过回调函数返回
+
+   ```js
+   // 查找name为'唐僧'的文档
+   StuModel.find({ name: '唐僧' }, function (err, docs) {
+     if (!err) {
+       console.log(docs)
+     }
+   })
+   // 查询所有文档，只显示name列
+   StuModel.find({}, { name: 1, _id: 0 }, function (err, docs) {
+     if (!err) {
+       console.log(docs)
+     }
+   })
+   // 查询所有文档，只显示name、age列，从第4条开始显示，仅显示一条数据
+   StuModel.find({}, 'name age -_id', { skip: 3, limit: 1 }, function (err, docs) {
+     if (!err) {
+       console.log(docs)
+     }
+   })
+   // 查询第1条文档
+   StuModel.findOne({}, function (err, doc) {
+     if (!err) {
+       console.log(doc)
+     }
+   })
+   // 按ID查询文档
+   StuModel.findById('59c4c3cf4e5483191467d392', function (err, doc) {
+     if (!err) {
+       // 返回的对象就是Document文档对象，是Model的实例
+       console.log(doc instanceof StuModel)
+     }
+   })
+   ```
+
+------
+
+#### 3.4.4 修改文档
+
+1. `Model.update(conditions,doc,[options],[callback])`
+
+2. `Model.updateMany(conditions,doc,[options],[callback])`
+
+3. `Model.updateOne(conditions,doc,[options],[callback])`
+
+4. `Model.replaceOne(conditions,doc,[options],[callback])`
+
+5. 参数说明：
+
+   1）`conditions`：查询条件
+
+   2）`doc`：修改后的对象
+
+   3）`options`：配置参数
+
+   4）`callback`：回调函数
+
+   ```js
+   // 修改唐僧的年龄为20
+   StuModel.updateOne({ name: '唐僧' }, { $set: { age: 20 } }, function (err) {
+     if (!err) {
+       console.log('修改成功')
+     }
+   })
+   ```
+
+------
+
+#### 3.4.5 删除文档
+
+1. `Model.remove(conditions,[callback])`
+
+2. `Model.deleteOne(conditions,[callback])`
+
+3. `Model.deleteMany(conditions,[callback])`
+
+   ```js
+   // 删除name为'白骨精'的文档
+   StuModel.remove({ name: '白骨精' }, function (err) {
+     if (!err) {
+       console.log('删除成功~~')
+     }
+   })
+   ```
+
+------
+
+#### 3.4.6 统计数量
+
+1. 语法：`Model.count(conditions,[callback])`
+
+   ```js
+   // 统计StuModel中的文档数量
+   StuModel.count({}, function (err, count) {
+     if (!err) {
+       console.log(count)
+     }
+   })
+   ```
 
 ------
 
 ### 3.5 Document文档对象
 
-1. 通过Model对数据库进行查询时，会返回Document对象或Document对象数组，Document继承自Model，代表一个集合中的文档
-2. Document对象也可以和数据库进行交互操作
+> 通过Model对数据库进行查询时，会返回Document对象或Document对象数组，Document继承自Model，代表一个集合中的文档
 
-3. 常用方法：
+1. 创建文档：
 
-   1）`equals(doc)`
+   ```js
+   // 引入模块：创建并连接数据库
+   require("./tools/conn_mongo")
+   
+   var Schema = mongoose.Schema
+   var stuSchema = new Schema({
+     name: String,
+     age: Number,
+     gender: {
+       type: String,
+       default: 'female',
+     },
+     address: String,
+   })
+   var StuModel = mongoose.model('student', stuSchema)
+   
+   // 创建一个Document
+   var stu = new StuModel({
+     name: '奔波霸',
+     age: 48,
+     gender: 'male',
+     address: '碧波潭',
+   })
+   ```
 
-   2）`id`
+2. 保存文档：`save([options],[callback])`
 
-   3）`get(path,[type])`
+   ```js
+   stu.save(function (err) {
+     if (!err) {
+       console.log('保存成功!')
+     }
+   })
+   ```
 
-   4）`set(path,value,[type])`
+3. 修改文档：`update(update,[options],[callback])`
 
-   5）`update(update,[options],[callback])`
+   ```js
+   StuModel.find({ name: '孙悟空' }, function (err, doc) {
+     if (!err) {
+       // 方法1
+       doc.update({ $set: { age: 28 } }, function (err) {
+         if (!err) {
+           console.log('修改成功!')
+         }
+       })
+       // 方法2
+       doc.age = 18
+       doc.save()
+     }
+   })
+   ```
 
-   6）`save([callback])`
+4. 删除文档：`remove([callback])`
 
-   7）`remove([callback])`
+   ```js
+   StuModel.find({ name: '孙悟空' }, function (err, doc) {
+     if (!err) {
+       doc.remove(function (err) {
+         if (!err) {
+           console.log('大师兄再见!')
+         }
+       })
+     }
+   })
+   ```
 
-   8）`isNew`
+5. 获取文档中的指定属性值：`get(name)`
 
-   9）`isInit(path)`
+   ```js
+   StuModel.find({ name: '孙悟空' }, function (err, doc) {
+     if (!err) {
+       // 方法1
+       console.log(doc.get("age"))
+       // 方法2
+       console.log(doc.age)
+     }
+   })
+   ```
 
-   10）`toJSON()`
+6. 设置文档的指定的属性值：`set(name, value)`
 
-   11）`toObject()`
+   ```js
+   StuModel.find({ name: '孙悟空' }, function (err, doc) {
+     if (!err) {
+       // 方法1
+       doc.set("name","孙大圣")
+       // 方法2
+       doc.name = "孙大圣"
+     }
+   })
+   ```
+
+7. 获取文档的_id属性值：`_id`
+
+   ```js
+   StuModel.find({ name: '孙悟空' }, function (err, doc) {
+     if (!err) {
+       console.log(doc._id)
+     }
+   })
+   ```
+
+8. 转换为一个JSON对象：`toJSON()`
+
+   ```js
+   StuModel.find({ name: '孙悟空' }, function (err, doc) {
+     if (!err) {
+       var j = doc.toJSON()
+       console.log(j)
+     }
+   })
+   ```
+
+9. 将文档转换为一个普通的JS对象（所有文档的属性和方法都不可用）：`toObject()`
+
+   ```js
+   StuModel.find({ name: '孙悟空' }, function (err, doc) {
+     if (!err) {
+       doc = doc.toObject()
+       // 用JS方法操作
+       delete doc.address
+       console.log(doc._id)
+     }
+   })
+   ```
+
+
+------
+
+### 3.6 Mongoose模块化
+
+1. tools/conn_mongo.js：连接数据库
+
+   ```js
+   // 创建并连接数据库
+   var mongoose = require('mongoose')
+   mongoose.connect('mongodb://127.0.0.1/mongoose_test', { useMongoClient: true })
+   mongoose.connection.once('open', function () {
+     console.log('数据库连接成功!')
+   })
+   ```
+
+2. models/student.js：定义模型
+
+   ```js
+   var Schema = mongoose.Schema
+   var stuSchema = new Schema({
+     name: String,
+     age: Number,
+     gender: {
+       type: String,
+       default: 'female',
+     },
+     address: String,
+   })
+   var StuModel = mongoose.model('student', stuSchema)
+   // 暴露模型
+   model.exports = StuModel
+   ```
+
+3. index.js：引入模块
+
+   ```js
+   require("./tools/conn_mongo")
+   var Student = require("./model/student")
+   
+   // 自定义操作
+   StuModel.find({ name: '唐僧' }, function (err, docs) {
+     if (!err) {
+       console.log(docs)
+     }
+   })
+   ```
+
+------
+

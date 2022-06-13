@@ -16,7 +16,7 @@
 
    2）Output：webpack打包后的资源bundles输出到哪里去，以及如何命名
 
-   3）Loader：让webpack能够去处理非JavaScript文件(webpack自身只理解JS)
+   3）Loader：让webpack能够去处理非JavaScript文件(webpack自身只理解JS)，注意执行顺序为从右到左、从下到上
 
    4）Plugins：插件可以用于执行范围更广的任务，包括打包优化、压缩、重新定义环境中的变量等
 
@@ -107,41 +107,31 @@
 
 ### 2.2 打包样式资源
 
+> Loader：`css-loader`、`style-loader`、`less-loader`、`less`
+
 1. 下载安装：`loader`
 
    ```bash
-   npm i css-loader style-loader less-loader less -D
+   npm i -D css-loader style-loader less-loader less
    ```
 
 2. 修改配置文件：webpack.config.js
 
    ```js
-   // resolve用来拼接绝对路径的方法
-   const { resolve } = require('path')
+   ......
    
    module.exports = {
-     // webpack配置
-     // 入口起点
-     entry: './src/index.js',
-     // 输出
-     output: {
-       // 输出文件名
-       filename: 'built.js',
-       // 输出路径
-       // __dirname nodejs的变量，代表当前文件的目录绝对路径
-       path: resolve(__dirname, 'build'),
-     },
+     ......
      // loader的配置
      module: {
        rules: [
-         // 详细loader配置
-         // 不同文件必须配置不同loader处理
+         // 详细loader配置：不同文件必须配置不同loader处理
          {
            // 匹配哪些文件
            test: /\.css$/,
            // 使用哪些loader进行处理
            use: [
-             // use数组中loader执行顺序：从右到左，从下到上 依次执行
+             // loader执行顺序：从右到左，从下到上
              // 创建style标签，将js中的样式资源插入进行，添加到head中生效
              'style-loader',
              // 将css文件变成commonjs模块加载js中，里面内容是样式字符串
@@ -153,20 +143,13 @@
            use: [
              'style-loader',
              'css-loader',
-             // 将less文件编译成css文件
-             // 需要下载 less-loader和less
+             // 将less文件编译成css文件：下载 less-loader和less
              'less-loader',
            ],
          },
        ],
      },
-     // plugins的配置
-     plugins: [
-       // 详细plugins的配置
-     ],
-     // 模式
-     mode: 'development', // 开发模式
-     // mode: 'production'
+     ......
    }
    ```
 
@@ -174,40 +157,33 @@
 
 ### 2.3 打包HTML资源
 
+> Plugins：`html-webpack-plugin`
+
 1. 下载安装：`plugin`
 
    ```bash
-   npm install --save-dev html-webpack-plugin
+   npm i -D html-webpack-plugin
    ```
 
 2. 修改配置文件：webpack.config.js
 
+   1）功能：默认会创建一个空的HTML，自动引入打包输出的所有资源（JS/CSS）
+
+   2）需求：需要有结构的HTML文件模板
+
    ```js
-   const { resolve } = require('path')
+   ......
    const HtmlWebpackPlugin = require('html-webpack-plugin')
    
    module.exports = {
-     entry: './src/index.js',
-     output: {
-       filename: 'built.js',
-       path: resolve(__dirname, 'build'),
-     },
-     module: {
-       rules: [
-         // loader的配置
-       ],
-     },
+     ......
      plugins: [
-       // plugins的配置
-       // html-webpack-plugin
-       // 功能：默认会创建一个空的HTML，自动引入打包输出的所有资源（JS/CSS）
-       // 需求：需要有结构的HTML文件
        new HtmlWebpackPlugin({
          // 复制 './src/index.html' 文件，并自动引入打包输出的所有资源（JS/CSS）
          template: './src/index.html',
        }),
      ],
-     mode: 'development',
+     ......
    }
    ```
 
@@ -215,26 +191,32 @@
 
 ### 2.4 打包图片资源
 
-1. 创建文件：index.html、index.js
+> Loader：`html-loader`、`url-loader`、`file-loader`
 
-2. 下载安装：`loader`
+1. 下载安装：`loader`
 
    ```bash
-   npm install --save-dev html-loader url-loader file-loader
+   npm i -D html-loader url-loader file-loader
    ```
 
-3. 修改配置文件：webpack.config.js
+2. html-loader：处理html文件的img图片（负责引入img，从而能被url-loader进行处理）
+
+3. url-loader：处理图片资源
+
+   1）`limit`：图片大小小于8kb，就会被base64处理（变成字符串），适用小图片，一般不会处理较大的图片
+
+   2）`esModule`：关闭url-loader的es6模块化，使用commonjs解析
+
+   3）`name`：给图片进行重命名
+
+4. 修改配置文件：webpack.config.js
 
    ```js
-   const { resolve } = require('path')
+   ......
    const HtmlWebpackPlugin = require('html-webpack-plugin')
    
    module.exports = {
-     entry: './src/index.js',
-     output: {
-       filename: 'built.js',
-       path: resolve(__dirname, 'build'),
-     },
+     ......
      module: {
        rules: [
          {
@@ -246,11 +228,10 @@
            // 问题：默认处理不了html中img图片
            // 处理图片资源
            test: /\.(jpg|png|gif)$/,
-           // 使用一个loader
-           // 下载 url-loader file-loader
+           // 使用loader：url-loader、file-loader
            loader: 'url-loader',
            options: {
-             // 图片大小小于8kb，就会被base64处理
+             // 图片大小小于8kb，就会被base64处理（变成字符串），适用小图片，一般不会处理较大的图片
              // 优点: 减少请求数量（减轻服务器压力）
              // 缺点：图片体积会更大（文件请求速度更慢）
              limit: 8 * 1024,
@@ -271,12 +252,14 @@
          },
        ],
      },
+     ......
      plugins: [
        new HtmlWebpackPlugin({
+         // 复制 './src/index.html' 文件，并自动引入打包输出的所有资源（JS/CSS）
          template: './src/index.html',
        }),
      ],
-     mode: 'development',
+     ......
    }
    ```
 
@@ -284,28 +267,29 @@
 
 ### 2.5 打包其他资源
 
-1. 创建文件：iconfont.eot、iconfont.svg、iconfont.ttf、iconfont.woff
+> Loader：`file-loader`
+
+1. 其他资源文件举例：
+
+   ```txt
+   ├─src
+   |  ├─iconfont.eot
+   |  ├─iconfont.svg
+   |  ├─iconfont.ttf
+   |  ├─iconfont.woff
+   ```
 
 2. 修改配置文件：webpack.config.js
 
    ```js
-   const { resolve } = require('path')
-   const HtmlWebpackPlugin = require('html-webpack-plugin')
+   ......
    
    module.exports = {
-     entry: './src/index.js',
-     output: {
-       filename: 'built.js',
-       path: resolve(__dirname, 'build'),
-     },
+     ......
      module: {
        rules: [
-         {
-           test: /\.css$/,
-           use: ['style-loader', 'css-loader'],
-         },
-         // 打包其他资源(除了html/js/css资源以外的资源)
-         {
+         ......
+         { // 打包其他资源(除了html/js/css资源以外的资源)
            // 排除css/js/html资源
            exclude: /\.(css|js|html|less)$/,
            loader: 'file-loader',
@@ -315,12 +299,7 @@
          },
        ],
      },
-     plugins: [
-       new HtmlWebpackPlugin({
-         template: './src/index.html',
-       }),
-     ],
-     mode: 'development',
+     ......
    }
    ```
 
@@ -328,43 +307,19 @@
 
 ### 2.6 devserver
 
+> devServer：开发服务器，用来自动化（自动编译，自动打开浏览器，自动刷新浏览器）
+
+1. devServer特点：只会在内存中编译打包，不会有任何输出（不会生成build文件夹及内部文件）
+
 1. 修改配置文件：webpack.config.js
 
    ```js
    const { resolve } = require('path')
-   const HtmlWebpackPlugin = require('html-webpack-plugin')
+   ......
    
    module.exports = {
-     entry: './src/index.js',
-     output: {
-       filename: 'built.js',
-       path: resolve(__dirname, 'build'),
-     },
-     module: {
-       rules: [
-         {
-           test: /\.css$/,
-           use: ['style-loader', 'css-loader'],
-         },
-         // 打包其他资源(除了html/js/css资源以外的资源)
-         {
-           // 排除css/js/html资源
-           exclude: /\.(css|js|html|less)$/,
-           loader: 'file-loader',
-           options: {
-             name: '[hash:10].[ext]',
-           },
-         },
-       ],
-     },
-     plugins: [
-       new HtmlWebpackPlugin({
-         template: './src/index.html',
-       }),
-     ],
-     mode: 'development',
-   
-     // 开发服务器 devServer：用来自动化（自动编译，自动打开浏览器，自动刷新浏览器~~）
+     ......
+     // 开发服务器 devServer：用来自动化（自动编译，自动打开浏览器，自动刷新浏览器）
      // 特点：只会在内存中编译打包，不会有任何输出
      // 启动devServer指令为：npx webpack-dev-server
      devServer: {
@@ -380,11 +335,17 @@
    }
    ```
 
+4. 启动devServer：
+
+   ```bash
+   npx webpack-dev-server
+   ```
+
 ------
 
 ### 2.7 开发环境配置
 
-1. 创建文件
+1. 项目文件结构
 
    ```txt
    ├─src
@@ -439,6 +400,7 @@
              name: '[hash:10].[ext]',
              // 关闭es6模块化
              esModule: false,
+             // 设置图片的输出路径
              outputPath: 'imgs',
            },
          },
@@ -453,6 +415,7 @@
            loader: 'file-loader',
            options: {
              name: '[hash:10].[ext]',
+             // 设置其他资源的输出路径
              outputPath: 'media',
            },
          },
@@ -486,33 +449,28 @@
 
 ### 3.1 提取CSS成单独文件
 
+> Plugins：`mini-css-extract-plugin`
+
 1. 下载安装：`plugin`
 
    ```bash
-   npm install --save-dev mini-css-extract-plugin
+   npm i -D mini-css-extract-plugin
    ```
 
 2. 修改配置文件：webpack.config.js
 
    ```js
-   const { resolve } = require('path')
-   const HtmlWebpackPlugin = require('html-webpack-plugin')
+   ......
    const MiniCssExtractPlugin = require('mini-css-extract-plugin')
    
    module.exports = {
-     entry: './src/js/index.js',
-     output: {
-       filename: 'js/built.js',
-       path: resolve(__dirname, 'build'),
-     },
+     ......
      module: {
        rules: [
          {
            test: /\.css$/,
            use: [
-             // 创建style标签，将样式放入
-             // 'style-loader',
-             // 这个loader取代style-loader。作用：提取js中的css成单独文件
+             // 这个loader取代了style-loader，作用：提取js中的css成单独文件
              MiniCssExtractPlugin.loader,
              // 将css文件整合到js文件中
              'css-loader',
@@ -521,15 +479,13 @@
        ],
      },
      plugins: [
-       new HtmlWebpackPlugin({
-         template: './src/index.html',
-       }),
+       ......
        new MiniCssExtractPlugin({
          // 对输出的css文件进行重命名
          filename: 'css/built.css',
        }),
      ],
-     mode: 'development',
+     ......
    }
    ```
 
@@ -537,21 +493,25 @@
 
 ### 3.2 CSS兼容性处理
 
-1. 下载安装：`loader`
+> postcss：`postcss-loader`、`postcss-preset-env`
+
+1. 下载安装：
 
    ```bash
-   npm install --save-dev postcss-loader postcss-preset-env
+   npm i -D postcss-loader postcss-preset-env
    ```
 
-2. 修改配置文件：webpack.config.js
+2. postcss-loader：帮postcss找到package.json中browserslist里面的配置，通过配置加载指定的css兼容性样式
+
+3. 修改配置文件：webpack.config.js
 
    ```js
    const { resolve } = require('path')
    const HtmlWebpackPlugin = require('html-webpack-plugin')
    const MiniCssExtractPlugin = require('mini-css-extract-plugin')
    
-   // 设置nodejs环境变量
-   // process.env.NODE_ENV = 'development';
+   // 若想设为开发环境：
+   // process.env.NODE_ENV = 'development'
    
    module.exports = {
      entry: './src/js/index.js',
@@ -566,29 +526,11 @@
            use: [
              MiniCssExtractPlugin.loader,
              'css-loader',
-             /*
-               css兼容性处理：postcss --> postcss-loader postcss-preset-env
-   
-               帮postcss找到package.json中browserslist里面的配置，通过配置加载指定的css兼容性样式
-   
-               "browserslist": {
-                 // 开发环境 --> 设置node环境变量：process.env.NODE_ENV = development
-                 "development": [
-                   "last 1 chrome version",
-                   "last 1 firefox version",
-                   "last 1 safari version"
-                 ],
-                 // 生产环境：默认是看生产环境
-                 "production": [
-                   ">0.2%",
-                   "not dead",
-                   "not op_mini all"
-                 ]
-               }
-             */
-             // 使用loader的默认配置
+             
+             // 方法1：使用loader的默认配置
              // 'postcss-loader',
-             // 修改loader的配置
+             
+             // 方法2：修改loader的配置
              {
                loader: 'postcss-loader',
                options: {
@@ -615,16 +557,19 @@
    }
    ```
 
-3. 修改 package.json
+4. 修改 package.json
 
    ```json
    "browserslist": {
+     // 开发环境：设置 process.env.NODE_ENV = development
      "development": [
        "last 1 chrome version",
        "last 1 firefox version",
        "last 1 safari version"
      ],
+     // 生产环境：默认
      "production": [
+       // 兼容99.8%的浏览器，且不包含已淘汰和op_mini型的浏览器
        ">0.2%",
        "not dead",
        "not op_mini all"
@@ -636,10 +581,12 @@
 
 ### 3.3 CSS压缩
 
+> Plugins：`optimize-css-assets-webpack-plugin`
+
 1. 下载安装：`plugin`
 
    ```bash
-   npm install --save-dev optimize-css-assets-webpack-plugin
+   npm i -D optimize-css-assets-webpack-plugin
    ```
 
 2. 修改配置文件：webpack.config.js

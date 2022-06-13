@@ -37,7 +37,7 @@ module.exports = {
         {
           text: 'Packaging',
           collapsible: true,
-          children: ['/server/webpack5.md'],
+          children: ['/server/webpack.md'],
         },
       ],
       '/vue/': [
@@ -88,7 +88,7 @@ module.exports = {
           },
           {
             text: '项目打包',
-            children: [{ text: 'Webpack5', link: '/server/webpack5.md' }],
+            children: [{ text: 'Webpack5', link: '/server/webpack.md' }],
           },
         ],
       },

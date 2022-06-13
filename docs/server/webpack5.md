@@ -4,25 +4,25 @@
 
 ### 1.1 Webpack简介
 
+> Webpack是一种前端资源构建工具，一个静态模块打包器(module bundler)
+
 <img :src="$withBase('/imgs/server/webpack简介.png')" alt="webpack简介">
 
-1. 定义：webpack 是一种前端资源构建工具，一个静态模块打包器(module bundler)。在 webpack 看来, 前端的所有资源文件(js/json/css/img/less/...)都会作为模块处理。它将根据模块的依赖关系进行静态分析，打包生成对应的静态资源(bundle)。
+1. 原理：webpack将前端的所有资源文件(js/json/css/img/less/...)都作为模块处理，根据模块的依赖关系进行静态分析，打包生成对应的静态资源(bundle)
 
 2. 核心概念：
 
-   1）Entry：webpack 以哪个文件为入口起点开始打包，分析构建内部依赖图
+   1）Entry：webpack以哪个文件为入口起点开始打包，分析构建内部依赖图
 
-   2）Output：webpack 打包后的资源 bundles 输出到哪里去，以及如何命名
+   2）Output：webpack打包后的资源bundles输出到哪里去，以及如何命名
 
-   3）Loader：让 webpack 能够去处理那些非 JavaScript 文件(webpack自身只理解JS)
+   3）Loader：让webpack能够去处理非JavaScript文件(webpack自身只理解JS)
 
    4）Plugins：插件可以用于执行范围更广的任务，包括打包优化、压缩、重新定义环境中的变量等
 
-   5）Mode：webpack 使用相应模式的配置
+   5）Mode：webpack使用相应模式的配置
 
-3. 环境变量：
-
-   1）development：能让代码本地调试运行的环境
+   - development：能让代码本地调试运行的环境
 
    ```js
    process.env.NODE_ENV = 'development'
@@ -31,7 +31,7 @@
    // NamedModulesPlugin
    ```
 
-   2）production：能让代码优化上线运行的环境
+   - production：能让代码优化上线运行的环境
 
    ```js
    process.env.NODE_ENV = 'production'
@@ -62,13 +62,15 @@
 
 ### 1.3 编译打包应用
 
+> 以`./src/index.js`为入口文件开始打包，打包后输出到`./build/built.js`
+
 1. 开发环境指令：能够编译打包js和json文件，并能将es6的模块化语法转换成浏览器能识别的语法
 
    ```bash
    webpack src/js/index.js -o build/js/built.js --mode=development
    ```
 
-2. 生产环境指令：比开发环境多了压缩代码的功能
+2. 生产环境指令：比开发环境多了压缩代码的功能（默认只能处理js/json资源，不能处理css/img等其他资源）
 
    ```bash
    webpack src/js/index.js -o build/js/built.js --mode=production
@@ -80,7 +82,7 @@
 
 ### 2.1 创建配置文件
 
-1. webpack.config.js
+1. 配置文件：webpack.config.js
 
    ```js
    const { resolve } = require('path') // node 内置核心模块，用来处理路径问题。
@@ -95,21 +97,23 @@
    }
    ```
 
-2. 运行指令:`webpack`
+2. 直接运行指令
+
+   ```bash
+   webpack
+   ```
 
 ------
 
 ### 2.2 打包样式资源
 
-1. 创建文件：index.css、index.less、index.js
-
-2. 下载安装：`loader`
+1. 下载安装：`loader`
 
    ```bash
    npm i css-loader style-loader less-loader less -D
    ```
 
-3. 修改配置文件：webpack.config.js
+2. 修改配置文件：webpack.config.js
 
    ```js
    // resolve用来拼接绝对路径的方法
@@ -170,15 +174,13 @@
 
 ### 2.3 打包HTML资源
 
-1. 创建文件：index.html、index.js
-
-2. 下载安装：`plugin`
+1. 下载安装：`plugin`
 
    ```bash
    npm install --save-dev html-webpack-plugin
    ```
 
-3. 修改配置文件：webpack.config.js
+2. 修改配置文件：webpack.config.js
 
    ```js
    const { resolve } = require('path')

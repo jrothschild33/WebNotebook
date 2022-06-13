@@ -25,7 +25,7 @@ module.exports = {
       ],
       '/server/': [
         {
-          text: 'Server Communicate',
+          text: 'Communicate',
           collapsible: true,
           children: ['/server/git.md', '/server/ajax.md', '/server/axios.md'],
         },

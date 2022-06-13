@@ -131,7 +131,7 @@
 
 ------
 
-## 第2章 [MongoDB操作](/docs/ReferenceCards.pdf)
+## 第2章 [MongoDB操作](/WebNotebook/docs/ReferenceCards.pdf)
 
 > 官方文档：[https://www.mongodb.com/docs/manual/crud/](https://www.mongodb.com/docs/manual/crud/)
 

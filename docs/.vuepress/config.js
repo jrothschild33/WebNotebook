@@ -5,14 +5,14 @@ module.exports = {
   title: 'Jason的前端笔记',
   description: '全栈工程师成长记录',
   base: '/WebNotebook/',
-  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
+  head: [['link', { rel: 'icon', href: '/imgs/favicon.ico' }]],
   markdown: {
     extractHeaders: {
       level: [2, 3, 4],
     },
   },
   theme: defaultTheme({
-    logo: '/cosmos.png',
+    logo: '/imgs/cosmos.png',
     // 侧边栏
     // sidebar: 'auto',
     sidebar: {

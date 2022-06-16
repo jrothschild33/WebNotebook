@@ -88,7 +88,7 @@ module.exports = {
           },
           {
             text: '项目打包',
-            children: [{ text: 'Webpack5', link: '/server/webpack.md' }],
+            children: [{ text: 'Webpack', link: '/server/webpack.md' }],
           },
         ],
       },

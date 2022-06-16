@@ -139,6 +139,15 @@
    let s: string
    s = e as string
    s = <string>e
+   
+   const x = ('hello' as unknown) as number
+   
+   function handleRequest(url:string, method:'GET'|'POST'|'GUESS')
+   const req = {
+       url : 'https://example/com',
+       method: 'GET'
+   } as const
+   handleRequest(req.url, red.method)
    ```
 
 6. `&`：要同时满足条件
@@ -158,6 +167,20 @@
    
    k = 2
    // l = 6 // 报错
+   
+   // 类型别名的扩展：&
+   type Animal={
+       name:string
+   }
+   
+   type Bear = Animal & {
+       honey:boolean
+   }
+   
+   const bear : Bear={
+       name: 'bbb',
+       honey: true
+   }
    ```
 
 ------
@@ -211,6 +234,7 @@
 1. 字符串：单引号、双引号、模板字符串
 
    ```typescript
+   // 使用let可以后期赋其他值，使用const则无法后期再次赋其他值
    let color: string = "blue";
    color = 'red';
    
@@ -1256,7 +1280,7 @@
      name: string
      age: number
    }
-   // 可以重复声明，会合并一起
+   // 向已有的接口中添加新字段（合并）
    interface myInterface {
      gender: string
    }
@@ -1287,7 +1311,24 @@
    })
    ```
 
-3. `implements`：定义类时，可以使类去实现一个接口（使类满足接口的要求）
+3. `extends`：扩展接口，类似于继承的效果
+
+   ```ts
+   interface Animal{
+       name:string
+   }
+   
+   interface Bear extends Animal{
+       honey:boolean
+   }
+   
+   const bear : Bear={
+       name: 'bbb',
+       honey: true
+   }
+   ```
+
+4. `implements`：定义类时，可以使类去实现一个接口（使类满足接口的要求）
 
    ```typescript
    interface Person {

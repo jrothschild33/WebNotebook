@@ -20,7 +20,7 @@ module.exports = {
         {
           text: 'Web Basic',
           // collapsible: true,
-          children: ['/base/html.md', '/base/css.md', '/base/js.md', '/base/ts.md'],
+          children: ['/base/html.md', '/base/css.md', '/base/js.md', '/base/ts.md', '/base/tsplus.md'],
         },
       ],
       '/server/': [
@@ -66,6 +66,7 @@ module.exports = {
           { text: 'CSS', link: '/base/css.md' },
           { text: 'JavaScript', link: '/base/js.md' },
           { text: 'TypeScript', link: '/base/ts.md' },
+          { text: 'TypeScript+', link: '/base/tsplus.md' },
         ],
       },
       {

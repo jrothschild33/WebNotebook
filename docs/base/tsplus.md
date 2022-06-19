@@ -261,3 +261,123 @@
 "skipLibCheck": true
 ```
 
+------
+
+## 第2章 常用类型
+
+### 2.1 基元类型
+
+> 类型名称String，Number，和Boolean（以大写字母开头）是合法的，但指的是一些很少出现在代码中的特殊内置类型。对于类型，始终使用string,number,或boolean（小写开头）
+
+1. `string`：表示字符串值，如"Hello,world"
+
+2. `number`：表示数字值，如42；JavaScript没有一个特殊的整数运行时值，所以没有等价于int或float类型，一切都只是number
+
+3. `boolean`：只有两个值true和false
+
+   ```typescript
+   let str: string = 'hello typescript'
+   let num: number = 100
+   let bool: boolean = true
+   ```
+
+------
+
+### 2.2 数组
+
+1. 语法1：`type[]`，如：`number[]`代表数字数组，`string[]`代表字符串数组
+
+   ```typescript
+   let arr: number[] = [1, 2, 3]
+   arr = [4]
+   ```
+
+2. 语法2：` Array<type>`，如`Array<number>`
+
+   ```typescript
+   let arr2: Array<number> = [1, 2, 3]
+   arr2 = ['a']	// 报错：不能将类型“string”分配给类型“number”
+   ```
+
+------
+
+### 2.3 any
+
+1. 作用：当你不希望某个特定值导致类型检查错误时，可以使用它。
+
+2. 当一个值的类型是any时，可以访问它的任何属性，将它分配给任何类型的值，或者几乎任何其他语法上的东西都合法的，但编译后的JS可能有错误
+
+   ```typescript
+   let obj: any = {
+     x: 0
+   }
+   // 以下代码行都不会抛出编译器错误
+   // 使用'any'将禁用所有进一步的类型检查
+   obj.foo()	// 编译后的文件会报错
+   obj()
+   obj.bar = 100
+   obj = 'hello'
+   const n: number = obj
+   ```
+
+3. tsconfig.json配置：`noImplicitAny`
+
+   1）当不指定类型时，并且TypeScript无法从上下文推断它时，编译器通常会默认为any
+
+   2）`noImplicitAny`设置为`true`将任何隐式标记any为错误
+
+------
+
+### 2.4 类型注释
+
+1. 使用`const`、`var`、`let`，可以选择添加类型注释来显式指定变量的类型：TS不使用”左边的类型“风格的声明，类型注解总是在后面
+
+   ```typescript
+   let myName: string = "Felixlu"
+   ```
+
+2. 大多数情况下，不必输入类型注释，TS会根据其初始化器的类型自动推断
+
+   ```typescript
+   // 不需要类型定义--“myName”推断为类型“string”
+   let myName = "Felixlu"
+   ```
+
+------
+
+### 2.5 函数
+
+1. 参数类型注释：声明函数时，可以在每个参数后添加类型注解，以声明函数接受的参数类型
+
+   ```typescript
+   function greet(name: string) {
+     console.log("Hello, " + name.toUpperCase() + '!!')
+   }
+   ```
+
+2. 返回类型注释：出现在参数列表之后，通常不需要返回类型注释，因为TS会根据其return语句推断函数的返回类型。某些代码库会出于文档目的明确指定返回类型，以防止意外更改或仅出于个人偏好。
+
+   ```typescript
+   function getFavoriteNumber() :number {
+     return 26
+   }
+   ```
+
+3. 匿名函数：与函数声明有点不同，当一个函数出现在TypeScript可以确定它将如何被调用的地方时，该函数的参数会自动指定类型
+
+   ```typescript
+   // 这里没有类型注释，但是TypeScript可以发现错误
+   const names = ['小千', '小锋', '小猿']
+   // 函数上下文类型
+   // 即使参数s没有类型注释，TypeScript也会使用forEach函数的类型，以及数组的推断类型来确定s的类型
+   names.forEach(function(s) {
+     console.log(s.toUpperCase())
+   })
+   // 上下文类型也适用于箭头函数
+   names.forEach((s) => {
+     console.log(s.toUpperCase())
+   })
+   ```
+
+------
+

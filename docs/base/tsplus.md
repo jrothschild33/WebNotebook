@@ -1348,3 +1348,195 @@
 ------
 
 ### 3.3 等值缩小
+
+1. 等值缩小：使用分支语句做 `===`、`!==`、`==`、`!=` 等值检查，来实现类型缩小
+
+   ```typescript
+   function example(x: string | number, y: string | boolean) {
+     // 检查x和y是否相等时，TS知道他们的类型也必须相等
+     if (x === y) {
+       x.toUpperCase()
+       y.toLowerCase()
+     } else {
+       console.log(x)
+       console.log(y)
+     }
+   }
+   ```
+
+2. 案例：检查特定的字面量值（而不是变量）也有效
+
+   ```typescript
+   function printAll(strs: string | string[] | null) {
+     // 以做一个特定的检查来阻止null
+     if (strs !== null) {
+       if (typeof strs === 'object') {
+         for (const s of strs) {
+           console.log(s)
+         }
+       } else if (typeof strs === 'string') {
+         console.log(strs)
+       } else {
+         // ...
+       }
+     }
+   }
+   ```
+
+3. 使用`!=null`，可以将`null`和`undefined`同时排除在外：
+
+   ```typescript
+   interface Container {
+     value: number | null | undefined
+   }
+   
+   function multiplyValue(container: Container, factor: number) {
+     // 从类型中排除了undefined 和 null
+     if (container.value != null) {
+       console.log(container.value)
+       container.value *= factor
+     }
+   }
+   
+   multiplyValue({ value: 5 }, 6)
+   multiplyValue({ value: undefined }, 6)
+   multiplyValue({ value: null }, 6)
+   // 报错，接口中没有string类型
+   multiplyValue({ value: '5' }, 6)
+   ```
+
+------
+
+### 3.4 in操作符缩小
+
+>  `in`：用于确定对象是否具有某个名称的属性
+
+1.  `"value" in x`："value"是字符串文字，x是联合类型
+
+   1）true分支：需要x具有可选或必需属性的类型的值
+
+   2）false分支：需要具有可选或缺失属性的类型的值
+
+   ```typescript
+   type Fish = { swim: () => void }
+   type Bird = { fly: () => void }
+   
+   function move(animal: Fish | Bird) {
+     // 如果具有swim属性，那肯定属于Fish类型
+     if ("swim" in animal) {
+       return animal.swim()
+     }
+     // 否则属于Brid类型
+     return animal.fly()
+   }
+   ```
+
+2. 可选属性还将存在于缩小的两侧，如Human可以游泳和飞行，应该出现在`in`检查的两侧
+
+   ```typescript
+   type Fish = { swim: () => void }
+   type Bird = { fly: () => void }
+   type Human = { swim?: () => void; fly?: () => void }
+   
+   function move(animal: Fish | Bird | Human) {
+     if ("swim" in animal) {
+       // 属于 Fish | Human 这两种类型之一
+       return (animal as Fish).swim()
+     }
+   
+     // 属于 Bird | Human 这两种类型之一
+     return (animal as Bird).fly()
+   }
+   ```
+
+------
+
+### 3.5 instanceof操作符缩小
+
+> `instanceof`：检查一个值是否是另一个值的“实例”，如：`x instanceof Foo`，检查x的原型链是否含有Foo.prototype
+
+1. instanceof 也是一个类型保护，可以在其分支中实现类型缩小
+
+   ```typescript
+   function logValue(x: Date | string) {
+     if (x instanceof Date) {
+       console.log(x.toUTCString())
+     } else {
+       console.log(x.toUpperCase())
+     }
+   }
+   
+   logValue(new Date())
+   logValue('hello ts')
+   ```
+
+------
+
+### 3.6 分配缩小
+
+1. 当为任何变量赋值时，TypeScript会查看赋值的右侧并适当缩小左侧
+
+   ```typescript
+   // 初始声明：let x : string | number （x为这两种类型之一）
+   let x = Math.random() < 0.5 ? 10 : 'hello world'
+   
+   // 此时x为number类型
+   x = 1
+   console.log(x)
+   
+   // 此时x为string类型
+   x = 'goodbye!'
+   console.log(x)
+   
+   // 报错：x不能为boolean类型，因为它不是声明类型的一部分
+   x = true
+
+------
+
+### 3.7 控制流分析
+
+1. 控制流分析：基于可达性的代码分析。案例中padding初始类型有两个，但由于有if分支，TS判断如果走上面分支，说明padding肯定为number类型，则下面分支“不可达”，自动判断下面分支的padding类型为string
+
+   ```typescript
+   function padLeft(padding: number | string, input: string) {
+     if (typeof padding === 'number') {
+       // 这里的padding类型为number
+       return new Array(padding + 1).join(' ') + input
+     }
+     // 这里的padding类型为string
+     return padding + input
+   }
+   ```
+
+2. 当一个变量被分析时，控制流可以一次又一次地分裂和重新合并，该变量可以被观察到在每个点上有不同的类型
+
+   ```typescript
+   function example() {
+     let x: string | number | boolean
+   
+     x = Math.random() < 0.5
+     // x类型为boolean
+     console.log(x)
+     // 这个if判断，使x的boolean被剥离
+     if (Math.random() < 0.5) {
+       x = 'hello'
+       // x类型为string
+       console.log(x)
+     } else {
+       x = 100
+       // x类型为number
+       console.log(x)
+     }
+     // 返回值x的类型只能是：string | number
+     return x
+   }
+   
+   let x = example()	// x：string | number
+   x = 'hello'			// 不报错，属于string类型
+   x = 100				// 不报错，属于number类型
+   x = true			// 报错，属于boolean类型
+   ```
+
+------
+
+### 3.8 类型谓词

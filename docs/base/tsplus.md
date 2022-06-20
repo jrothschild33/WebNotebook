@@ -330,6 +330,8 @@
 
 ### 2.4 类型注释
 
+> 类型注释由编译器删除，不会影响代码的运行时行为
+
 1. 使用`const`、`var`、`let`，可以选择添加类型注释来显式指定变量的类型：TS不使用”左边的类型“风格的声明，类型注解总是在后面
 
    ```typescript
@@ -381,3 +383,968 @@
 
 ------
 
+### 2.6 对象
+
+1. 语法：使用`,`或`;`来分隔属性
+
+   ```typescript
+   function printCoord(pt: { x: number, y: number }) {
+     console.log('坐标的x值为：' + pt.x)
+     console.log('坐标的y值为：' + pt.y)
+   }
+   
+   printCoord({
+     x: 3,
+     y: 7
+   })
+   ```
+
+2. 可选属性：可以指定其部分或全部属性是可选的，在属性名称后添加一个`?`：
+
+   ```typescript
+   function printName(obj: { first: string, last?: string }) {
+     ......
+   }
+   printName({
+     first: 'Felix'
+   })
+   printName({
+     first: 'Felix',
+     last: 'Lu'
+   })
+   ```
+
+3. 注意：当读取可选属性时，必须使用它之前用`undefined`进行检查
+
+   ```typescript
+   function printName(obj: { first: string, last?: string }) {
+     // 错误 - 'obj.last' 可能不存在
+     // console.log(obj.last.toUpperCase())
+     
+     if (obj.last !== undefined) {
+       console.log(obj.last.toLowerCase())
+     }
+     console.log(obj.last?.toUpperCase())
+   }
+   ```
+
+------
+
+### 2.7 联合类型 union
+
+1. 定义联合类型：由两个或多个其他类型组成的类型，表示可能是这些类型中的任何一种的值，每一种称为联合类型的成员
+
+   ```typescript
+   function printId(id: number | string) {
+     console.log('Your ID is: ' + id)
+   }
+   // 正确
+   printId(101)
+   // 正确
+   printId('202')
+   // 错误
+   printId({
+     MyId: 123456
+   })
+   ```
+
+2. 使用联合类型：如果有联合类型string | number，则不能只使用一种类型的操作，需要缩小联合
+
+   ```typescript
+   // 案例1
+   function printId(id: number | string) {
+     // 错误写法
+     // console.log('Your ID is: ' + id)
+     // console.log(id.toUpperCase())
+     
+     // 正确写法
+     if (typeof id === 'string') {
+       console.log(id.toUpperCase())
+     } else {
+       console.log(id)
+     }
+   }
+   ```
+
+   ```typescript
+   // 案例2
+   function welcomePeople(x: string[] | string) {
+     if (Array.isArray(x)) {
+       console.log('Hello, ' + x.join(' and '))
+     } else {
+       console.log('Welcome lone traveler' + x)
+     }
+   }
+   
+   welcomePeople('A')
+   welcomePeople(['a', 'b'])
+   ```
+
+3. 如果联合中的每个成员都有一个共同的属性，则可以使用该属性而不会缩小范围，如数组和字符串都有一个slice方法
+
+   ```typescript
+   function getFirstThree(x: number[] | string): number[] | string {
+     return x.slice(0, 3)
+   }
+   
+   console.log(getFirstThree('abcdefg'))
+   console.log(getFirstThree([2, 3, 4, 5, 6]))
+   ```
+
+------
+
+### 2.8 类型别名 type
+
+1. 类型别名：一个名称为任何类型的定义，适用于多次使用同一个类型的场景
+
+   ```typescript
+   type Point = {
+     x: number
+     y: number
+   }
+   
+   function printCoord(pt: Point) {
+     console.log("坐标x的值是： " + pt.x)
+     console.log("坐标y的值是： " + pt.y)
+   }
+   
+   printCoord({
+     x: 100,
+     y: 200
+   })
+   ```
+
+2. 可以使用类型别名为任何类型命名，不仅仅是对象类型，如可以命名联合类型：
+
+   ```typescript
+   type ID = number | string
+   
+   function printId(id: ID) {
+     if (typeof id === 'string') {
+       console.log(id.toUpperCase())
+     } else {
+       console.log(id)
+     }
+   }
+   
+   printId(100)
+   printId('hello')
+   ```
+
+3. 使用别名时，就像编写了别名类型一样：
+
+   ```typescript
+   type UserInputSanitizedString = string
+   
+   // UserInputSanitizedString相当于string
+   function sanitizedInput(str: string): UserInputSanitizedString {
+     return str.slice(0, 2)
+   }
+   
+   let userInput = sanitizedInput('hello')
+   userInput = 'new Input'
+   ```
+
+------
+
+### 2.9 接口 interface
+
+> 大多数情况下，可以根据个人喜好进行选择，启发式使用interface，在需要时使用type
+
+1. 接口：是另一种方式来命名对象类型
+
+   ```typescript
+   interface Point {
+     x: number
+     y: number
+   }
+   
+   function printCoord(pt: Point) {
+     console.log("坐标x的值是： " + pt.x)
+     console.log("坐标y的值是： " + pt.y)
+   }
+   
+   printCoord({
+     x: 100,
+     y: 200
+   })
+   ```
+
+2. 扩展：
+
+   1）接口：interface，使用`extends`
+
+   ```typescript
+   // 扩展接口
+   interface Animal {
+     name: string
+   }
+   interface Bear extends Animal {
+     honey: boolean
+   }
+   const bear: Bear = {
+     name: 'winie',
+     honey: true
+   }
+   console.log(bear.name)
+   console.log(bear.honey)
+   ```
+
+   2）类型声明：type，使用`&`
+
+   ```typescript
+   // 通过交叉点扩展类型
+   type Animal = {
+     name: string
+   }
+   type Bear = Animal & {
+     honey: boolean
+   }
+   const bear: Bear = {
+     name: 'winnie',
+     honey: true
+   }
+   console.log(bear.name)
+   console.log(bear.honey)
+   ```
+
+3. 添加新字段：类型别名可能不参与声明合并，但接口可以
+
+   1）接口：interface，两个同名接口可以合并
+
+   ```typescript
+   // 向现有的类型添加字段
+   interface MyWindow {
+     count: number
+   }
+   interface MyWindow {
+     title: string
+   }
+   const w: MyWindow = {
+     title: 'hello ts',
+     count: 100
+   }
+   ```
+
+   2）类型声明：type，两个同名类型声明会报错
+
+   ```typescript
+   // 类型创建后不能更改
+   type MyWindow = {
+     title: string
+   }
+   // 报错
+   type MyWindow = {
+     count: number
+   }
+   ```
+
+4. 接口只能用于声明对象的形状，不能重命名基元类型（string、number、boolean）
+
+   1）类型声明：type，可以对基元类型用自定义别名代替
+
+   ```typescript
+   type SanitizedString = string
+   type EvenNumber = number
+   ```
+
+   2）接口：interface，无法重命名基元类型
+
+   ```typescript
+   // 报错
+   interface X extends string {
+      ......
+   }
+   ```
+
+5. 在v4.2之前，类型别名可能出现在错误消息中，有时会代替等效的匿名类型，接口将始终在错误消息中命名
+
+   1）接口：interface
+
+   ```typescript
+   // 编译器错误消息将始终使用接口的名称
+   interface Mammal {
+       name: string
+   }
+   function echoMammal(m: Mammal) {
+       console.log(m.name)
+   }
+   // 例：下面的错误将总是使用 "Mammal" 来引用预期的类型
+   // The expected type comes from property 'name' which is declared here on type 'Mammal'
+   echoMammal({  name: 12343 })
+   ```
+
+   2）类型别名：type
+
+   ```typescript
+   function echoAnimal(m: { name: string }) {
+       console.log(m.name)
+   }
+   // 编译器报错时，只引用了type '{ name: string; }'
+   // The expected type comes from property 'name' which is declared here on type '{ name: string; }'
+   echoAnimal({ name: 12345 })
+   ```
+
+   ```typescript
+   // 当一个类型没有经过任何形式的操作时，仍然可以获得作为引用的名称
+   type Lizard = {
+       name: string
+   }
+   function echoLizard(l: Lizard) {
+       console.log(l.name)
+   }
+   // 例：这里依然引用为"Lizard"
+   // The expected type comes from property 'name' which is declared here on type 'Lizard'
+   echoLizard({ name: 12345})
+   ```
+
+   ```typescript
+   // 但是当类型被转换时，例如通过Omit操作，错误消息将显示结果类型而不是名称
+   type Arachnid = Omit<{ name: string, legs: 8 }, 'legs'> 
+   function echoSpider(l: Arachnid) {
+       console.log(l.name)
+   }
+   // The expected type comes from property 'name' which is declared here on type 'Pick<{ name: string; legs: 8; }, "name">'
+   echoSpider({ name: 12345, legs: 8})
+   ```
+
+------
+
+### 2.10 类型断言 as
+
+> 类型断言由编译器删除，不会影响代码的运行时行为
+
+1. 应用场景：当获得有关TS不知道的值类型的信息时，需要加类型断言`as`防止报错。
+
+2. 案例：如果你正在使用`document.getElementById`，TypeScript只知道这将返回某种类型的`HTMLElement`，但你可能知道你的页面将始终具有`HTMLCanvasElement`给定ID的值，可以使用类型断言来指定更具体的类型
+
+   ```typescript
+   const myCanvas = document.getElementById("main_canvas") as HTMLCanvasElement
+   ```
+
+3. 尖括号语法：（除非代码在`.tsx`文件中）
+
+   ```typescript
+   const myCanvas2 = <HTMLCanvasElement>document.getElementById('main_canvas')
+   ```
+
+4. 注意：因为类型断言在编译时被移除，所以没有与类型断言相关联的运行时检查，`null`如果类型断言错误，则不会出现异常
+
+5. TS只允许类型断言转换为更具体或不太具体的类型版本，此规则可防止“不可能”的强制：
+
+   1）将类型 string 转换为类型 number 可能是错误的，因为两种类型都没有充分重叠
+
+   ```typescript
+   const x = 'hello' as number
+   ```
+
+   2）如果有意为之，先将表达式转换为`any`或`unknown`
+
+   ```typescript
+   const x = ('hello' as any) as number
+   const y = ('world' as unknown) as number
+   ```
+
+------
+
+### 2.11 文字类型
+
+1. 声明变量：
+
+   1）允许更改变量中保存的内容：`var`、`let`
+
+   ```typescript
+   let testString = 'Hello World'
+   testString = 'Olá Mundo'	// 类型为string
+   ```
+
+   2）不允许更改变量中保存的内容：`const`
+
+   ```typescript
+   const constantString = 'Hello World'
+   constantString	// 类型为文字类型
+   // constantString = 'Olá Mundo'	// 报错，无法更改
+   ```
+
+2. 文本文字类型：
+
+   1）单一类型：只能有一个特定值
+
+   ```typescript
+   let x: 'hello' = 'hello'
+   // 正确
+   x = "hello"
+   // 错误
+   // x = 'world'
+   ```
+
+   2）联合类型：表示只接受一组特定已知值
+
+   ```typescript
+   function printText(s: string, alignment: 'left' | 'right' | 'center') {
+       // ......
+   }
+   printText('hello', 'left')
+   // 报错
+   // printText('world', 'center2')
+   ```
+
+3. 数字文字类型：
+
+   ```typescript
+   function compare(a: string, b: string): -1 | 0 | 1 {
+     return a === b ? 0 : a > b ? 1 : -1
+   }
+   ```
+
+4. 布尔文字类型：类型boolean本身实际上只是联合类型`true|false`的别名
+
+5. 与非文字类型结合使用
+
+   ```typescript
+   interface Options {
+     width: number
+   }
+   function configure(x: Options | 'auto') {
+       // ......（缩小联合）
+   }
+   configure({
+     width: 100
+   })
+   configure('auto')
+   // 报错
+   // configure('automatic')
+   ```
+
+6. 文字推理：使用对象初始化变量时，TypeScript假定该对象的属性稍后可能会更改值
+
+   1）案例1：由于`obj.count`的值初始化时被赋予的是0，TS自动判断后期`obj.count`被赋值的类型为`number`
+
+   ```typescript
+   const obj = {
+     count: 0
+   }
+   if (true) {
+     obj.count = 1
+   }
+   ```
+
+   2）案例2：TS认为`req.method`被认为赋值的类型为`string`，而不是`GET`
+
+   ```typescript
+   function handleRequest(url: string, method: 'GET' | 'POST' | 'GUESS') {
+       // ......
+   }
+   const req = {
+     url: 'https://example.com',
+     method: 'GET'
+   }
+   // 报错：req.method
+   handleRequest(req.url, req.method)
+   ```
+
+   ```typescript
+   // 解决方案1：在任一位置添加类型断言来更改推理
+   
+   // 方法1：我想让req.method始终拥有文字类型GET，从而防止之后可能分配"GUESS"给该字段
+   const req = { url: "https://example.com", method: "GET" as "GET" }
+   
+   // 方法2：我知道其他原因req.method具有 "GET" 值
+   handleRequest(req.url, req.method as "GET")
+   ```
+
+   ```typescript
+   // 解决方案2：使用 as const 将整个对象转换为类型文字
+   // as const后缀就像const定义，确保所有属性分配的文本类型，而不是一个更一般的string或number
+   const req = {
+     url: 'https://example.com',
+     method: 'GET'
+   } as const
+   ```
+
+------
+
+### 2.12 null/undefined
+
+1. `strictNullChecks`选项设置：建议开启
+
+   1）false：关闭，仍然可以正常访问的值，并且可以将值分配给任何类型的属性，这类似于没有空检查的语言（例如C#、Java）的行为方式，缺乏对这些值的检查往往是错误的主要来源
+
+   2）true：开启，需要在对该值使用方法或属性之前测试这些值，可以使用缩小来检查可能的值
+
+   ```typescript
+   function doSomething(x: string | null) {
+     if (x === null) {
+       // ......
+     } else {
+       console.log('Hello, ' + x.toUpperCase())
+     }
+   }
+   ```
+
+2. 非空断言运算符：后缀加感叹号`!`，表示该值不是 null 或 undefined
+
+   ```typescript
+   function liveDangerously(x?: number | null) {
+     console.log(x!.toFixed())
+   }
+   ```
+
+------
+
+### 2.13 枚举 enum
+
+> 枚举允许开发者定义一组命名的常量。使用枚举可以使其更容易记录意图，或创建一组不同的情况。TypeScript提供了基于数字和字符串的枚举
+
+#### 2.13.1 数值型枚举
+
+1. 定义数值型枚举：赋予第一个成员初始值，若不赋予则默认为0，所有下面的成员从初始值开始自动递增
+
+   ```typescript
+   enum Direction {
+     Up = 1,	// 如果不赋予初始值，直接写UP，默认初始值为0
+     Down,		// 2
+     Left,		// 3
+     Right,	// 4
+   }
+   ```
+
+2. 使用数值型枚举：只需将任何成员作为枚举本身的一个属性来访问，并使用枚举的名称来声明类型
+
+   ```typescript
+   enum UserResponse {
+     No = 0,
+     Yes = 1,
+   }
+   // 使用枚举的名称来声明类型
+   function respond(recipient: string, message: UserResponse): void {
+     // ...
+   }
+   // 将任何成员作为枚举本身的一个属性来访问
+   respond("Princess Caroline", UserResponse.Yes);
+   ```
+
+3. 数字枚举可以混合在计算和常量成员中，没有初始化器的枚举要么需要放在第一位，要么必须放在用数字常量或其他常量枚举成员初始化的数字枚举之后
+
+   ```typescript
+   enum E {
+     A = getSomeValue(),
+     B,	// 报错：Enum成员必须有初始化器
+   }
+   ```
+
+------
+
+#### 2.13.2 字符串枚举
+
+1. 作用：字符串枚举允许你在代码运行时给出一个有意义的、可读的值，与枚举成员本身的名称无关
+
+2. 每个成员都必须用一个字符串字头或另一个字符串枚举成员进行常量初始化
+
+   ```typescript
+   enum Direction {
+     Up = "UP",
+     Down = "DOWN",
+     Left = "LEFT",
+     Right = "RIGHT",
+   }
+   ```
+
+------
+
+#### 2.13.3 异构枚举
+
+1. 枚举可以与字符串和数字成员混合（不建议这样写）：
+
+   ```typescript
+   enum BooleanLikeHeterogeneousEnum {
+     No = 0,
+     Yes = "YES",
+   }
+   ```
+
+------
+
+#### 2.13.4 计算型和常量型成员
+
+1. 常量型成员：
+
+   1）枚举中的第一个成员，没有初始化器，默认赋值为0
+
+   2）枚举中非第一个成员，没有初始化器，前枚举成员为常数，则值为前成员值+1
+
+   3）用常量枚举表达式初始化的成员
+
+   ```typescript
+   enum E { X,}
+   enum E1 { X,Y,Z,}
+   enum E2 { A=1,B,C,}
+   ```
+
+2. 常量枚举表达式：
+
+   1）文字枚举表达式（基本上是字符串文字或数字文字）
+
+   2）对先前定义的常量枚举成员的引用（可以源自不同的枚举）
+
+   3）带括号的常量枚举表达式
+
+   4）应用于常量枚举表达式的`+`,`-`,`~`单项运算符之一
+
+   5）以常量枚举表达式作为操作数的二元运算符
+
+   ```txt
+   +, -, *, /, %, <<, >>, >>>, &, |, ^
+   ```
+
+   6）注意：如果常量枚举表达式被评估为`NaN`或`Infinity`，这是一个编译时错误
+
+3. 计算型成员：在所有其他情况下，枚举成员被认为是计算的
+
+   ```typescript
+   enum FileAccess {
+     // 常量型成员
+     None,
+     Read = 1 << 1,
+     Write = 1 << 2,
+     ReadWrite = Read | Write,
+     // 计算型成员
+     G = "123".length,
+   }
+   ```
+
+------
+
+#### 2.13.5 联合枚举和枚举成员类型
+
+1. 字面枚举成员：没有初始化值的常量枚举成员，或者其值被初始化为：
+
+   1）任何字符串文字（例如"foo", "bar, "baz"）
+
+   2）任何数字文字（例如1, 100）
+
+   3）应用于任何数字字面的单数减号（例如-1, -100）
+
+2. 当枚举中的所有成员都具有字面枚举值时：
+
+   1）枚举成员也成为了类型：某些成员只能有一个枚举成员的值
+
+   ```typescript
+   enum ShapeKind {
+     Circle,
+     Square,
+   }
+   // 注意：这里的Circle和枚举中的Circle不是一个东西，只是名称相同而已
+   interface Circle {
+     kind: ShapeKind.Circle;
+     radius: number;
+   }
+   // 同上
+   interface Square {
+     kind: ShapeKind.Square;
+     sideLength: number;
+   }
+    
+   let c: Circle = {
+     // 报错：Type 'ShapeKind.Square' is not assignable to type 'ShapeKind.Circle'
+     // 因为Circle接口中定义的kind，只能是ShapeKind枚举中的Circle，而不能是Square
+     kind: ShapeKind.Square,
+     radius: 100,
+   };
+   ```
+
+   2）枚举类型本身有效地成为每个枚举成员的联合（union），可以让TS检查出无意义的运算语句
+
+   ```typescript
+   enum E {
+     Foo,
+     Bar,
+   }
+   
+   // 传入的参数x，只可能是2个值：E.foo、E.Bar，如果x不是E.foo，那必然是E.Bar
+   // 如果x=E.foo，if语句执行后者返回true；如果x=E.Bar，if语句执行前者返回true
+   // 也就是说无论如何都会执行if语句，那这句话就是废话
+   function f(x: E) {
+     // 报错：This condition will always return 'true' since the types 'E.Foo' and 'E.Bar' have no overlap.
+     if (x !== E.Foo || x !== E.Bar) {
+       //......
+     }
+   }
+   ```
+
+------
+
+#### 2.13.6 运行时的枚举
+
+1. 枚举是在运行时存在的真实对象，可以被传递给函数
+
+   ```typescript
+   enum E { X,Y,Z,}
+    
+   function f(obj: { X: number }) {
+     return obj.X
+   }
+    
+   // 可以正常工作，因为'E'有一个名为'X'的属性，是一个数字
+   f(E)
+   ```
+
+------
+
+#### 2.13.7 编译时的枚举
+
+1. `keyof typeof`：可以将枚举转换为所有成员的字符串文字联合类型
+
+   ```typescript
+   enum LogLevel {
+     ERROR,
+     WARN,
+     INFO,
+     DEBUG,
+   }
+    
+   // 相当于：type LogLevelStrings = 'ERROR' | 'WARN' | 'INFO' | 'DEBUG'
+   type LogLevelStrings = keyof typeof LogLevel
+   
+   // 例子
+   function printImportant(key: LogLevelStrings, message: string) {
+     const num = LogLevel[key]
+     if (num <= LogLevel.DEBUG) {
+       console.log("Log level key is:", key)
+       console.log("Log level value is:", num)
+       console.log("Log level message is:", message)
+     }
+   }
+   printImportant("ERROR", "This is a message")
+   ```
+
+2. 反向映射：
+
+   1）数值型枚举成员：可以得到从枚举值到枚举名称的反向映射
+
+   ```typescript
+   enum Enum { A,}
+   let a = Enum.A
+   let nameOfA = Enum[a] // "A"
+   ```
+
+   2）字符串枚举成员：根本不会被生成反向映射
+
+3. const枚举：可以避免在访问枚举值时产生额外代码和间接性代价
+
+   1）语法：使用枚举上的const修饰符来定义
+
+   ```typescript
+   const enum Enum {
+     A = 1,
+     B = A * 2,
+   }
+   ```
+
+   2）常量枚举：只能使用常量枚举表达式，在编译过程中被完全删除
+
+   ```typescript
+   // ts原始代码
+   const enum Direction {
+     Up,
+     Down,
+     Left,
+     Right,
+   }
+    
+   let directions = [
+     Direction.Up,
+     Direction.Down,
+     Direction.Left,
+     Direction.Right,
+   ];
+   ```
+
+   ```js
+   // 编译后JS代码
+   "use strict";
+   let directions = [
+       0 /* Up */,
+       1 /* Down */,
+       2 /* Left */,
+       3 /* Right */,
+   ]
+   ```
+
+------
+
+#### 2.13.8 环境枚举 declear
+
+1. 环境枚举：用来描述已经存在的枚举类型的形状
+
+   ```typescript
+   declare enum Enum {
+     A = 1,
+     B,
+     C = 2,
+   }
+   ```
+
+2. 与非环境枚举的区别：
+
+   1）在常规枚举中，如果其前面的枚举成员被认为是常量，那么没有初始化器的成员也将被认为是常量型成员
+
+   2）相反，一个没有初始化器的环境（和非常量）枚举成员总是被认为是计算型成员
+
+------
+
+#### 2.13.9 对象与枚举
+
+> 一般情况下，可能不需要枚举，因为对象可以满足正常需求
+
+1. 案例：使用枚举定义函数参数
+
+   ```typescript
+   const enum EDirection {
+     Up,
+     Down,
+     Left,
+     Right,
+   }
+   
+   // EDirection.Up	// 显示：(enum member) EDirection.Up = 0
+   
+   // 将枚举作为一个参数
+   function walk(dir: EDirection) {}
+   walk(EDirection.Left)
+   ```
+
+2. 案例：使用对象定义函数参数（需要用`as const`进行类型断言）
+
+   ```typescript
+   const ODirection = {
+     Up: 0,
+     Down: 1,
+     Left: 2,
+     Right: 3,
+   } as const
+   
+   // ODirection.Up	// 显示：(property) Up: 0
+   
+   // 需要这行代码定义类型别名type
+   type Direction = typeof ODirection[keyof typeof ODirection]
+   
+   function run(dir: Direction) {}
+   run(ODirection.Right)
+   ```
+
+------
+
+### 2.14 其他类型
+
+#### 2.14.1 bignit
+
+1. 表示非常大的整数：
+
+   ```typescript
+   // 通过bigint函数创建bigint
+   const oneHundred: bigint = BigInt(100)
+   // 通过文本语法创建BigInt
+   const anotherHundred: bigint = 100n
+   ```
+
+#### 2.14.2 symbol
+
+1. 作用：通过函数创建全局唯一引用
+
+   ```typescript
+   const firstName = Symbol("name")
+   const secondName = Symbol("name")
+   
+   console.log(firstName===secondName) // false
+   ```
+
+------
+
+## 第3章 类型缩小
+
+### 3.1 typeof类型守卫
+
+1. `typeof`可以返回的类型：（不返回`null`）
+
+   ```txt
+   "string", "number", "bigint", "boolean", "symbol", "undefined", "object", "function"
+   ```
+
+2. 检查typeof的返回值是一种类型保护：
+
+   1）由于`null`也属于object，所以TS报错（在JS中，万物皆对象）
+
+   2）这里的写法只把参数strs缩小到了`string[] | null`，而不仅仅是`string[]`
+
+   ```typescript
+   function printAll(strs: string | string[] | null) {
+     if (typeof strs === 'object') {
+       // 报错：Object is possibly 'null'
+       for (const s of strs) {
+         console.log(s)
+       }
+     } else if (typeof strs === 'string') {
+       console.log(strs)
+     } else {
+       // ...
+     }
+   }
+   ```
+
+------
+
+### 3.2 真值缩小
+
+1. 在JS中，常用与false等价的值来表示false：
+
+   ```js
+   0, NaN, "", 0n, null, undefined
+   ```
+
+2. 可以在条件、`&&`、`||`、if语句、布尔否定(`!`)等中使用任何表达式
+
+   ```js
+   // 这两个结果都返回 true 
+   Boolean("hello"); // type: boolean, value: true 
+   !!"world"; // type: true, value: true
+   ```
+
+3. 案例：防范`null`或`undefined `
+
+   ```typescript
+   function printAll(strs: string | string[] | null) {
+     if (strs) {
+       if (typeof strs === 'object') {
+         for (const s of strs) {
+           console.log(s)
+         }
+       } else if (typeof strs === 'string') {
+         console.log(strs)
+       } else {
+         // ...
+       }
+     }
+   }
+   ```
+
+   ```typescript
+   function multiplyAll(
+     values: number[] | undefined,
+     factor: number
+   ) {
+     if (!values) {
+       return values
+     } else {
+       return values.map((x) => {
+         return x * factor
+       })
+     }
+   }
+   
+   console.log(multiplyAll(undefined, 2))
+   ```
+
+------
+
+### 3.3 等值缩小

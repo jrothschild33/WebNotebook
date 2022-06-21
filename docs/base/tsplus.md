@@ -267,7 +267,7 @@
 
 ### 2.1 基元类型
 
-> 类型名称String，Number，和Boolean（以大写字母开头）是合法的，但指的是一些很少出现在代码中的特殊内置类型。对于类型，始终使用string,number,或boolean（小写开头）
+> 7种基元类型：string、number、bigint、boolean、symbol、null、undefined
 
 1. `string`：表示字符串值，如"Hello,world"
 
@@ -2425,6 +2425,23 @@
    })
    ```
 
+3. 注意：不能只将类型注释放在解构模式中，因为这种语法已经在JS中有不同含义
+
+   1）`shape:Shape`意味着获取属性shape，并在本地重新定义为一个名为Shape的变量
+
+   2）`xPos:number`意味着创建一个名为number的变量，其值基于参数的xPos
+
+   ```typescript
+   function render(args: Shape | number) {}
+   
+   // 报错：Shape：未取消使用任何解构元素。绑定元素“Shape”隐式具有“any”类型。
+   function draw({ shape: Shape, xPos: number = 100 }) {
+     render(shape)
+     // 报错：xPos：找不到名称“xPos”
+     render(xPos)
+   }
+   ```
+
 ------
 
 ## 第5章 对象类型
@@ -2463,7 +2480,258 @@
    }
    ```
 
+------
+
 ### 5.1 属性修改器
 
 #### 5.1.1 可选属性
+
+1. 语法：在属性名称后加问号`?`，表示属性可选
+
+   ```typescript
+   type Shape = {}
+   
+   interface PaintOptions {
+     shape: Shape,
+     xPos?: number,
+     yPos?: number
+   }
+   
+   function paintShape(opts: PaintOptions) {
+     // ......
+   }
+   
+   const shape: Shape = {}
+   paintShape({ shape })
+   paintShape({ shape, xPos: 100})
+   paintShape({ shape, yPos: 100})
+   paintShape({ shape, xPos: 100, yPos: 100})
+   ```
+
+2. 如果在`strictNullChecks`开启的模式下，可选属性的类型可能属于undefined
+
+   ```typescript
+   // 问题：可选属性可能为undefined
+   function paintShape(opts: PaintOptions) {
+     let xPos = opts.xPos
+     let yPos = opts.yPos
+     console.log(xPos)
+   }
+   ```
+
+   1）解决方案1：加判断条件
+
+   ```typescript
+   // 加判断条件
+   function paintShape(opts: PaintOptions) {
+     let xPos = opts.xPos === undefined ? 0 : opts.xPos
+     let yPos = opts.yPos === undefined ? 0 : opts.yPos
+     console.log(xPos)
+   }
+   ```
+   
+   2）解决方法2：设置默认值
+   
+   ```typescript
+   function paintShape({ shape: Shape, xPos: number = 0, yPos = 0 }: PaintOptions) {
+     console.log("x coordinate at", xPos)
+     console.log("y coordinate at", yPos)
+   }
+   ```
+
+------
+
+#### 5.1.2 只读属性
+
+1. 语法：在属性前加`readonly`，不能被更改
+
+   ```typescript
+   interface SomeType {
+     readonly prop: string
+   }
+   
+   function doSomething(obj: SomeType) {
+     // 可以读取
+     console.log(obj.prop)
+     // 不能重新设置值
+     // obj.prop = 'hello'
+   }
+   ```
+
+2. 只读属性只意味着该属性本身不能被重新写入，但是可以巧用其他方法进行修改：
+
+   ```typescript
+   interface Home {
+     readonly resident: {
+       name: string
+       age: number
+     }
+   }
+   
+   function visitForBirthday(home: Home) {
+     // 可以从'home.resident'读取和更新属性
+     console.log(home.resident.name)
+     home.resident.age++
+   }
+   
+   function evict(home: Home) {
+     // 但是不能写到'home'上的'resident'属性本身
+     home.resident = {
+       name: 'Felix',
+       age: 18
+     }
+   }
+   ```
+
+3. readony属性也可以通过别名来改变：TS在检查两个类型的属性是否兼容时，并不考虑这些类型的属性是否是只读的
+
+   ```typescript
+   interface Person {
+     name: string
+     age: number
+   }
+   
+   interface ReadonlyPerson {
+     readonly name: string
+     readonly age: number
+   }
+   
+   let writablePerson: Person = {
+     name: 'Felix',
+     age: 18,
+   }
+   
+   // 正常工作
+   let readonlyPerson: ReadonlyPerson = writablePerson
+   
+   console.log(readonlyPerson.age)	//18
+   writablePerson.age++
+   console.log(readonlyPerson.age)	//19
+   ```
+
+------
+
+#### 5.1.3 索引签名
+
+> 索引签名的属性类型必须是`string`或`number`
+
+1. 应用场景：不确定对象中有多少属性，但知道属性名和属性值的类型
+
+2. 语法：`[indexName: string | number] : string | number`
+
+   1）数字索引器：定义的对象属性为数字类型，可以用数字进行索引，类似于`obj[n]`
+
+   ```typescript
+   interface StringArray {
+     [index: number]: string
+   }
+   
+   const myArray: StringArray = ['a', 'b']
+   console.log(myArray[0])	// 'a'
+   
+   const myObj: StringArray = {
+     1: 'hello',
+     4: 'world',
+   }
+   console.log(myObj[4])	// 'world'
+   ```
+
+   2）字符串索引器：定义的对象属性为字符串类型，可以用字符串进行索引，类似于`obj['name']`
+
+   ```typescript
+   interface TestString {
+     [props: string]: number
+   }
+   
+   let testString: TestString = {
+     x: 100,
+     y: 200,
+   }
+   ```
+
+   3）两者可以相结合使用
+
+   ```typescript
+   interface Test {
+     [whatever: string | number]: string | number
+   }
+   
+   let test: Test = {
+     12: 156,
+     58: 'today'
+     age: 18,
+     hobby: 'football',
+   }
+   ```
+   
+
+
+3. 从数字索引器返回的类型必须是字符串索引器返回的类型的子类型：
+
+   ```typescript
+   interface Animal {
+     name: string
+   }
+   
+   interface Dog extends Animal {
+     breed: string
+   }
+   
+   interface Zoo {
+     [index: string]: Animal,
+     [index: number]: Dog,
+   }
+   
+   // 这样写会报错
+   // interface Zoo {
+   //   [index: string]: Dog,
+   //   [index: number]: Animal,
+   // }
+   ```
+
+4. 索引签名下方，可以继续定义其他属性的类型，但需要注意不能和索引签名冲突
+
+   1）正常：
+
+   ```typescript
+   interface Test {
+     [index: string]: number | string
+     length: number
+     name: string
+   }
+   
+   let test: Test = {
+     x: 100,
+     y: 200,
+     z: 300,
+     length: 100,
+     name: 'felix',
+   }
+   ```
+
+   2）报错：由于索引签名已经定义了属性名为string的情况，其属性值类型为number，而name也属于这种情况，但属性值为string，发生冲突
+
+   ```typescript
+   interface NotOkay {
+     [index: string]: number
+     length: number
+     // 报错：冲突：name对应的属性值类型应该为number
+     name: string
+   }
+   ```
+
+5. 只读索引签名：添加`readonly`，防止通过其索引赋值
+
+   ```typescript
+   interface ReadonlyStringArray {
+     readonly [index: number]: string
+   }
+   
+   let myArray2: ReadonlyStringArray = ['a', 'b']
+   // 报错：无法赋值
+   myArray2[0] = 'felix'
+
+------
+
+### 5.2 扩展类型
 

@@ -1540,3 +1540,930 @@
 ------
 
 ### 3.8 类型谓词
+
+> 作用：更直接地控制整个代码中的类型变化
+
+1. 语法：`parameterName is Type`，其中`parameterName`必须是当前函数签名中的参数名称
+
+   ```typescript
+   type Fish = {
+     name: string
+     swim: () => void
+   }
+   
+   type Bird = {
+     name: string
+     fly: () => void
+   }
+   
+   // pet is Fish 是类型谓词，返回boolean值
+   function isFish(pet: Fish | Bird): pet is Fish {
+     // 如果是Fish，返回true，否则返回false
+     return (pet as Fish).swim !== undefined
+   }
+   ```
+
+2. 当isFish被调用时，如果原始类型是兼容的，TypeScript将把该变量缩小到该特定类型
+
+   ```typescript
+   function getSmallPet(): Fish | Bird {
+     let fish: Fish = {
+       name: 'sharkey',
+       swim: () => {
+           // ......
+       }
+     }
+   
+     let bird: Bird = {
+       name: 'sparrow',
+       fly: () => {
+           // ......
+       }
+     }
+     // 始终返回bird
+     return true ? bird : fish
+   }
+   
+   let pet = getSmallPet()	// bird
+   
+   // 返回false
+   if (isFish(pet)) {
+     pet.swim()
+   } else {
+     pet.fly()
+   }
+   ```
+
+3. 使用类型守卫 isFish 来过滤`Fish | Bird`的数组，获得Fish的数组
+
+   ```typescript
+   const zoo: (Fish | Bird)[] = [getSmallPet(), getSmallPet(), getSmallPet()]
+   const underWater1: Fish[] = zoo.filter(isFish)
+   // 等同于
+   const underWater2: Fish[] = zoo.filter(isFish) as Fish[]
+   // 对于更复杂的例子，该谓词可能需要重复使用
+   const underWater3: Fish[] = zoo.filter((pet): pet is Fish => {
+     if (pet.name === 'frog') {
+       return false
+     }
+     return isFish(pet)
+   })
+   ```
+
+------
+
+### 3.9 受歧视的unions
+
+> 如果想使用联合类型，最好将其定义得较为完整一些，不要留下存在`null`的隐患
+
+1. 问题：定义Shape接口，用于定义圆和方形，计算该形状的面积，但是由于包含可选属性，TS会判断该属性可能未定义
+
+   ```typescript
+   interface Shape {
+     kind: 'circle' | 'square'
+     radius?: number
+     sideLength?: number
+   }
+   
+   function getArea(shape: Shape) {
+     if (shape.kind === 'circle') {
+       // 报错：即使已经声明了kind属于'circle'类型，但radius可能未定义
+       // 解决：可以使用非空断言符!来声明redius不是null或undefined，但这样不利于后期修改
+       return Math.PI * shape.radius ** 2
+     }
+   }
+   ```
+
+2. 解决：将圆和方形的接口分开定义，然后使用类型别名将其联合
+
+   ```typescript
+   interface Circle {
+     kind: 'circle'
+     radius: number
+   }
+   
+   interface Square {
+     kind: 'square'
+     sideLength: number
+   }
+   
+   type Shape = Circle | Square
+   
+   // 这样就不会再次报错
+   function getArea(shape: Shape) {
+     if (shape.kind === 'circle') {
+       return Math.PI * shape.radius ** 2
+     }
+   }
+   
+   // 也可以用Switch语句实现
+   function getArea(shape: Shape) {
+     switch(shape.kind) {
+       case 'circle':
+         return Math.PI * shape.radius ** 2
+       case 'square':
+         return shape.sideLength ** 2
+     }
+   }
+   ```
+
+------
+
+### 3.10 never类型与穷尽性检查
+
+1. `never`类型：表示不应该存在的状态，never类型可以分配给每个类型，但没有任何类型可以分配给never（除了never本身）
+
+   ```typescript
+   interface Circle {
+     kind: 'circle'
+     radius: number
+   }
+   
+   interface Square {
+     kind: 'square'
+     sideLength: number
+   }
+   
+   type Shape = Circle | Square
+   
+   function getArea(shape: Shape) {
+     switch(shape.kind) {
+       case 'circle':
+         return Math.PI * shape.radius ** 2
+   
+       case 'square':
+         return shape.sideLength ** 2
+       
+   	// 如果传入的shape不属于Circle或Square，那么就可以用never表示，返回传入的参数obj
+       default:
+         const _exhaustiveCheck: never = shape
+         return _exhaustiveCheck
+     }
+   }
+   const result = getArea({kind: 'triangle',sideLength: 12})
+   console.log(result)
+   ```
+
+------
+
+## 第4章 函数
+
+### 4.1 函数类型表达式
+
+> 用于描述一个函数，语法类似箭头函数
+
+1. `(a: string) => void`：意味着有一个参数的函数，名为a，类型为字符串，没有返回值；如果没有指定参数类型，它就隐含为 any 类型
+
+   ```typescript
+    // 可以用一个类型别名来命名一个函数类型
+   type GreetFunction = (a: string) => void
+   
+   function greeter(fn: GreetFunction) {
+     fn('Hello, World')
+   }
+   
+   function printToConsole(s: string) {
+     console.log(s)
+   }
+   
+   greeter(printToConsole)
+   ```
+
+------
+
+### 4.2 调用签名
+
+1. 调用签名：由于函数类型表达式中不允许声明属性，可以用调用签名描述可调用的东西（实现和属性相同的效果）
+
+   ```typescript
+   // 语法：在参数列表和返回类型之间使用冒号 : 而不是箭头 =>
+   type DescribableFunction = {
+     description: string
+     (someArg: number): boolean
+   }
+   
+   function doSomething(fn: DescribableFunction) {
+     console.log(fn.description + ' returned ' + fn(6))
+   }
+   
+   function fn1(n: number) {
+     console.log(n)
+     return true
+   }
+   fn1.description = 'hello'
+   
+   doSomething(fn1)
+   ```
+
+------
+
+### 4.3 构造签名
+
+1. 语法：先定义构造函数，在调用签名前加`new`关键字，会创建一个新对象
+
+   ```typescript
+   class Ctor {
+     s: string
+     constructor(s: string) {
+       this.s = s
+     }
+   }
+   
+   type SomeConstructor = {
+     new (s: string): Ctor
+   }
+   
+   function fn(ctor: SomeConstructor) {
+     return new ctor('hello')
+   }
+   
+   const f = fn(Ctor)
+   console.log(f.s)
+   ```
+
+2. 有些JS对象（如Date）可以在有new或没有new的情况下被调用，可以在同一类型中任意地结合调用和构造签名
+
+   ```typescript
+   interface CallOrConstructor {
+     new (s: string): Date
+     (n?: number): number
+   }
+   
+   function fn(date: CallOrConstructor) {
+     let d = new date('2021-12-20')
+     let n = date(100)
+   }
+   ```
+
+------
+
+### 4.4 泛型函数
+
+> 泛型：把两个或多个具有相同类型的值联系起来
+
+- 作用：描述值之间的对应关系
+
+   1）希望输入的参数和返回值有某种联系，但是不确定类型，可以使用any，但风险很高
+
+   ```typescript
+   function firstElement(arr: any[]) {
+     return arr[0]
+   }
+   
+   firstElement(['a', 'b', 'c'])
+   ```
+
+   2）使用泛型可以解决这个问题，可以在函数的输入和输出之间建立联系，类型不受限制
+
+   ```typescript
+   function firstElement<Type>(arr: Type[]): Type | undefined {
+     return arr[0]
+   }
+   // s 是 'string' 类型
+   const s = firstElement(['a', 'b', 'c'])
+   // n 是 'number' 类型
+   const n = firstElement([1, 2, 3])
+   // u 是 undefined 类型
+   const u = firstElement([])
+   ```
+
+#### 4.4.1 类型推断
+
+1. TypeScript可以推断出输入类型参数的类型（从给定的字符串数组），以及基于函数表达式的返回值（数字）的输出类型参数
+
+   ```typescript
+   function map<Input, Output>(arr: Input[], func: (arg: Input) => Output): Output[] {
+     return arr.map(func)
+   }
+   
+   const parsed = map(['1', '2', '3'], (n) => parseInt(n))
+   ```
+
+------
+
+#### 4.4.2 限制条件
+
+1. 应用场景：想把两个值联系起来，但只能对某个值的子集进行操作
+
+2. 解决：使用一个约束条件来限制一个类型参数可以接受的类型
+
+   1）将Type约束为`{length:number}`，所以允许访问a和b参数的`length`属性
+
+   2）如果没有类型约束，就不能访问这些属性，因为这些值可能是一些没有长度属性的其他类型
+
+   3）TS可以自动推断longest的返回类型，返回类型推断也适用于通用函数
+
+   ```typescript
+   // 意思是：传入的参数a、b必须具有length属性
+   function longest<Type extends { length: number }>(a: Type, b: Type) {
+     if (a.length >= b.length) {
+       return a
+     } else {
+       return b
+     }
+   }
+   
+   // longerArray 的类型是 'number[]'
+   const longerArray = longest([1, 2], [2, 3, 4])
+   // longerString 是 'alice'|'bob' 的类型
+   const longerString = longest("alice", "bob")
+   // 报错：数字没有'长度'属性
+   const notOk = longest(10, 100)
+   ```
+
+3. 使用受限制的注意事项：以下案例中函数承诺返回与传入的对象相同的类型，而不仅仅是与约束条件相匹配的一些对象
+
+   1）传入的obj参数是[1, 2, 3]，属于数组类型，那么函数返回值也必须为数组类型
+
+   2）但是根据if判断，返回值为对象`{ length: minimum }`
+
+   ```typescript
+   function minimumLength<Type extends { length: number }>(obj: Type, minimum: number): Type {
+     if (obj.length >= minimum) {
+       return obj
+     } else {
+       // 报错：不能将类型“{ length: number; }”分配给类型“Type”
+       return { length: minimum }
+     }
+   }
+   
+   const arr = minimumLength([1, 2, 3], 6)
+   ```
+
+------
+
+#### 4.4.3 指定类型参数
+
+1. TypeScript通常可以推断出通用调用中的预期类型参数，但并非总是如此
+
+   ```typescript
+   function combine<Type>(arr1: Type[], arr2: Type[]): Type[] {
+     return arr1.concat(arr2)
+   }
+   ```
+
+2. 问题：用不匹配的数组调用这个函数是一个错误
+
+   ```typescript
+   // 报错：不能将类型"string"分配给类型"number"
+   const arr = combine([1, 2, 3], ["hello"])
+   ```
+
+3. 解决：手动指定类型
+
+   ```typescript
+   const arr = combine<string | number>(["string"], [1, 2, 3])
+   ```
+
+------
+
+#### 4.4.4 编写函数准则
+
+1. 参数类型下推：使用类型参数本身，而不是对其进行约束
+
+   1）firstElement1是更好的写法，它的推断返回类型是Type
+
+   2）firstElement2的推断返回类型是any，因为TypeScript必须使用约束类型来解析arr[0]表达式，而不是在调用期间"等待"解析该元素
+
+   ```typescript
+   // 推荐
+   function firstElement1<Type>(arr: Type[]) {
+     return arr[0]
+   }
+   // 不推荐
+   function firstElement2<Type extends any[]>(arr: Type) {
+     return arr[0]
+   }
+   // a: number
+   const a = firstElement1([1, 2, 3])
+   // b: any 
+   const b = firstElement2([1, 2, 3])
+   ```
+
+2. 总是尽可能少地使用类型参数：
+
+   ```typescript
+   // 推荐
+   function filter1<Type>(arr: Type[], func: (arg: Type) => boolean) {
+     return arr.filter(func)
+   }
+   // 不推荐
+   function filter2<Type, Func extends (arg: Type) => boolean> (
+     arr: Type[],
+     func: Func
+   ) {
+     return arr.filter(func)
+   }
+   ```
+
+3. 类型参数应出现两次：如果一个类型的参数只出现在一个地方，请重新考虑是否真的需要它
+
+   ```typescript
+   // 不推荐
+   function greet<Str extends string>(s: Str) {
+     console.log('Hello, ' + s)
+   }
+   // 推荐，简洁版
+   function greet(s: string) {
+     console.log('Hello, ' + s)
+   }
+   ```
+
+------
+
+### 4.5 可选参数
+
+#### 4.5.1 问号标记
+
+1. 语法：将参数用 `?` 标记，x参数实际上将具有`number | undefined`类型
+
+   ```typescript
+   function f(n?: number) {
+     console.log(n.toFixed())	// 无需传递参数
+     console.log(n.toFixed(3))	// 需要传递参数
+   }
+   
+   f(123.45)
+   f()
+
+2. 也可以提供一个参数默认值：
+
+   ```typescript
+   function f(n: number=100) {
+     // ......
+   }
+   ```
+
+------
+
+#### 4.5.2 回调函数中的可选参数
+
+1. 原则：当为回调写一个函数类型时，永远不要写一个可选参数，除非打算在不传递该参数的情况下调用函数
+
+2. 案例：
+
+   1）定义一个模仿数组forEach功能的函数，希望index参数是可选的
+
+   ```typescript
+   function myForEach(arr: any[], callback: (arg: any, index?: number) => void) {
+     for (let i = 0; i < arr.length; i++) {
+       callback(arr[i], i)
+       callback(arr[i])
+     }
+   }
+   ```
+
+   2）当不涉及对index进行操作时，函数可以正常运行
+
+   ```typescript
+   myForEach([1, 2, 3], (a) => console.log(a))
+   myForEach([1, 3, 4], (a, index) => console.log(a, index))
+   ```
+
+   3）当涉及对index进行操作时，TS会报错：对象可能是undefined
+
+   ```typescript
+   myForEach([1, 2, 3], (a, index) => {
+     console.log(index.toFixed())
+   })
+   ```
+
+------
+
+### 4.6 函数重载
+
+> 应用场景：函数可以在不同的参数数量和类型中被调用
+
+1. 重载签名：指定一个可以以不同方式调用的函数
+
+2. 引子：
+
+   ```typescript
+   // 重载签名：接受1个参数
+   function makeDate(timestamp: number): Date
+   // 重载签名：接受3个参数
+   function makeDate(m: number, d: number, y: number): Date
+   
+   // 实现签名：虽然d和y都是可选的，但要参考重载签名的定义，不能以两个参数被调用，要么传1个、要么传3个参数
+   function makeDate(mOrTimestamp: number, d?: number, y?: number): Date {
+     if (d !== undefined && y !== undefined) {
+       return new Date(y, mOrTimestamp, d)
+     } else {
+       return new Date(mOrTimestamp)
+     }
+   }
+   
+   const d1 = makeDate(12345678)
+   const d2 = makeDate(5, 6, 7)
+   // 报错：没有需要2参数的重载，但存在需要1或3参数的重载
+   const d3 = makeDate(5, 9)
+   ```
+
+#### 4.6.1 重载签名与实现签名
+
+> 原则：在编写重载函数时，应该总是在函数的实现上面有两个或多个签名
+
+1. 参数不正确：
+
+   ```typescript
+   // 重载签名
+   function fn(x: string): void
+   // 实现签名
+   function fn() {}
+   
+   fn()	// 报错：不能以零参数调用，必须传入1个参数
+   fn('hello')
+   ```
+
+2. 参数类型不正确：
+
+   ```typescript
+   // 重载签名
+   function fn(x: boolean): void
+   function fn(x: string): void
+   
+   // 实现签名
+   // 报错：上面的fn(x: string)提示，此重载签名与实现签名不兼容
+   function fn(x: boolean) {
+       // ......
+   }
+   // 解决：有两个或多个签名
+   function fn(x: boolean | string) {
+       // ......
+   }
+   ```
+
+3. 返回类型不正确：
+
+   ```typescript
+   // 重载签名
+   function fn(x: string): string
+   function fn(x: boolean): boolean
+   
+   // 实现签名
+   // 报错：函数实现缺失或未立即出现在声明之后
+   function fn(x: string | boolean): {
+     return 'hello'
+   }
+   // 解决：对返回值类型进行声明
+   function fn(x: string | boolean): string | boolean {
+     return 'hello'
+   }
+   ```
+
+------
+
+#### 4.6.2 编写重载准则
+
+> 原则：尽量使用联合类型的参数，而不是重载参数
+
+1. TS只能将【一个】函数调用解析为【一个】重载：
+
+   ```typescript
+   // 重载签名
+   function len(s: string): number
+   function len(arr: any[]): number
+   // 实现签名
+   function len(x: any) {
+     return x.length
+   }
+   
+   // 正常运行
+   len('hello')
+   len([1, 2, 3])
+   
+   // 报错：这里传入的参数类型被解析为：'hello' | number[]，是一个联合类型
+   // 这个联合类型不属于string或any[]中任一类型，所以报错
+   len(Math.random() > 0.5 ? 'hello' : [4, 5, 6])
+   ```
+
+2. 解决：将参数改造为联合类型
+
+   ```typescript
+   function len(x: any[] | string) {
+     return x.length
+   }
+   
+   len('hello')
+   len([1, 2, 3])
+   len(Math.random() > 0.5 ? 'hello' : [4, 5, 6])
+   ```
+
+------
+
+#### 4.6.3 函数内This声明
+
+> 在TS中，可以给函数传递名为`this`的参数（JS不能这样做），但不能是箭头函数
+
+1. 常规用法：
+
+   ```typescript
+   const user = {
+     id: 123,
+     admin: false,
+     becomeAdmin: function () {
+       this.admin = true
+     },
+   }
+   user.becomeAdmin()
+   console.log(user.admin)	// true
+   ```
+
+2. TS特性：可以在函数体中声明 this 的类型，注意不能使用箭头函数
+
+   ```typescript
+   interface User {
+     admin: boolean
+   }
+   
+   interface DB {
+     // 定义名为filterUsers的函数，返回User类型的数组
+     // 传入名为filter的函数，其中接收this参数，类型为User，返回布尔值
+     filterUsers(filter: (this: User) => boolean): User[]
+   }
+   
+   const db: DB = {
+     filterUsers: (filter: (this: User) => boolean) => {
+       let user1: User = {
+         admin: true,
+       }
+   
+       let user2: User = {
+         admin: false,
+       }
+   
+       return [user1, user2]
+     },
+   }
+   // 传入filter函数参数
+   const admins = db.filterUsers(function (this: User) {
+     return this.admin
+   })
+   
+   /* const admins = db.filterUsers((this: User) => {
+     return this.admin
+   }) */
+   
+   console.log(admins)
+   ```
+
+------
+
+### 4.7 处理函数的常用类型
+
+#### 4.7.1 void
+
+1. `void`：表示没有返回值的函数的返回值。当一个函数没有任何返回语句，或者没有返回任何明确的值时，它都是推断出来的类型
+
+   ```typescript
+   // 推断出的返回类型是void
+   function noop() {
+     return
+   }
+   ```
+
+2. 在JavaScript中，一个不返回任何值的函数将隐含地返回`undefinded`，但是在TS中`void`与`undefined`不同
+
+3. 使用`type`来定义返回值为`void`类型的函数：可以写任意返回值，但是会被忽略（写了也白写）
+
+   ```typescript
+   type voidFunc = () => void
+   
+   // 以下三种实现函数的方法，都可以写返回值，但是相当于白写
+   const f1: voidFunc = () => {
+     return true
+   }
+   
+   const f2: voidFunc = () => true
+   
+   const f3: voidFunc = function () {
+     return true
+   }
+   
+   // 这里的返回值类型依然是void，而不是boolean
+   const v1: void = f1()
+   const v2: void = f2()
+   // 报错：返回值类型为void
+   const v3: boolean = f3()
+   ```
+
+4. 直接定义函数的返回值为`void`类型：不可以写返回值，写了会报错
+
+   ```typescript
+   // 以下两种写法提示报错，不能写返回值！
+   function f4(): void {
+     return true
+   }
+   
+   const f5 = function (): void {
+     return true
+   }
+   
+   // 正确写法
+   function f4(): void {}
+   const f5 = function (): void {}
+   ```
+
+------
+
+#### 4.7.2 object
+
+> `object`（第一个字母小写）与`Object`不同，常用小写的`object`
+
+1. 特殊类型`object`：指任何不是基元的值（string、number、bigint、boolean、symbol、null、undefined）
+2. 与空对象类型`{}`不同，也与全局类型`Object`(大写O)不同（一般不会用`Object`）
+3. 函数类型在TS中被认为是`object`
+
+------
+
+#### 4.7.3 unknown
+
+1. `unknown`：代表任何值。与any类型类似，但更安全，对unknown值做任何事情都是不合法的
+
+   ```typescript
+   // 正确
+   function f1(a: any) {
+     a.b()
+   }
+   
+   // 错误：对象类型为unknown
+   function f2(a: unknown) {
+     a.b()
+   }
+   ```
+
+2. 可以描述接受任何值的函数，而不需要在函数体中有any值，也可以描述一个返回未知类型的值的函数
+
+   ```typescript
+   function safeParse(s: string): unknown {
+     return JSON.parse(s)
+   }
+   // 需要小心对待'obj'
+   const obj = safeParse('someRandomString')
+   ```
+
+------
+
+#### 4.7.4 never
+
+1. `never`：表示永远不会被观察到的值。在一个返回类型中，这意味着函数抛出一个异常或终止程序的执行
+
+   ```typescript
+   function fail(msg: string): never {
+     throw new Error(msg)
+   }
+   ```
+
+2. never也出现在TypeScript确定一个union中没有任何东西的时候
+
+   ```typescript
+   function fn(x: string | number) {
+     if (typeof x === 'string') {
+       // ......
+     } else if (typeof x === 'number') {
+       // ......
+     } else {
+       x // 'never'类型
+     }
+   }
+   ```
+
+------
+
+#### 4.7.5 Function
+
+1. 全局性的`Function`：描述了诸如`bind`、`call`、`apply`和其他存在于JavaScript中所有函数值的属性
+
+2. Function类型的值总是可以被调用，这些调用返回any，但一般不要使用它，因为any不安全
+
+   ```typescript
+   function doSomething(f: Function) {
+     return f(1, 2, 3)
+   }
+   ```
+
+3. 如果需要接受一个任意的函数，但不打算调用它，`() => void`的类型比较安全
+
+------
+
+### 4.8 参数展开运算符
+
+#### 4.8.1 形参展开(Rest Parameters)
+
+> Rest参数：定义接受无限制数量的参数的函数
+
+1. rest参数出现在所有其他参数之后，使用`...`的语法
+
+   ```typescript
+   function multiply(n: number, ...m: number[]) {
+     return m.map( x => n * x )
+   }
+   
+   const a = multiply(10, 1, 2, 3, 4, 60, 100)
+   
+   console.log(a)	// [10, 20, 30, 40, 600, 1000] 
+   ```
+
+2. 这些参数的类型注解是隐含的`any[]`，而不是any，任何给出的类型注解必须是`Array<T>`或`T[]`的形式，或一个元组类型
+
+------
+
+#### 4.8.2 实参展开(Rest Arguments)
+
+> spread语法：从数组中提供可变数量的参数
+
+1. 案例：数组的push方法需要任意数量的参数
+
+   ```typescript
+   const arr1 = [1, 2, 3]
+   const arr2 = [4, 5, 6]
+   arr1.push(...arr2)
+   console.log(arr1)	// [1, 2, 3, 4, 5, 6]
+   ```
+
+2. TS会将实参展开的类型自动判断为`numbers[]`或`string[]`，但长度不固定
+
+3. `as const`可以解决数组长度不固定的问题，相当于转换为元祖
+
+   ```typescript
+   const args = [8, 5] as const
+   // Math.atan2只能接收2个参数
+   const angle = Math.atan2(...args)
+   ```
+
+------
+
+### 4.9 参数解构
+
+1. 作用：方便地将作为参数提供的对象，解压到函数主体的一个或多个局部变量中
+
+   ```typescript
+   function sum({ a, b, c }: { a: number; b: number; c: number }) {
+     console.log(a + b + c)
+   }
+   
+   sum({
+     a: 10,
+     b: 3,
+     c: 9,
+   })
+   ```
+
+2. 可以使用类型别名，简化代码
+
+   ```typescript
+   type ABC = { a: number; b: number; c: number }
+   
+   function sum({ a, b, c }: ABC) {
+     console.log(a + b + c)
+   }
+   
+   sum({
+     a: 10,
+     b: 3,
+     c: 9,
+   })
+   ```
+
+------
+
+## 第5章 对象类型
+
+1. 匿名对象：
+
+   ```typescript
+   function greet(person: { name: string, age: number }) {
+     return 'Hello ' + person.name
+   }
+   ```
+
+2. 使用接口定义对象：
+
+   ```typescript
+   interface Person {
+     name: string
+     age: number
+   }
+   
+   function greet(person: Person) {
+     return 'Hello ' + person.name
+   }
+   ```
+
+3. 使用类型别名定义对象：
+
+   ```typescript
+   type Person = {
+     name: string
+     age: number
+   }
+   
+   function greet(person: Person) {
+     return 'Hello ' + person.name
+   }
+   ```
+
+### 5.1 属性修改器
+
+#### 5.1.1 可选属性
+

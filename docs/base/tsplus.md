@@ -40,22 +40,30 @@
 
 > 使用tsc命令时，后面没有任何参数才会使用tsconfig配置进行编译（[参考文章](https://juejin.cn/post/6844904093568221191)）
 
-- 常用配置：
+1. 创建tsconfig.json文件：
 
-  ```json
-  {
-    "compilerOptions": {
-      "target": "es6",                            /* ES目标版本: 'ES3','ES5','ES2015','ES2016','ES2017','ESNEXT' */
-      "module": "commonjs",                       /* 指定使用模块: 'commonjs', 'amd', 'system', 'umd' or 'es2015' */
-      "rootDir": "./src",                         /* 指定项目代码根目录文件夹 */
-      "outDir": "./dist",                         /* 为所有编译后的ts文件指定输出路径：默认是每一个ts文件的当前目录 */
-      "esModuleInterop": true,                    /* 通过为导入内容创建命名空间，实现CommonJS和ES模块之间的互操作性 */
-      "forceConsistentCasingInFileNames": true,   /* 确保在import时导入的变量名称是正确的 */
-      "strict": true,                             /* 开启严格检查模式 */
-      "skipLibCheck": true                        /* 跳过对所有.d.ts文件的类型检查 */
-    }
-  }
-  ```
+   ```bash
+   tsc --init
+   ```
+
+2. 常用配置：
+
+   ```json
+   {
+     "compilerOptions": {
+       "target": "es6",                            /* ES目标版本: 'ES3','ES5','ES2015','ES2016','ES2017','ESNEXT' */
+       "module": "commonjs",                       /* 指定使用模块: 'commonjs', 'amd', 'system', 'umd' or 'es2015' */
+       "rootDir": "./src",                         /* 指定项目代码根目录文件夹 */
+       "outDir": "./dist",                         /* 为所有编译后的ts文件指定输出路径：默认是每一个ts文件的当前目录 */
+       "esModuleInterop": true,                    /* 通过为导入内容创建命名空间，实现CommonJS和ES模块之间的互操作性 */
+       "forceConsistentCasingInFileNames": true,   /* 确保在import时导入的变量名称是正确的 */
+       "strict": true,                             /* 开启严格检查模式 */
+       "skipLibCheck": true                        /* 跳过对所有.d.ts文件的类型检查 */
+     }
+   }
+   ```
+
+------
 
 #### 1.2.0 顶层选项
 
@@ -550,6 +558,8 @@
 ### 2.9 接口 interface
 
 > 大多数情况下，可以根据个人喜好进行选择，启发式使用interface，在需要时使用type
+
+<img :src="$withBase('/imgs/basic/接口与交叉类型.png')" alt="接口与交叉类型">
 
 1. 接口：是另一种方式来命名对象类型
 
@@ -2061,14 +2071,14 @@
 
 #### 4.6.1 重载签名与实现签名
 
-> 原则：在编写重载函数时，应该总是在函数的实现上面有两个或多个签名
+> 实现签名的类型编写原则应该兼容所有重载函数的定义，类似于索引签名
 
 1. 参数不正确：
 
    ```typescript
    // 重载签名
    function fn(x: string): void
-   // 实现签名
+   // 实现签名（参数啥也不写，默认推断为隐式any）
    function fn() {}
    
    fn()	// 报错：不能以零参数调用，必须传入1个参数
@@ -2140,6 +2150,7 @@
 2. 解决：将参数改造为联合类型
 
    ```typescript
+   // 实现签名
    function len(x: any[] | string) {
      return x.length
    }
@@ -2666,7 +2677,7 @@
    
 
 
-3. 从数字索引器返回的类型必须是字符串索引器返回的类型的子类型：
+3. 从字符串索引器返回的类型必须是数字索引器返回的类型的子类型：
 
    ```typescript
    interface Animal {
@@ -2734,4 +2745,835 @@
 ------
 
 ### 5.2 扩展类型
+
+> 扩展类型的本质：`interface extends`
+
+1. 在已有接口的基础上拓展：
+
+   ```typescript
+   interface BasicAddress {
+     name?: string
+     street: string
+     city: string
+     country: string
+     postalCode: string
+   }
+   
+   interface AddressWithUnit extends BasicAddress {
+     unit: string
+   }
+   
+   let awu: AddressWithUnit = {
+     unit: '3单元',
+     street: '清河街道',
+     city: '北京',
+     postalCode: '100000',
+     country: '中国',
+     name: ''
+   }
+   ```
+
+2. 扩展多个接口：
+
+   ```typescript
+   interface Colorful {
+     color: string
+   }
+   interface Circle {
+     radius: number
+   }
+   
+   interface ColorCircle extends Colorful, Circle {
+       // ......
+   }
+   
+   const cc: ColorCircle = {
+     color: 'red',
+     radius: 100
+   }
+   ```
+
+------
+
+### 5.3 交叉类型
+
+> 交叉类型的本质：重名interface会自动添加新字段，重名type不会添加新字段，要用`&`来合并不同接口添加新字段
+
+1. 命名定义type：
+
+   ```typescript
+   interface Colorful {
+     color: string
+   }
+   
+   interface Circle {
+     radius: number
+   }
+   // 命名定义
+   type ColorfulCircle = Colorful & Circle
+   
+   const cc: ColorfulCircle = {
+     color: 'red',
+     radius: 100,
+   }
+   ```
+
+2. 匿名定义type：
+
+   ```typescript
+   // 匿名定义
+   function draw(circle: Colorful & Circle) {
+     console.log(circle.color)
+     console.log(circle.radius)
+   }
+   
+   draw({
+     color: 'red',
+     radius: 100,
+   })
+   
+   draw({
+     color: 'green',
+     rdaius: 100, // 报错：拼写错误会检查出来
+   })
+   ```
+
+3. 重名interface会自动添加新字段：
+
+   ```typescript
+   interface Sister {
+     name: string
+   }
+   
+   interface Sister {
+     age: number
+   }
+   
+   const sister1: Sister = {
+     name: 'sisterAn',
+     age: 20,
+   }
+   ```
+
+4. 重名type不会添加新字段：
+
+   ```typescript
+   type Sister = {
+     name: string
+   }
+   // 报错：标识符“Sister”重复
+   type Sister = {
+   
+   }
+   ```
+
+------
+
+### 5.4 泛型对象类型
+
+1. 引子：想定义一个通用的接口，可以自由传入不同类型的值
+
+   1）使用any：虽然也可以实现，但是风险很高
+
+   ```typescript
+   // any会带来很大风险，不推荐
+   interface Box {
+     contents: any
+   }
+   
+   let box: Box = {
+     contents: 'hello',
+   }
+   ```
+
+   2）使用unknown：需要做预防性检查或类型断言，很麻烦
+
+   ```typescript
+   // unknown如果处理需要提前做判断，很麻烦
+   interface Box {
+     contents: unknown
+   }
+   
+   let x: Box = {
+     contents: 'hello world',
+   }
+   
+   if (typeof x.contents === 'string') {
+     console.log(x.contents.toLowerCase())
+   }
+   
+   console.log((x.contents as string).toLowerCase())
+   ```
+
+2. 解决：使用泛型，可以自由在外侧定义内部类型
+
+   ```typescript
+   // 使用泛型
+   interface Box<Type> {
+     contents: Type
+   }
+   // 普通接口
+   interface StringBox {
+     contents: string
+   }
+   
+   // 泛型：可以随意定义contents的类型
+   let boxA: Box<number> = {
+     contents: 100
+   }
+   // 普通接口：contents只能是number类型
+   let boxB: StringBox = {
+     contents: 100
+   }
+   ```
+
+3. 理解：Type是一个占位符，会被替换成其他类型，泛型接口可以重复使用，而无需重新建立
+
+   ```typescript
+   interface Box<Type> {
+     contents: Type
+   }
+   
+   interface Apple {
+     // ...
+   }
+   
+   type AppleBox = Box<Apple> // 等价于 '{ contents: Apple }'
+   let ab: AppleBox = {
+     contents: a,
+   }
+   ```
+
+4. 函数重载中的应用：可以大幅简化代码，无需函数重载便可实现功能
+
+   1）普通函数重载：定义一个通用函数，可以传入number或string或boolean类型的值，这样写非常麻烦
+
+   ```typescript
+   // 重载签名
+   interface NumberBox {
+     contents: number
+   }
+   interface StringBox {
+     contents: string
+   }
+   interface BooleanBox {
+     contents: boolean
+   }
+   
+   function setContents(box: StringBox, newContents: string): void
+   function setContents(box: NumberBox, newContents: number): void
+   function setContents(box: BooleanBox, newContents: boolean): void
+   
+   // 实现签名
+   function setContents(box: { contents: any }, newContents: any) {
+     box.contents = newContents
+   }
+   ```
+   2）使用泛型：直接定义泛型接口，一步到位实现通用函数
+
+   ```typescript
+   interface Box<Type> {
+     contents: Type
+   }
+   
+   function setContents(box: Box<Type>, newContents: Type) {
+     box.contents = newContents
+   }
+   ```
+
+5. 类型别名`type`中的应用：
+
+   1）基本用法：与定义泛型接口一样
+
+   ```typescript
+   type Box<Type> = {
+     contents: Type
+   }
+   ```
+
+   2）与接口的区别：不仅可以描述对象类型，还可以用它来编写其他类型的通用辅助类型
+
+   ```typescript
+   type OrNull<Type> = Type | null
+   type OneOrMany<Type> = Type | Type[]
+   type OneOrManyOrNull<Type> = OrNull<OneOrMany<Type>>
+   type OneOrManyOrNullString = OneOrManyOrNull<string>
+
+------
+
+### 5.5 数组类型
+
+1. 语法：`number[]`、`string[]`、`Array<numebr>`、`Arrray<string>`
+
+   ```typescript
+   function doSomething(value: Array<string>) {
+     // ...
+   }
+   
+   let myArray: string[] = ['hello', 'world']
+   
+   doSomething(myArray)
+   doSomething(new Array('hello', 'world'))
+   ```
+
+2. `Array`本身也是一个通用类型：
+
+   ```typescript
+   // 数组的本质也是个接口，Array也可以改成其他名字
+   interface Array<Type> {
+     lenght: number
+     pop(): Type | undefined
+     push(...item: Type[]): number
+   }
+   ```
+
+3. 拓展：其他通用的数据结构
+
+   ```typescript
+    Map<K, V>, Set<T>, Promise<T>
+   ```
+
+------
+
+### 5.6 只读数组类型
+
+1. `ReadonlyArray<Type>`：特殊的类型，描述了不应该被改变的数组
+
+   1）普通语法：`ReadonlyArray<Type>`
+
+   ```typescript
+   function doStuff(values: ReadonlyArray<string>) {
+     const copy = values.slice()
+     console.log(values[0])
+     // 报错：类型“readonly string[]”上不存在属性“push”
+     values.push('hello')
+   }
+   ```
+
+   2）速记语法：`readonly type[]`
+
+   ```typescript
+   function doStuff(values: readonly string[]) {
+     const copy = values.slice()
+     console.log(values[0])
+     // 报错：类型“readonly string[]”上不存在属性“push”
+     values.push('hello')
+   }
+   ```
+
+2. 与`Array`的区别：
+
+   1）不可以使用`new`来创建只读数组
+
+   ```typescript
+   // 报错：“ReadonlyArray”仅表示类型，但在此处却作为值使用
+   new ReadonlyArray('red', 'green', 'blue')
+   ```
+
+   2）可以将普通的`Array`分配给`ReadonlyArray`
+
+   ```typescript
+   const roArray: ReadonlyArray<string> = ['red', 'green', 'blue']
+   ```
+
+   3）仅可以将只读数组赋值给普通数组，而不能反向操作
+
+   ```typescript
+   let x: readonly string[] = []
+   let y: string[] = []
+   
+   x = y
+   // 报错：类型 "readonly string[]" 为 "readonly"，不能分配给可变类型 "string[]
+   y = x
+   ```
+
+------
+
+### 5.7 元祖类型 tuple
+
+1. 定义：元祖就是长度和类型都固定的数组
+
+   ```typescript
+   // 参数pair就属于元祖类型，要求里面只能有2个元素，且第一个必须是string，第二个必须是number
+   function doSomething(pair: [string, number]) {
+     const a = pair[0]
+     const b = pair[1]
+     const c = pair[2]	// 报错：引用了超出元祖长度的元素
+   }
+   ```
+
+2. 元祖解构：
+
+   ```typescript
+   function doSomething(stringHash: [string, number]) {
+     const [inputString, hash] = stringHash
+   }
+   ```
+
+3. 利用接口定义元祖：必须要用`length`属性固定长度，并定义可以操作元祖的方法
+
+   ```typescript
+   interface StringNumberPair {
+     // 专有属性：定义固定长度
+     length: 3
+     // 为索引声明属性
+     0: string
+     1: number
+     2: number
+     // 定义slice方法，返回数组
+     slice(start?: number, end?: number): Array<string | number>
+   }
+   
+   function test(a: StringNumberPair) {
+       console.log(a[1])	// 8
+       console.log(a.slice(1,3))	//[8,100]
+   }
+   
+   test(['a', 8, 100])
+   ```
+
+4. 可选元素：在元素类型后添加`?`，只能出现在末尾，会影响`length`属性
+
+   ```typescript
+   type Either2dOr3d = [number, number, number?]
+   
+   function setCoordinate(coord: Either2dOr3d) {
+     const [x, y, z] = coord
+     console.log(coord.length)
+   }
+   
+   setCoordinate([3, 4])		// 2
+   setCoordinate([3, 4, 5])	// 3
+   ```
+
+5. 其余元素：元祖可以有其余元素（长度不受限制），这些元素必须是`array`或`tuple`类型的
+
+   ```typescript
+   // 前两个元素分别是字符串和数字，后面可以有任意数量的布尔值
+   type StringNumberBooleans = [string, number, ...boolean[]]
+   // 第一个元素是字符串，然后是任意数量的布尔值，最后是一个数字
+   type StringBooleansNumber = [string, ...boolean[], number]
+   // 第一个元素是布尔值，然后是一个字符串，最后是一个数字
+   type BooleansStringNumber = [...boolean[], string, number]
+   
+   const a: StringNumberBooleans = ["hello", 1]
+   const b: StringNumberBooleans = ["beautiful", 2, true]
+   const c: StringNumberBooleans = ["world", 3, true, false, true, false, true]
+   ```
+
+6. 可选元素、其余元素存在的意义：允许TS将tuples与函数的参数列表相对应
+
+   ```typescript
+   function readButtonInput(...args: [string, number, ...boolean[]]) {
+     const [name, version, ...input] = args
+     console.log(name)
+     console.log(version)
+     console.log(input)
+   }
+   
+   readButtonInput('hello', 10.5, true, false, false)
+   ```
+
+------
+
+### 5.8 只读元祖类型
+
+1. 语法：在元祖前添加`readonly`
+
+   ```typescript
+   function doSomething(pair: readonly [number, string]) {
+     // 报错：无法分配到 "0" ，因为它是只读属性
+     pair[0] = 100
+   }
+   ```
+
+2. 带有`const`断言的数组：被推断为只读元组类型
+
+   1）问题：虽然distanceFromOrigin没有修改元祖元素，但是期望一个可变的元组。由于point的类型被推断为只读的[3,4]，它与[number,number]不兼容，因为该类型不能保证point的元素不被修改
+
+   ```typescript
+   let point = [3, 4] as const	// 这里point被定义为只读元祖
+   
+   function distanceFromOrigin([x, y]: [number, number]) {
+     return Math.sqrt(x ** 2 + y ** 2)
+   }
+   // 报错：类型 "readonly [3, 4]" 为 "readonly"，不能分配给可变类型 "[number, number]"
+   distanceFromOrigin(point)
+   ```
+
+   2）解决：
+
+   ```typescript
+   let point: [number, number] = [3, 4]
+   
+   function distanceFromOrigin([x, y]: [number, number]) {
+     return Math.sqrt(x ** 2 + y ** 2)
+   }
+   
+   distanceFromOrigin(point)
+   ```
+
+------
+
+## 第6章 类型操纵
+
+> 泛型类型、keyof、typeof、索引访问类型、条件类型、映射类型、模板字面量类型
+
+### 6.1 泛型
+
+#### 6.1.1 泛型基本用法
+
+1. 泛型可以定义通用函数：如可以使函数的输入和输出内容类型保持一致
+
+   ```typescript
+   function loggingIdentity<Type>(arg: Type): Type {
+     return arg
+   }
+   ```
+
+2. 调用泛型函数：
+
+   1）方法1：手动指定类型
+
+   ```typescript
+   let output = loggingIdentity<number>(100)
+   ```
+
+   2）方法2：TS自动推断类型
+
+   ```typescript
+   let output = loggingIdentity(100)
+   ```
+
+3. 注意：如果在函数体内对参数进行了一些操作，需要注意泛型的定义是否兼容
+
+   1）如果想在函数内访问arg的length属性，TS报错
+
+   ```typescript
+   function loggingIdentity<Type>(arg: Type): Type {
+     console.log(arg.length)	// Type上不存在属性length
+     return arg
+   }
+   ```
+
+   2）需要将Type改造成具有length属性的类型
+
+   ```typescript
+   function loggingIdentity<Type>(arg: Array<Type>): Type[] {
+     console.log(arg.length)
+     return arg
+   }
+   ```
+   3）也可以使用泛型约束
+   
+   ```typescript
+   function loggingIdentity<Type extends { length: number }>(arg: Type): Type {
+     console.log(arg.length) 
+     return arg
+   }
+   ```
+
+------
+
+#### 6.1.2 泛型类型
+
+1. 语法：
+
+   1）方法1：普通用法
+
+   ```typescript
+   function identity<Type>(arg: Type): Type {
+     return arg
+   }
+   let myIdentity: <Type>(arg: Type) => Type = identity
+   ```
+
+   2）方法2：泛型名称可以自定义
+
+   ```typescript
+   let myIdentity: <Input>(arg: Input) => Input = identity
+   ```
+
+   3）方法3：写成对象字面类型的调用签名
+
+   ```typescript
+   let myIdentity: { <Type>(arg: Type): Type } = identity
+   ```
+
+   4）方法4：写成接口
+
+   ```typescript
+   interface GenericIdentityFn {
+     <Type>(arg: Type): Type
+   }
+   let myIdentity: GenericIdentityFn = identity
+
+2. 对接口的改造：需要在外面定义类型，这样更加严谨
+
+   ```typescript
+   interface GenericIdentityFn<Type> {
+     (arg: Type): Type
+   }
+   let myIdentity: GenericIdentityFn<string> = identity
+   ```
+
+------
+
+#### 6.1.3 泛型类
+
+1. tsconfig设置：由于会在类中声明未被定义的Type，所以调整设置使TS不报错
+
+   ```typescript
+   "strictPropertyInitialization": false
+   ```
+
+2. 语法：在类名后加`<Type>`
+
+   ```typescript
+   class GenericNumber<NumType> {
+     zeroValue: NumType
+     add: (x: NumType, y: NumType) => NumType
+   }
+   
+   // NumType为number类型
+   let myGeneric = new GenericNumber<number>()
+   myGeneric.zeroValue = 0
+   myGeneric.add = function (x, y) {
+     return x + y
+   }
+   
+   // NumType为string类型
+   let myGeneric = new GenericNumber<string>()
+   myGeneric.zeroValue = ''
+   myGeneric.add = function (x, y) {
+     return x + y
+   }
+   ```
+
+------
+
+#### 6.1.4 泛型约束 extends
+
+1. 语法：在`Type`后使用`extends`关键字
+
+   ```typescript
+   interface Lengthwise {
+     length: number
+   }
+   
+   function loggingIdentity<Type extends Lengthwise>(arg: Type): Type {
+     arg.length
+     return arg
+   }
+   
+   loggingIdentity(['hello', 'world'])
+   ```
+
+2. 在泛型约束中使用类型参数`keyof`：防止获取不存于与obj上的属性
+
+   ```typescript
+   function getProperty<Type, Key extends keyof Type>(obj: Type, key: Key) {
+     return obj[key]
+   }
+   
+   let x = {a: 1, b: 2, c: 3, d: 4,}
+   
+   getProperty(x, 'a')
+   getProperty(x, 'm') // 报错：m不在x的键值中
+   ```
+
+------
+
+#### 6.1.4 泛型中使用类类型
+
+1. 复习：创建工厂
+
+   ```js
+   // JS实现：写一个函数，输入对象后，可以返回其实例
+   function creatInstance(MyClassName) {
+     return new MyClassName()
+   }
+   ```
+
+   1）函数的构造签名
+
+   ```typescript
+   class Ctor {
+     s: string
+     constructor(s: string) {
+       this.s = s
+     }
+   }
+   // 写法1：
+   type SomeConstructor = {
+     new (s: string): Ctor
+   }
+   // 写法2：
+   type SomeConstructor = new (s: string) => Ctor
+   
+   function fn(ctor: SomeConstructor) {
+     return new ctor('hello')
+   }
+   
+   const f = fn(Ctor)
+   console.log(f.s)	// 'hello'
+   ```
+
+   2）将上述案例抽象化，提取骨干部分
+
+   ```typescript
+   class Ctor {
+     constructor() {}
+   }
+   // 写法1：
+   type someCtor = {
+     new (): Ctor
+   }
+   // 写法2：
+   type SomeConstructor = new (s: string) => Ctor
+   
+   function fn(ctor: someCtor) {
+     return new ctor()
+   }
+   ```
+
+   3）进一步简写上述代码
+
+   ```typescript
+   class Ctor {
+     constructor() {}
+   }
+   
+   function fn(ctor: { new (): Ctor }) {
+     return new c()
+   }
+   ```
+
+2. 在TS中使用泛型创建工厂时，有必要通过其构造函数来引用类的类型
+
+   ```typescript
+   function create<Type>(c: { new (): Type }): Type {
+     return new c()
+   }
+   ```
+
+3. 案例：
+
+   ```typescript
+   class BeeKeeper {
+     hasMask: boolean = true
+   }
+   
+   class ZooKeeper {
+     nametag: string = 'Mikle'
+   }
+   
+   class Animal {
+     numLegs: number = 4
+   }
+   
+   class Bee extends Animal {
+     keeper: BeeKeeper = new BeeKeeper()	// 类类型
+   }
+   
+   class Lion extends Animal {
+     keeper: ZooKeeper = new ZooKeeper()	// 类类型
+   }
+   // 翻译：根据输入的类创建实例，但是输入的类必须具备Animal的属性
+   function createInstance<A extends Animal>(c: new () => A): A {
+     return new c()
+   }
+   
+   createInstance(Lion).keeper.nametag
+   createInstance(Bee).keeper.hasMask
+   // 报错：类型 "BeeKeeper" 中缺少属性 "numLegs"，但类型 "Animal" 中需要该属性
+   createInstance(BeeKeeper)
+   ```
+
+------
+
+### 6.2 keyof类型操作符
+
+1. `keyof`运算符接收一个对象类型，并产生其key的字符串或数字联合类型
+
+   ```typescript
+   type Point = {
+     x: number
+     y: number
+   }
+   
+   type P = keyof Point	// 相当于 type P = "x" | "y"
+   
+   const p1: P = 'x'
+   const p2: P = 'y'
+   // 报错：不能将类型"z"分配给类型keyof Point
+   const p3: P = 'z'
+   ```
+
+2. 对于索引签名：
+
+   1）数字型索引签名：相当于`number`类型
+
+   ```typescript
+   type Arrayish = {
+     [n: number]: unknown
+   }
+   type A = keyof Arrayish	// 相当于 type A = number
+   const a: A = 0
+   ```
+
+   2）字符串索引签名：相当于`number | string`联合类型
+
+   ```typescript
+   type Mapish = {
+     [k: string]: boolean
+   }
+   
+   type M = keyof Mapish	// 相当于 type M = number | string
+   
+   const m1: M = 's'
+   const m2: M = 100
+   ```
+
+------
+
+### 6.3 typeof类型操作符
+
+1. `typeof`操作符：可以在类型上下文中使用它，来引用一个变量或属性的类型
+
+   ```typescript
+   let s = 'hello'
+   let n: typeof s	// string类型
+   n = 'hello'
+   n = 100	// 报错：不能将类型“number”分配给类型“string”
+   ```
+
+2. 应用：内置类型`RetrunType<T>`，接收一个函数类型并产生其返回类型
+
+   ```typescript
+   type Predicate = (x: unknown) => boolean
+   type K = ReturnType<Predicate>
+   
+   function f() {
+     return {
+       x: 10,
+       y: 3
+     }
+   }
+   type P = ReturnType<typeof f> 	// 返回类型：{x:number; y:number}
+   const p: P = 100  				// 报错，与{x:number; y:number}不兼容
+   ```
+
+3. 注意：不要将typeof用于判断函数返回值的类型
+
+   ```typescript
+   function msgbox() {}					  // 类型：()=>void
+   let shouldContinue: typeof msgbox('100')  // 报错：不要将typeof用于判断函数返回值的类型
+   let shouldContinue: typeof msgbox         // 这样用可以，代表shouldContinue是函数类型：()=>void
+   shouldContinue = 100  // 报错：不能将类型“number”分配给类型“() => void”
+   ```
+
+------
+
+### 6.4 索引访问类型
 

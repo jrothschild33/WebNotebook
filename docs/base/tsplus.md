@@ -3577,3 +3577,476 @@
 
 ### 6.4 索引访问类型
 
+1. 索引type类型中的属性，来获取类型：
+
+   ```typescript
+   type Person = {
+     age: number
+     name: string
+     alive: boolean
+   }
+   
+   type Age = Person['age'] // number类型
+   let age: Age = '90' // 报错：不属于number类型
+   ```
+
+2. 索引interface中的属性，来获取类型：
+
+   1）常规用法：
+
+   ```typescript
+   interface Person {
+     name: string
+     age: number
+     alive: boolean
+   }
+   
+   // 相当于：type I1 = string | number
+   type I1 = Person['age' | 'name']
+   const i11: I1 = 100
+   const i12: I1 = ''
+   // const i13: I1 = true // 报错
+   ```
+
+   2）与keyof配合：
+
+   ```typescript
+   // 相当于：type I2 = string | number | boolean
+   type I2 = Person[keyof Person]
+   const I21: I2 = ''
+   const I22: I2 = 100
+   const I23: I2 = true
+   // const I24: I2 = {} // 报错
+   ```
+
+   3）与type配合：
+
+   ```typescript
+   // 相当于：type I3 = boolean | string
+   type AliveOrName = 'alive' | 'name'
+   type I3 = Person[AliveOrName]
+   const I31: I3 = true
+   const I32: I3 = 'hello'
+   // const I33: I3 = 100
+   ```
+
+   4）索引不存在的属性会报错：
+
+   ```typescript
+   type I4 = Person['alve'] // 报错：索引不存在的属性
+   ```
+
+3. 与typeof结合，从数组中获取类型：
+
+   ```typescript
+   // 如果不定义MyArray的类型，TS会自动推断 MyArray:{name:string,age:number}
+   const MyArray = [
+     { name: 'Alice', age: 15 },
+     { name: 'Bob', age: 23 },
+     { name: 'Eve', age: 38 },
+   ]
+   
+   // 相当于：type Person = { name: string, age: number }
+   type Person = typeof MyArray[number] // 数值型索引签名，等价于：typeof MyArray[0]、MyArray[1]、MyArray[2]
+   const p: Person = {
+     name: 'xiaoqian',
+     age: 11,
+     // alive: true
+   }
+   
+   // 等价于：type Age = number
+   type Age = typeof MyArray[number]['age']
+   const age: Age = 11
+   
+   // 等价于：type Age2 = number
+   type Age2 = Person['age']
+   const age2: Age2 = 300
+   ```
+
+4. 如果想用索引访问类型，不能用const将key定义为值，而只能用type将key定义为类型
+
+   ```typescript
+   // 如果想用索引访问类型，不能用const将key定义为值，而只能用type将key定义为类型
+   // const key = 'age'	// 报错
+   type key = 'age'
+   type Age3 = Person[key]
+   ```
+
+------
+
+### 6.5 条件类型
+
+> 语法：`SomeType extends OtherType ? TrueType : FalseType`
+
+1. 条件类型可以辅助判断某类型是否是另一个类型的子类：
+
+   ```typescript
+   interface Animal {
+     live(): void
+   }
+   
+   interface Dog extends Animal {
+     woof(): void
+   }
+   
+   // type Example1 = number
+   type Example1 = Dog extends Animal ? number : string
+   
+   // type Example2 = string
+   type Example2 = RegExp extends Animal ? number : string
+   ```
+
+2. 条件类型可以简化函数重载，使代码更简洁：
+
+   1）方法1：函数重载
+
+   ```typescript
+   interface IdLabel {
+     id: number
+   }
+   interface NameLabel {
+     name: string
+   }
+   
+   function createLabel(id: number): IdLabel
+   function createLabel(name: string): NameLabel
+   function createLabel(nameOrId: string | number): IdLabel | NameLabel
+   function createLabel(nameOrId: string | number): IdLabel | NameLabel {
+     throw ''
+   }
+   ```
+
+   2）方法2：条件类型
+
+   ```typescript
+   type NameOrId<T extends number | string> = T extends number ? IdLabel : NameLabel
+   
+   function createLabel<T extends number | string>(idOrName: T): NameOrId<T> {
+     throw ''
+   }
+   
+   // type a = NameLabel
+   let a = createLabel('typescript')
+   
+   // type b = IdLabel
+   let b = createLabel(2.8)
+   
+   // type c = NameLabel | IdLabel
+   let c = createLabel(Math.random() > 0.5 ? 'hello' : 42)
+   ```
+
+------
+
+#### 6.5.1 条件类型约束
+
+1. 作用：可以进一步约束泛型
+
+   ```typescript
+   // 报错：类型“"message"”无法用于索引类型“T”
+   // type MessageOf<T> = T['message']
+   
+   // 对上述代码进行改造后，可以使用了
+   // type MessageOf<T extends { message: unknown }> = T['message']
+   
+   // 进一步改造：如果没有message属性，则为never类型
+   type MessageOf<T> = T extends { message: unknown } ? T['message'] : never 
+   
+   interface Email {
+     message: string
+   }
+   
+   interface Dog {
+     bark(): void
+   }
+   
+   // 相当于：type EmailMessageContents = string
+   type EmailMessageContents = MessageOf<Email>
+   const emc: EmailMessageContents = 'balabala...'
+   
+   // 相当于：type DogMessageContents = never
+   type DogMessageContents = MessageOf<Dog>
+   const dmc: DogMessageContents = 'error' as never
+   ```
+
+2. 案例：
+
+   ```typescript
+   type Flatten<T> = T extends any[] ? T[number] : T
+   
+   // 相当于：type Str = string
+   type Str = Flatten<string[]>
+   
+   // 相当于：type Num = number
+   type Num = Flatten<number>
+   ```
+
+------
+
+#### 6.5.2 条件类型推理 infer
+
+1. infer关键字：推断在真实分支中进行对比的类型
+
+   ```typescript
+   type GetReturnType<Type> = Type extends (...args: never[]) => infer Return ? Return : never
+   
+   // 相当于：type Num = number
+   type Num = GetReturnType<() => number>
+   let num: Num = 100
+   
+   // 相当于：type Str = string
+   type Str = GetReturnType<(x: string) => string>
+   let str: Str = ''
+   
+   // 相当于：type Bools = boolean[]
+   type Bools = GetReturnType<(a: boolean, b: boolean) => boolean[]>
+   let bools: Bools = [true, false]
+   
+   // 相当于：type Never = never
+   type Never = GetReturnType<string>
+   let nev: Never = 'error' as never
+   ```
+
+2. 当从一个具有多个调用签名的类型（如重载函数）进行推断时，从最后一个签名进行推断
+
+   ```typescript
+   function stringOrNum(x: string): number
+   function stringOrNum(x: number): string
+   function stringOrNum(x: string | number): string | number
+   function stringOrNum(x: string | number): string | number {
+     return Math.random() > 0.5 ? 'hello' : 23
+   }
+   
+   // 相当于：type T1 = string | number
+   type T1 = ReturnType<typeof stringOrNum>
+   ```
+
+------
+
+#### 6.5.3 分布式条件类型
+
+1. 定义：条件类型作用于一个通用类型，当给定一个联合类型时，它们就变成了分布式的
+
+   1）分解步骤1：看到`StrArrOrNumArr`后面传入了`string | number`类型
+
+   2）分解步骤2：`ToArray`会将其变成`ToArray<string> | ToArray<number>`
+
+   3）分解步骤3：根ToArray定义，最终的类型是`string[] | number[]`
+
+   ```typescript
+   type ToArray<Type> = Type extends any ? Type[] : never
+   
+   // 相当于：type StrArrOrNumArr = string[] | number[]
+   type StrArrOrNumArr = ToArray<string | number>
+   let test1: StrArrOrNumArr = ['a']
+   let test2: StrArrOrNumArr = [123]
+   ```
+
+2. 如果不想让联合类型变成分布式的，可以在extends后面给类型加`[...]`
+
+   ```typescript
+   type ToArrayNonDist<Type> = [Type] extends [any] ? Type[] : never
+   // 相当于：type StrArrOrNumArr = (string | number)[]
+   type StrArrOrNumArr = ToArrayNonDist<string | number>
+   let saon: StrArrOrNumArr = ['a', 123]
+   ```
+
+------
+
+### 6.6 映射类型
+
+1. 复习：映射类型建立在索引签名的语法上，索引签名用于声明没有被提前声明的属性类型
+
+   ```typescript
+   type OnlyBoolsAndHorses = {
+     [key: string]: boolean | Horse
+   }
+   const conforms: OnlyBoolsAndHorses = {
+     del: true,
+     rodney: false,
+   }
+   ```
+
+2. 映射类型：若不想重复定义类型，一个类型可以以另一个类型为基础创建新类型，与使用`keyof`创建的`PropertyKeys`搭配使用
+
+   ```typescript
+   // OptionsFlags将从Type类型中获取所有属性，并将它们的值改为布尔值
+   type OptionsFlags<Type> = {
+     [Property in keyof Type]: boolean
+   }
+   
+   type FeatureFlags = {
+     darkMode: () => void
+     newUserProfile: () => void
+   }
+   
+   // 以下两种写法是相同效果的
+   type FeatureOptions = {
+     darkMode: boolean
+     newUserProfile: boolean
+   }
+   
+   type FeatureOptions = OptionsFlags<FeatureFlags>
+   ```
+
+------
+
+#### 6.6.1 映射修改器
+
+1. 修饰符：`readonly`、`?`，通过用`-`或`+`作为前缀来删除或添加这些修饰语，如果不加前缀默认是`+`
+
+2. 案例：
+
+   1）从一个类型的属性中删除 "readonly"属性
+
+   ```typescript
+   type CreateMutable<Type> = {
+     // 从一个类型的属性中删除 "readonly"属性
+     -readonly [Property in keyof Type]: Type[Property]
+   }
+   
+   type LockedAccount = {
+     readonly id: string
+     readonly name: string
+   }
+   
+   type UnlockedAccount = CreateMutable<LockedAccount>
+   
+   // 相当于：
+   type UnlockedAccount = {
+     id: string
+     name: string
+   }
+   ```
+
+   2）从一个类型的属性中删除 "可选" 属性
+
+   ```typescript
+   type Concrete<Type> = {
+     [Property in keyof Type]-?: Type[Property]
+   }
+   
+   type MaybeUser = {
+     id: string
+     name?: string
+     age?: number
+   }
+   
+   type User = Concrete<MaybeUser>
+   
+   // 相当于：
+   type User = {
+     id: string
+     name: string
+     age: number
+   }
+   ```
+
+------
+
+#### 6.6.2 属性重映射
+
+1. 语法：可以通过映射类型中的`as`子句重新映射映射类型中的键（适用于v4.1版本后）
+
+   ```typescript
+   type MappedTypeWithNewProperties<Type> = {
+     [Properties in keyof Type as NewKeyType]: Type[Properties]
+   }
+   ```
+
+2. 利用模板字符串，从先前的属性名称中创建新的属性名称：
+
+   ```typescript
+   type Getters<Type> = {
+     [Property in keyof Type as `get${Capitalize<string & Property>}`]: () => Type[Property]
+   }
+   ```
+
+   ```typescript
+   interface Person {
+     name: string
+     age: number
+     location: string
+   }
+   
+   type LazyPerson = Getters<Person>
+   
+   // 相当于：
+   type LazyPerson = {
+     getName: () => string
+     getAge: () => number
+     getLocation: () => string
+   }
+   ```
+
+3. 通过`Exclude<Type, ExcludedUnion>`删除不需要的属性：
+
+   ```typescript
+   // 删除 "kind"属性
+   type RemoveKindField<Type> = {
+     [Property in keyof Type as Exclude<Property, 'kind'>]: Type[Property]
+   }
+   
+   interface Circle {
+     kind: 'circle'
+     radius: number
+   }
+   
+   type KindlessCircle = RemoveKindField<Circle>
+   
+   // 相当于：
+   type KindlessCircle = {
+     radius: number
+   }
+   ```
+
+4. 可以映射任意的联合类型：
+
+   ```typescript
+   type EventConfig<Events extends { kind: string }> = {
+     [E in Events as E['kind']]: (event: E) => void
+   }
+     
+   type SquareEvent = {
+     kind: 'square'
+     x: number
+     y: number
+   }
+   
+   type CircleEvent = {
+     kind: 'circle'
+     radius: number
+   }
+   
+   type Config = EventConfig<SquareEvent | CircleEvent>
+   
+   // 相当于：
+   type Config = {
+     square: (event: SquareEvent) => void
+     circle: (event: CircleEvent) => void
+   }
+   ```
+
+5. 使用条件类型的映射类型：
+
+   ```typescript
+   // 案例：根据一个对象的属性pii是否被设置为字面意义上的true，返回true或false
+   type ExtractPII<Type> = {
+     [Property in keyof Type]: Type[Property] extends { pii: true } ? true : false
+   }
+   
+   type DBFields = {
+     id: { format: 'incrementing' }
+     name: { type: string; pii: true }
+   }
+   
+   type ObjectsNeedingGDPRDeletion = ExtractPII<DBFields>
+   
+   // 相当于：
+   type ObjectsNeedingGDPRDeletion = {
+     id: false
+     name: true
+   }
+   ```
+
+------
+

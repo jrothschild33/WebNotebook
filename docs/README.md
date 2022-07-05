@@ -16,7 +16,7 @@ features:
   - title: 💻 服务器端
     details: Ajax + Axios + Git + Node.js + MongoDB + Webpack
   - title: 🌐 前端框架
-    details: Vue + React
+    details: Vue + React + JSX/TSX
 footerHtml: true
 footer: MIT Licensed | Copyright © 2020-present <a href="https://github.com/jrothschild33" target="_blank">Jason Zhou</a>
 ---

@@ -110,10 +110,18 @@ module.exports = {
   }),
   // 插件设置
   plugins: [
-    searchPlugin({
+    docsearchPlugin({
+      apiKey: 'b841eb4ad3eeb27468bfb0512d1c5c1c',
+      indexName: 'jrothschild33',
+      appId: '2O0I2ZB352',
       locales: {
         '/': {
-          placeholder: '搜索',
+          placeholder: '搜索文档',
+          translations: {
+            button: {
+              buttonText: '搜索文档',
+            },
+          },
         },
       },
     }),

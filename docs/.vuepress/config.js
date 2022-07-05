@@ -1,5 +1,6 @@
 const { defaultTheme } = require('vuepress')
-const { searchPlugin } = require('@vuepress/plugin-search')
+// const { searchPlugin } = require('@vuepress/plugin-search')
+const { docsearchPlugin } = require('@vuepress/plugin-docsearch')
 
 module.exports = {
   title: 'Jason的前端笔记',

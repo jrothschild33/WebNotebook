@@ -112,7 +112,7 @@ module.exports = {
   // 插件设置
   plugins: [
     docsearchPlugin({
-      apiKey: 'b841eb4ad3eeb27468bfb0512d1c5c1c',
+      apiKey: 'f8342f314cb4e3f3c3432d98c64d6e24',
       indexName: 'jrothschild33',
       appId: '2O0I2ZB352',
       attributesToSnippet: ['title', 'content:80'],

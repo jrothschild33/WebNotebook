@@ -5,7 +5,7 @@ heroText: Jason的前端笔记
 tagline: A Notebook for Full Stack Developer
 actions:
   - text: 开始阅读 →
-    link: /base/html.md
+    link: /base/html
     type: primary
   - text: 前端框架
     link: /react/

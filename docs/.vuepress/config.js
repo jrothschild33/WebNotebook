@@ -21,31 +21,31 @@ module.exports = {
         {
           text: 'Web Basic',
           // collapsible: true,
-          children: ['/base/html.md', '/base/css.md', '/base/js.md', '/base/ts.md', '/base/tsplus.md'],
+          children: ['/base/html', '/base/css', '/base/js', '/base/ts', '/base/tsplus'],
         },
       ],
       '/server/': [
         {
           text: 'Communicate',
           collapsible: true,
-          children: ['/server/git.md', '/server/ajax.md', '/server/axios.md'],
+          children: ['/server/git', '/server/ajax', '/server/axios'],
         },
         {
           text: 'Server Dev',
           collapsible: true,
-          children: ['/server/nodejs.md', '/server/mongodb.md'],
+          children: ['/server/nodejs', '/server/mongodb'],
         },
         {
           text: 'Packaging',
           collapsible: true,
-          children: ['/server/webpack.md'],
+          children: ['/server/webpack'],
         },
       ],
       '/vue/': [
         {
           text: 'Vue Frame',
           // collapsible: true,
-          children: ['/vue/vue2.md', '/vue/vue3.md'],
+          children: ['/vue/vue2', '/vue/vue3'],
         },
       ],
       '/react/': [
@@ -63,11 +63,11 @@ module.exports = {
       {
         text: 'Base',
         children: [
-          { text: 'HTML', link: '/base/html.md' },
-          { text: 'CSS', link: '/base/css.md' },
-          { text: 'JavaScript', link: '/base/js.md' },
-          { text: 'TypeScript', link: '/base/ts.md' },
-          { text: 'TypeScript+', link: '/base/tsplus.md' },
+          { text: 'HTML', link: '/base/html' },
+          { text: 'CSS', link: '/base/css' },
+          { text: 'JavaScript', link: '/base/js' },
+          { text: 'TypeScript', link: '/base/ts' },
+          { text: 'TypeScript+', link: '/base/tsplus' },
         ],
       },
       {
@@ -76,29 +76,29 @@ module.exports = {
           {
             text: '基础通讯',
             children: [
-              { text: 'Git', link: '/server/git.md' },
-              { text: 'Ajax', link: '/server/ajax.md' },
-              { text: 'Axios', link: '/server/axios.md' },
+              { text: 'Git', link: '/server/git' },
+              { text: 'Ajax', link: '/server/ajax' },
+              { text: 'Axios', link: '/server/axios' },
             ],
           },
           {
             text: '后端开发',
             children: [
-              { text: 'Node.js', link: '/server/nodejs.md' },
-              { text: 'MongoDB', link: '/server/mongodb.md' },
+              { text: 'Node.js', link: '/server/nodejs' },
+              { text: 'MongoDB', link: '/server/mongodb' },
             ],
           },
           {
             text: '项目打包',
-            children: [{ text: 'Webpack', link: '/server/webpack.md' }],
+            children: [{ text: 'Webpack', link: '/server/webpack' }],
           },
         ],
       },
       {
         text: 'Vue',
         children: [
-          { text: 'Vue2', link: '/vue/vue2.md' },
-          { text: 'Vue3', link: '/vue/vue3.md' },
+          { text: 'Vue2', link: '/vue/vue2' },
+          { text: 'Vue3', link: '/vue/vue3' },
         ],
       },
       { text: 'React', link: '/react/' },
